@@ -41,22 +41,22 @@ function getCompleteClaudeSettings() {
   return completeSettings;
 }
 
-// Set fixed working directory regardless of launch method
-app.whenReady().then(() => {
-  try {
-    // Get the Resources directory path
-    const resourcesPath = path.join(path.dirname(app.getPath('exe')), '..', 'Resources');
-    console.log(`Setting working directory to: ${resourcesPath}`);
-    process.chdir(resourcesPath);
-    console.log(`New working directory: ${process.cwd()}`);
+// // Set fixed working directory regardless of launch method
+// app.whenReady().then(() => {
+//   try {
+//     // Get the Resources directory path
+//     const resourcesPath = path.join(path.dirname(app.getPath('exe')), '..', 'Resources');
+//     console.log(`Setting working directory to: ${resourcesPath}`);
+//     process.chdir(resourcesPath);
+//     console.log(`New working directory: ${process.cwd()}`);
     
-    // Create global path to unpacked tools
-    global.TOOLS_DIR = path.join(app.getAppPath(), '..', 'app.asar.unpacked', 'src', 'tools');
-    console.log(`Tools directory: ${global.TOOLS_DIR}`);
-  } catch (error) {
-    console.error('Error setting working directory:', error);
-  }
-});
+//     // Create global path to unpacked tools
+//     global.TOOLS_DIR = path.join(app.getAppPath(), '..', 'app.asar.unpacked', 'src', 'tools');
+//     console.log(`Tools directory: ${global.TOOLS_DIR}`);
+//   } catch (error) {
+//     console.error('Error setting working directory:', error);
+//   }
+// });
 
 // Store references to windows
 let mainWindow = null;
@@ -1110,12 +1110,12 @@ async function main() {
       // Initialize tool system with complete settings
       await toolSystem.initializeToolSystem(completeSettings);
     } catch (toolError) {
-      console.error('Warning: Tool system initialization failed:', toolError.message);
-      // Show error to user but don't crash the app
-      dialog.showErrorBox(
-        'API Configuration Warning', 
-        'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
-      );
+      console.error('>>> Warning: Tool system initialization failed:', toolError.message);
+      // // Show error to user but don't crash the app
+      // dialog.showErrorBox(
+      //   'API Configuration Warning', 
+      //   'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
+      // );
     }
     
     // Create the main window
