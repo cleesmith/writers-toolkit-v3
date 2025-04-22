@@ -783,14 +783,107 @@ function setupApiSettingsHandlers() {
     { name: 'max_thinking_budget',    label: 'Max Thinking Budget (tokens)',      type: 'number', default: 32000,   required: true,  description: 'Absolute cap for thinking tokens.' }
   ];
 
-  // -------------------------------------------------------------------------
-  // Handlers
-  // -------------------------------------------------------------------------
+  // ipcMain.handle('get-claude-api-settings', async () => {
+  //   try {
+  //     return {
+  //       schema: CLAUDE_API_SCHEMA,
+  //       values: appState.settings_claude_api_configuration   // already in memory
+  //     };
+  //   } catch (error) {
+  //     console.error('Error getting Claude API settings:', error);
+  //     return { success: false, message: error.message };
+  //   }
+  // });
+
+  // ipcMain.handle('save-claude-api-settings', async (_event, settings) => {
+  //   try {
+  //     console.log('Saving Claude API settings:', settings);
+
+  //     // Merge and persist to electron‑store (via appState)
+  //     appState.settings_claude_api_configuration = {
+  //       ...appState.settings_claude_api_configuration,
+  //       ...settings
+  //     };
+  //     if (appState.store) {
+  //       appState.store.set(
+  //         'claude_api_configuration',
+  //         appState.settings_claude_api_configuration
+  //       );
+  //     }
+
+  //     // Re‑instantiate the Claude service with the new config
+  //     toolSystem.reinitializeClaudeService(appState.settings_claude_api_configuration);
+
+  //     // Push fresh settings into every registered tool
+  //     for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
+  //       const tool = toolSystem.toolRegistry.getTool(toolId);
+  //       tool.config = {
+  //         ...tool.config,
+  //         ...appState.settings_claude_api_configuration
+  //       };
+  //     }
+
+  //     // Notify UI
+  //     if (apiSettingsWindow && !apiSettingsWindow.isDestroyed()) {
+  //       apiSettingsWindow.webContents.send('settings-saved-notification', {
+  //         message: 'Settings updated and applied to all tools',
+  //         requiresRestart: false
+  //       });
+  //     }
+  //     if (mainWindow && !mainWindow.isDestroyed()) {
+  //       mainWindow.webContents.send(
+  //         'api-settings-updated',
+  //         appState.settings_claude_api_configuration
+  //       );
+  //     }
+
+  //     console.log('Claude API settings saved and applied successfully');
+  //     return { success: true };
+  //   } catch (error) {
+  //     console.error('Error saving Claude API settings:', error);
+  //     return { success: false, message: error.message };
+  //   }
+  // });
+  // Function to get a complete settings object from the schema
+  function getCompleteSettings() {
+    // Start with an empty settings object
+    const completeSettings = {};
+    
+    // Add all default values from the schema
+    CLAUDE_API_SCHEMA.forEach(setting => {
+      completeSettings[setting.name] = setting.default;
+    });
+    
+    // Override with any existing user settings
+    if (appState.settings_claude_api_configuration) {
+      for (const key in appState.settings_claude_api_configuration) {
+        completeSettings[key] = appState.settings_claude_api_configuration[key];
+      }
+    }
+    
+    return completeSettings;
+  }
+
+  // API settings handlers
   ipcMain.handle('get-claude-api-settings', async () => {
     try {
+      // Create complete settings from schema defaults and user settings
+      const completeSettings = getCompleteSettings();
+      
+      // Update appState with the complete settings
+      appState.settings_claude_api_configuration = completeSettings;
+      
+      // Save to store
+      if (appState.store) {
+        appState.store.set(
+          'claude_api_configuration',
+          completeSettings
+        );
+      }
+      
       return {
         schema: CLAUDE_API_SCHEMA,
-        values: appState.settings_claude_api_configuration   // already in memory
+        values: completeSettings
       };
     } catch (error) {
       console.error('Error getting Claude API settings:', error);
@@ -802,45 +895,32 @@ function setupApiSettingsHandlers() {
     try {
       console.log('Saving Claude API settings:', settings);
 
-      // Merge and persist to electron‑store (via appState)
-      appState.settings_claude_api_configuration = {
-        ...appState.settings_claude_api_configuration,
-        ...settings
-      };
+      // Start with complete settings
+      const completeSettings = getCompleteSettings();
+      
+      // Update with new values
+      for (const key in settings) {
+        completeSettings[key] = settings[key];
+      }
+
+      // Update appState with complete settings
+      appState.settings_claude_api_configuration = completeSettings;
+      
+      // Save to store
       if (appState.store) {
         appState.store.set(
           'claude_api_configuration',
-          appState.settings_claude_api_configuration
+          completeSettings
         );
       }
 
-      // Re‑instantiate the Claude service with the new config
-      toolSystem.reinitializeClaudeService(appState.settings_claude_api_configuration);
+      // Re‑instantiate the Claude service with complete settings
+      toolSystem.reinitializeClaudeService(completeSettings);
 
-      // Push fresh settings into every registered tool
-      for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
-        const tool = toolSystem.toolRegistry.getTool(toolId);
-        tool.config = {
-          ...tool.config,
-          ...appState.settings_claude_api_configuration
-        };
-      }
+      // Log the complete configuration
+      console.log('Complete Claude API configuration:');
+      console.log(JSON.stringify(completeSettings, null, 2));
 
-      // Notify UI
-      if (apiSettingsWindow && !apiSettingsWindow.isDestroyed()) {
-        apiSettingsWindow.webContents.send('settings-saved-notification', {
-          message: 'Settings updated and applied to all tools',
-          requiresRestart: false
-        });
-      }
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send(
-          'api-settings-updated',
-          appState.settings_claude_api_configuration
-        );
-      }
-
-      console.log('Claude API settings saved and applied successfully');
       return { success: true };
     } catch (error) {
       console.error('Error saving Claude API settings:', error);
@@ -859,8 +939,6 @@ function setupApiSettingsHandlers() {
     }
   });
 }
-
-
 
 // Set up all IPC handlers
 function setupIPCHandlers() {
@@ -1329,14 +1407,17 @@ async function main() {
     //   database.getClaudeApiSettings(),
     //   database
     // );
-    // Initialize tool system with Claude API settings
+    // Initialize tool system with COMPLETE Claude API settings
     try {
-      // await toolSystem.initializeToolSystem(
-      //   database.getClaudeApiSettings(),
-      //   database
-      // );
-      // await toolSystem.initializeToolSystem(appState.settingsclaudeapiconfiguration);
-      await toolSystem.initializeToolSystem(appState.settings_claude_api_configuration);
+      // Get complete settings from schema defaults and user settings
+      const completeSettings = setupApiSettingsHandlers().getCompleteSettings();
+      
+      // Log the complete settings
+      console.log('Initializing tool system with complete settings:');
+      console.log(JSON.stringify(completeSettings, null, 2));
+      
+      // Initialize tool system with complete settings
+      await toolSystem.initializeToolSystem(completeSettings);
     } catch (toolError) {
       console.error('Warning: Tool system initialization failed:', toolError.message);
       // Show error to user but don't crash the app
@@ -1344,7 +1425,6 @@ async function main() {
         'API Configuration Warning', 
         'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
       );
-      // Continue without crashing
     }
     
     // Set up IPC handlers
