@@ -1,0 +1,81 @@
+{
+  "name": "writers-toolkit",
+  "version": "2.0.0",
+  "description": "A toolkit for writers with AI assistance and a text editor",
+  "main": "main.js",
+  "files": [
+    "resources/**/*",
+    "*.js",
+    "*.html",
+    "*.css",
+    "preload.js"
+  ],
+  "scripts": {
+    "start": "electron-forge start",
+    "start-editor": "electron editor-main.js",
+    "build": "electron-builder",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "author": "Chris Smith",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "argparse": "^2.0.1",
+    "electron-store": "^8.1.0",
+    "jsdom": "^26.1.0",
+    "mammoth": "^1.9.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.8.0",
+    "@electron-forge/maker-dmg": "^7.8.0",
+    "@electron-forge/maker-zip": "^7.8.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
+    "@electron-forge/plugin-fuses": "^7.8.0",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.slipthetrap.writerstoolkit",
+    "productName": "Writer's Toolkit",
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ],
+    "directories": {
+      "buildResources": "resources"
+    },
+    "asar": true,
+    "mac": {
+      "target": "dmg",
+      "artifactName": "${productName}-${version}-mac.${ext}"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    }
+  }
+}
