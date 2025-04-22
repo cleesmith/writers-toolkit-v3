@@ -8,6 +8,39 @@ const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
 
+// Define Claude API schema globally
+const CLAUDE_API_SCHEMA = [
+  { name: 'max_retries',            label: 'Max Retries',                       type: 'number', default: 1,       required: true,  description: 'Maximum retry attempts if an API call fails.' },
+  { name: 'request_timeout',        label: 'Request Timeout (seconds)',         type: 'number', default: 300,     required: true,  description: 'Seconds to wait for the API to respond.' },
+  { name: 'desired_output_tokens',  label: 'Desired Output Tokens',             type: 'number', default: 12000,   required: true,  description: 'Approximate size of the visible reply.' },
+  { name: 'context_window',         label: 'Context Window (tokens)',           type: 'number', default: 200000,  required: true,  description: 'Maximum tokens the model can see at once.' },
+  { name: 'thinking_budget_tokens', label: 'Thinking Budget (tokens)',          type: 'number', default: 32000,   required: true,  description: 'Private "thinking" tokens before the reply.' },
+  { name: 'betas_max_tokens',       label: 'Beta Max Tokens',                   type: 'number', default: 128000,  required: true,  description: 'Upper limit when enabling beta features.' },
+  { name: 'model_name',             label: 'Model Name',                        type: 'text',   default: 'claude-3-7-sonnet-20250219', required: true, description: 'Exact model identifier.' },
+  { name: 'betas',                  label: 'Beta Features (comma‑separated)',   type: 'text',   default: 'output-128k-2025-02-19',     required: true, description: 'List of beta flags.' },
+  { name: 'max_thinking_budget',    label: 'Max Thinking Budget (tokens)',      type: 'number', default: 32000,   required: true,  description: 'Absolute cap for thinking tokens.' }
+];
+
+// Global function to get complete settings 
+function getCompleteClaudeSettings() {
+  // Start with an empty settings object
+  const completeSettings = {};
+  
+  // Add all default values from the schema
+  CLAUDE_API_SCHEMA.forEach(setting => {
+    completeSettings[setting.name] = setting.default;
+  });
+  
+  // Override with any existing user settings
+  if (appState.settings_claude_api_configuration) {
+    for (const key in appState.settings_claude_api_configuration) {
+      completeSettings[key] = appState.settings_claude_api_configuration[key];
+    }
+  }
+  
+  return completeSettings;
+}
+
 // Set fixed working directory regardless of launch method
 app.whenReady().then(() => {
   try {
@@ -594,45 +627,20 @@ function showApiSettingsDialog() {
   }
 }
 
-function setupApiSettingsHandlers() {
-  const CLAUDE_API_SCHEMA = [
-    { name: 'max_retries',            label: 'Max Retries',                       type: 'number', default: 1,       required: true,  description: 'Maximum retry attempts if an API call fails.' },
-    { name: 'request_timeout',        label: 'Request Timeout (seconds)',         type: 'number', default: 300,     required: true,  description: 'Seconds to wait for the API to respond.' },
-    { name: 'desired_output_tokens',  label: 'Desired Output Tokens',             type: 'number', default: 12000,   required: true,  description: 'Approximate size of the visible reply.' },
-    { name: 'context_window',         label: 'Context Window (tokens)',           type: 'number', default: 200000,  required: true,  description: 'Maximum tokens the model can see at once.' },
-    { name: 'thinking_budget_tokens', label: 'Thinking Budget (tokens)',          type: 'number', default: 32000,   required: true,  description: 'Private “thinking” tokens before the reply.' },
-    { name: 'betas_max_tokens',       label: 'Beta Max Tokens',                   type: 'number', default: 128000,  required: true,  description: 'Upper limit when enabling beta features.' },
-    { name: 'model_name',             label: 'Model Name',                        type: 'text',   default: 'claude-3-7-sonnet-20250219', required: true, description: 'Exact model identifier.' },
-    { name: 'betas',                  label: 'Beta Features (comma‑separated)',   type: 'text',   default: 'output-128k-2025-02-19',     required: true, description: 'List of beta flags.' },
-    { name: 'max_thinking_budget',    label: 'Max Thinking Budget (tokens)',      type: 'number', default: 32000,   required: true,  description: 'Absolute cap for thinking tokens.' }
-  ];
+// Prevent duplicate handler registration
+let apiSettingsHandlersRegistered = false;
 
-  // Function to get a complete settings object from the schema
-  function getCompleteSettings() {
-    // Start with an empty settings object
-    const completeSettings = {};
-    
-    // Add all default values from the schema
-    CLAUDE_API_SCHEMA.forEach(setting => {
-      completeSettings[setting.name] = setting.default;
-    });
-    console.log(">>> setupApiSettingsHandlers: getCompleteSettings:\n", completeSettings);
-    
-    // Override with any existing user settings
-    if (appState.settings_claude_api_configuration) {
-      for (const key in appState.settings_claude_api_configuration) {
-        completeSettings[key] = appState.settings_claude_api_configuration[key];
-      }
-    }
-    
-    return completeSettings;
+function setupApiSettingsHandlers() {
+  // Skip if handlers are already registered
+  if (apiSettingsHandlersRegistered) {
+    return;
   }
 
   // API settings handlers
   ipcMain.handle('get-claude-api-settings', async () => {
     try {
       // Create complete settings from schema defaults and user settings
-      const completeSettings = getCompleteSettings();
+      const completeSettings = getCompleteClaudeSettings();
       
       // Update appState with the complete settings
       appState.settings_claude_api_configuration = completeSettings;
@@ -660,7 +668,7 @@ function setupApiSettingsHandlers() {
       console.log('Saving Claude API settings:', settings);
 
       // Start with complete settings
-      const completeSettings = getCompleteSettings();
+      const completeSettings = getCompleteClaudeSettings();
       
       // Update with new values
       for (const key in settings) {
@@ -701,6 +709,9 @@ function setupApiSettingsHandlers() {
       }
     }
   });
+  
+  // Mark that handlers have been registered
+  apiSettingsHandlersRegistered = true;
 }
 
 // Set up all IPC handlers
@@ -1008,14 +1019,6 @@ function setupIPCHandlers() {
       
       // Write to output file
       await fs.promises.writeFile(outputPath, manuscriptText);
-
-      // cls: not working:
-      // dialog.showMessageBox({
-      //   type: 'info',
-      //   title: 'Conversion Complete',
-      //   message: 'Output saved as ' + outputFilename,
-      //   detail: 'Found ' + chapters.length + ' chapters.'
-      // });
       
       return {
         success: true,
@@ -1040,7 +1043,7 @@ function setupIPCHandlers() {
       const toolName = toolId.includes('-') ? toolId.split('-')[0] : toolId;
       
       // Get files from the cache
-      const fileCache = require('cache/file-cache');
+      const fileCache = require('./file-cache');
       const files = fileCache.getFiles(toolName);
       
       return files;
@@ -1092,10 +1095,13 @@ async function main() {
     // Initialize AppState before using it
     await appState.initialize();
 
+    // Set up IPC handlers first
+    setupIPCHandlers();
+
     // Initialize tool system with COMPLETE Claude API settings
     try {
-      // Get complete settings from schema defaults and user settings
-      const completeSettings = setupApiSettingsHandlers().getCompleteSettings();
+      // Get complete settings
+      const completeSettings = getCompleteClaudeSettings();
       
       // Log the complete settings
       console.log('Initializing tool system with complete settings:');
@@ -1111,9 +1117,6 @@ async function main() {
         'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
       );
     }
-    
-    // Set up IPC handlers
-    setupIPCHandlers();
     
     // Create the main window
     createWindow();

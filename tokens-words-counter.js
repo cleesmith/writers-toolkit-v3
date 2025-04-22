@@ -60,16 +60,10 @@ class TokensWordsCounter extends BaseTool {
     fileCache.clear(toolName);
     
     // Extract options
-    const inputFile = options.input_file;
+    let inputFile = options.input_file;
     const outputFiles = [];
 
-    // For testing: uncomment to introduce a delay
-    // this.emitOutput("Starting a 15-second delay for testing...\n");
-    // await gentleDelay(15, (message) => {
-    //   this.emitOutput(message);
-    // });
-    // this.emitOutput("Delay complete!\n\n");
-
+    // Get the project directory path
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     if (!saveDir) {
       const errorMsg = 'Error: No save directory specified and no current project selected.\n' +
@@ -77,7 +71,16 @@ class TokensWordsCounter extends BaseTool {
       this.emitOutput(errorMsg);
       throw new Error('No save directory available');
     }
-    
+  
+    // Fix relative paths by resolving them against the project directory
+    // Only prepend the path if inputFile doesn't already have an absolute path
+    if (inputFile && !path.isAbsolute(inputFile) && !inputFile.startsWith('~/')) {
+      // This makes relative paths like "manuscript.txt" resolve to the current project folder
+      inputFile = path.join(saveDir, inputFile);
+      console.log(`Resolved relative path to: ${inputFile}`);
+      this.emitOutput(`Using file: ${inputFile}\n`);
+    }
+
     try {
       // Read the input file
       console.log(`Reading file: ${inputFile}`);

@@ -35,9 +35,24 @@ class BaseTool {
    */
   async readInputFile(filePath, encoding = 'utf-8') {
     try {
-      const content = await fs.readFile(filePath, encoding);
+      // Handle relative paths by resolving against the current project path
+      let resolvedPath = filePath;
+      
+      // If path is not absolute and doesn't start with ~/ (which will be expanded by Node)
+      if (!path.isAbsolute(filePath) && !filePath.startsWith('~/')) {
+        // Get current project path from appState
+        const projectPath = this.config.save_dir || appState.CURRENT_PROJECT_PATH;
+        
+        if (projectPath) {
+          resolvedPath = path.join(projectPath, filePath);
+          console.log(`Resolved relative path "${filePath}" to: "${resolvedPath}"`);
+        }
+      }
+      
+      // Read file with resolved path
+      const content = await fs.readFile(resolvedPath, encoding);
       if (!content.trim()) {
-        throw new Error(`File is empty: ${filePath}`);
+        throw new Error(`File is empty: ${resolvedPath}`);
       }
       return content;
     } catch (error) {
@@ -46,8 +61,8 @@ class BaseTool {
       }
       throw error;
     }
-  }
-  
+  }  
+
   /**
    * Write content to a file
    * @param {string} content - Content to write
