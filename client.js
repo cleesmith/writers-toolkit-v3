@@ -63,7 +63,7 @@ class ClaudeAPIService {
   validateConfig(config) {
     // Check if config exists at all
     if (!config || Object.keys(config).length === 0) {
-      throw new Error("No Claude API configuration provided. Please check database settings.");
+      throw new Error("No Claude API configuration provided.");
     }
     
     // List required settings
