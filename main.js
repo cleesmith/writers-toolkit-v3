@@ -511,31 +511,417 @@ function showToolSetupRunDialog(toolName) {
   createToolSetupRunDialog(toolName);
 }
 
+// function launchEditor() {
+//   return new Promise((resolve) => {
+//     try {
+//       // Launch the editor as a detached process
+//       const editorProcess = spawn(
+//         process.execPath, // Current Electron executable
+//         [path.join(__dirname, 'editor-main.js')], // Path to editor-main.js 
+//         {
+//           detached: true,  // Run independently from parent
+//           stdio: 'ignore', // Don't pipe stdio
+//           env: process.env // Pass environment variables
+//         }
+//       );
+      
+//       // Allow the editor to run independently
+//       editorProcess.unref();
+      
+//       resolve(true);
+//     } catch (error) {
+//       console.error('Error launching editor:', error);
+//       resolve(false);
+//     }
+//   });
+// }
+// New approach: Launch editor in a new window within same app process
 function launchEditor() {
   return new Promise((resolve) => {
     try {
-      // Launch the editor as a detached process
-      const editorProcess = spawn(
-        process.execPath, // Current Electron executable
-        [path.join(__dirname, 'editor-main.js')], // Path to editor-main.js 
-        {
-          detached: true,  // Run independently from parent
-          stdio: 'ignore', // Don't pipe stdio
-          env: process.env // Pass environment variables
+      // Log start of editor launch process
+      global.logToFile('=== EDITOR LAUNCH ATTEMPT (NEW WINDOW APPROACH) ===');
+      global.logToFile(`App packaged: ${app.isPackaged}`);
+      global.logToFile(`App path: ${app.getAppPath()}`);
+      
+      // Get important directories
+      const appDir = app.getAppPath();
+      const resourcesDir = path.join(path.dirname(app.getPath('exe')), '..', 'Resources');
+      
+      global.logToFile(`App directory: ${appDir}`);
+      global.logToFile(`Resources directory: ${resourcesDir}`);
+      
+      // Find editor resources (HTML file and preload script)
+      const possibleEditorHtmlPaths = [
+        path.join(appDir, 'renderer', 'editor', 'index.html'),
+        path.join(resourcesDir, 'app', 'renderer', 'editor', 'index.html')
+      ];
+      
+      const possiblePreloadPaths = [
+        path.join(appDir, 'editor-preload.js'),
+        path.join(resourcesDir, 'app', 'editor-preload.js')
+      ];
+      
+      // Find HTML path
+      let editorHtmlPath = null;
+      for (const p of possibleEditorHtmlPaths) {
+        global.logToFile(`Checking editor HTML at: ${p}`);
+        if (fs.existsSync(p)) {
+          editorHtmlPath = p;
+          global.logToFile(`✓ Found editor HTML at: ${p}`);
+          break;
         }
-      );
+      }
       
-      // Allow the editor to run independently
-      editorProcess.unref();
+      if (!editorHtmlPath) {
+        global.logToFile('❌ Could not find editor HTML file');
+        throw new Error('Editor HTML file not found');
+      }
       
+      // Find preload script
+      let preloadPath = null;
+      for (const p of possiblePreloadPaths) {
+        global.logToFile(`Checking preload script at: ${p}`);
+        if (fs.existsSync(p)) {
+          preloadPath = p;
+          global.logToFile(`✓ Found preload script at: ${p}`);
+          break;
+        }
+      }
+      
+      if (!preloadPath) {
+        global.logToFile('❌ Could not find preload script');
+        // We'll proceed without preload if necessary
+      }
+      
+      // Define writing directory
+      const WRITING_DIR = path.join(os.homedir(), 'writing');
+      
+      // Create a new browser window for the editor
+      const editorWindow = new BrowserWindow({
+        width: 1200,
+        height: 800,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          preload: preloadPath || undefined
+        },
+        backgroundColor: '#121212',
+        title: "Writer's Toolkit - Editor"
+      });
+      
+      global.logToFile(`Created editor window with ID: ${editorWindow.id}`);
+      
+      // Set up application menu specifically for the editor window
+      const menuTemplate = [
+        {
+          label: 'File',
+          submenu: [
+            {
+              label: 'New',
+              accelerator: 'CmdOrCtrl+N',
+              click: () => {
+                editorWindow.webContents.send('file-new');
+              }
+            },
+            {
+              label: 'Open',
+              accelerator: 'CmdOrCtrl+O',
+              click: async () => {
+                await openFile(editorWindow);
+              }
+            },
+            {
+              label: 'Save',
+              accelerator: 'CmdOrCtrl+S',
+              click: () => {
+                editorWindow.webContents.send('file-save-request');
+              }
+            },
+            {
+              label: 'Save As',
+              accelerator: 'CmdOrCtrl+Shift+S',
+              click: () => {
+                editorWindow.webContents.send('file-save-as-request');
+              }
+            },
+            { type: 'separator' },
+            {
+              label: 'Close Editor',
+              accelerator: 'CmdOrCtrl+W',
+              click: () => {
+                editorWindow.close();
+              }
+            }
+          ]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'delete' },
+            { type: 'separator' },
+            { role: 'selectAll' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            {
+              label: 'Toggle Developer Tools',
+              accelerator: 'CmdOrCtrl+Shift+I',
+              click: () => {
+                editorWindow.webContents.toggleDevTools();
+              }
+            },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+          ]
+        }
+      ];
+      
+      const editorMenu = Menu.buildFromTemplate(menuTemplate);
+      
+      // Set up IPC handlers specific to this window
+      // Define a namespace for handlers to avoid conflicts
+      const editorHandlers = {
+        // File opening function
+        openFile: async function(targetWindow) {
+          if (!targetWindow) return;
+          
+          const { canceled, filePaths } = await dialog.showOpenDialog(targetWindow, {
+            title: 'Open File',
+            defaultPath: WRITING_DIR,
+            filters: [
+              { name: 'Text Files', extensions: ['txt'] },
+              { name: 'All Files', extensions: ['*'] }
+            ],
+            properties: ['openFile']
+          });
+          
+          if (canceled || filePaths.length === 0) return;
+          
+          const filePath = filePaths[0];
+          
+          // Verify file is within the allowed directory
+          if (!filePath.startsWith(WRITING_DIR)) {
+            dialog.showErrorBox(
+              'Access Denied',
+              `Files can only be opened from the ${WRITING_DIR} directory.`
+            );
+            return;
+          }
+          
+          try {
+            const content = fs.readFileSync(filePath, 'utf8');
+            targetWindow.webContents.send('file-opened', { filePath, content });
+          } catch (error) {
+            dialog.showErrorBox('Error', `Failed to open file: ${error.message}`);
+          }
+        },
+        
+        // Create a unique handler ID for this window
+        handleId: `editor-${Date.now()}`,
+        
+        // Set up all handlers
+        setupHandlers: function() {
+          const handlerId = this.handleId;
+          global.logToFile(`Setting up IPC handlers with ID: ${handlerId}`);
+          
+          // Save handler
+          ipcMain.handle(`save-file-${handlerId}`, async (event, data) => {
+            const { filePath, content, saveAs } = data;
+            let finalPath = filePath;
+            
+            // If no path or saveAs is true, show save dialog
+            if (!finalPath || saveAs) {
+              const { canceled, filePath: newPath } = await dialog.showSaveDialog(editorWindow, {
+                title: 'Save File',
+                defaultPath: WRITING_DIR,
+                filters: [
+                  { name: 'Text Files', extensions: ['txt'] },
+                  { name: 'All Files', extensions: ['*'] }
+                ]
+              });
+              
+              if (canceled || !newPath) return { success: false };
+              finalPath = newPath;
+            }
+            
+            // Verify file is within the allowed directory
+            if (!finalPath.startsWith(WRITING_DIR)) {
+              dialog.showErrorBox(
+                'Access Denied',
+                `Files can only be saved to the ${WRITING_DIR} directory.`
+              );
+              return { success: false };
+            }
+            
+            try {
+              fs.writeFileSync(finalPath, content, 'utf8');
+              return { success: true, filePath: finalPath };
+            } catch (error) {
+              dialog.showErrorBox('Error', `Failed to save file: ${error.message}`);
+              return { success: false };
+            }
+          });
+          
+          // Open file dialog handler
+          ipcMain.handle(`open-file-dialog-${handlerId}`, async () => {
+            await this.openFile(editorWindow);
+          });
+          
+          // Quit handler
+          ipcMain.on(`app-quit-${handlerId}`, () => {
+            editorWindow.close();
+          });
+          
+          return handlerId;
+        },
+        
+        // Clean up handlers when window is closed
+        removeHandlers: function() {
+          const handlerId = this.handleId;
+          global.logToFile(`Removing IPC handlers with ID: ${handlerId}`);
+          
+          ipcMain.removeHandler(`save-file-${handlerId}`);
+          ipcMain.removeHandler(`open-file-dialog-${handlerId}`);
+          
+          // No need to remove 'on' handlers as they're automatically garbage collected
+        }
+      };
+      
+      // Set up the handlers
+      const handlerId = editorHandlers.setupHandlers();
+      
+      // Create a script to inject into the page to map the handlers
+      const injectionScript = `
+        if (window.api) {
+          console.log('Mapping API functions to window.api');
+          
+          // Store original functions
+          const originalSaveFile = window.api.saveFile;
+          const originalOpenFileDialog = window.api.openFileDialog;
+          const originalQuitApp = window.api.quitApp;
+          
+          // Override with namespaced versions
+          window.api.saveFile = function(data) {
+            console.log('Intercepted saveFile call, redirecting to namespaced handler');
+            return originalSaveFile ? 
+              window.electron.ipcRenderer.invoke('save-file-${handlerId}', data) : 
+              Promise.reject(new Error('Original saveFile not available'));
+          };
+          
+          window.api.openFileDialog = function() {
+            console.log('Intercepted openFileDialog call, redirecting to namespaced handler');
+            return originalOpenFileDialog ? 
+              window.electron.ipcRenderer.invoke('open-file-dialog-${handlerId}') : 
+              Promise.reject(new Error('Original openFileDialog not available'));
+          };
+          
+          window.api.quitApp = function() {
+            console.log('Intercepted quitApp call, redirecting to namespaced handler');
+            return originalQuitApp ? 
+              window.electron.ipcRenderer.send('app-quit-${handlerId}') : 
+              console.error('Original quitApp not available');
+          };
+          
+          console.log('API functions mapped successfully');
+          
+          // Add diagnostics
+          window._editorHandler = {
+            id: '${handlerId}',
+            original: {
+              saveFile: !!originalSaveFile,
+              openFileDialog: !!originalOpenFileDialog,
+              quitApp: !!originalQuitApp
+            },
+            checkAPI: function() {
+              return {
+                saveFile: typeof window.api.saveFile === 'function',
+                openFileDialog: typeof window.api.openFileDialog === 'function',
+                quitApp: typeof window.api.quitApp === 'function',
+                onFileNew: typeof window.api.onFileNew === 'function',
+                onFileSaveRequest: typeof window.api.onFileSaveRequest === 'function',
+                onFileSaveAsRequest: typeof window.api.onFileSaveAsRequest === 'function',
+                onFileOpened: typeof window.api.onFileOpened === 'function'
+              };
+            }
+          };
+        } else {
+          console.error('window.api not found!');
+        }
+      `;
+      
+      // Clean up when window is closed
+      editorWindow.on('closed', () => {
+        global.logToFile(`Editor window closed, removing handlers`);
+        editorHandlers.removeHandlers();
+      });
+      
+      // Load the editor HTML file
+      editorWindow.loadFile(editorHtmlPath);
+      
+      // Set the editor-specific menu when the window is focused
+      editorWindow.on('focus', () => {
+        global.logToFile(`Editor window focused, setting custom menu`);
+        Menu.setApplicationMenu(editorMenu);
+      });
+      
+      // Restore the original menu when the window loses focus
+      editorWindow.on('blur', () => {
+        global.logToFile(`Editor window blurred, restoring original menu`);
+        // Note: In a real implementation, you'd want to restore the original menu here
+      });
+      
+      // Inject the handler mapping script after the page loads
+      editorWindow.webContents.on('did-finish-load', () => {
+        global.logToFile(`Editor window loaded, injecting API mapping script`);
+        
+        // Inject the script to map API functions
+        editorWindow.webContents.executeJavaScript(injectionScript)
+          .then(() => {
+            global.logToFile(`API mapping script injected successfully`);
+            
+            // Run a diagnostic check
+            return editorWindow.webContents.executeJavaScript(`
+              if (window._editorHandler && window._editorHandler.checkAPI) {
+                window._editorHandler.checkAPI();
+              } else {
+                null;
+              }
+            `);
+          })
+          .then(apiStatus => {
+            if (apiStatus) {
+              global.logToFile(`API status check: ${JSON.stringify(apiStatus)}`);
+            } else {
+              global.logToFile(`Could not verify API status`);
+            }
+          })
+          .catch(error => {
+            global.logToFile(`Error injecting script: ${error.message}`);
+          });
+      });
+      
+      global.logToFile('=== EDITOR LAUNCH COMPLETED ===');
       resolve(true);
     } catch (error) {
-      console.error('Error launching editor:', error);
+      global.logToFile(`❌ Critical error in launchEditor: ${error.message}`);
+      global.logToFile(`Error stack: ${error.stack}`);
       resolve(false);
     }
   });
 }
-
 // Setup handlers for tool operations
 function setupToolHandlers() {
 
