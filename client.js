@@ -31,9 +31,11 @@ class ClaudeAPIService {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY environment variable not found');
-      throw new Error(
-        "Claude API key not found. Please set the ANTHROPIC_API_KEY environment variable."
-      );
+      // throw new Error(
+      //   "Claude API key not found. Please set the ANTHROPIC_API_KEY environment variable."
+      // );
+      this.apiKeyMissing = true;
+      return; // don't create the client but don't crash
     }
 
     // Create Claude API client

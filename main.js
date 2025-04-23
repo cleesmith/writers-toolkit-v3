@@ -8,6 +8,150 @@ const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
 
+const keytar = require('keytar');
+// Define constants for the service and account
+const KEYCHAIN_SERVICE = 'WritersToolkit';
+const KEYCHAIN_ACCOUNT = 'ANTHROPIC_API_KEY';
+
+// Determine if we're running in packaged mode
+const isPackaged = app.isPackaged || !process.defaultApp;
+
+// Configure paths for packaged application
+if (isPackaged) {
+  console.log('Running in packaged mode');
+  
+  // Get the Resources path where our app is located
+  const resourcesPath = path.join(app.getAppPath(), '..');
+  console.log(`Resources path: ${resourcesPath}`);
+  
+  // Ensure the current working directory is correct
+  try {
+    // Set working directory to the app's root
+    process.chdir(app.getAppPath());
+    console.log(`Set working directory to: ${process.cwd()}`);
+  } catch (error) {
+    console.error('Failed to set working directory:', error);
+  }
+  
+  // Explicitly expose the location of tools to global scope
+  global.TOOLS_DIR = app.getAppPath();
+  console.log(`Set global TOOLS_DIR to: ${global.TOOLS_DIR}`);
+} else {
+  console.log('Running in development mode');
+  global.TOOLS_DIR = path.join(__dirname);
+  console.log(`Set global TOOLS_DIR to: ${global.TOOLS_DIR}`);
+}
+
+// This attempts to load the API key from the macOS Keychain
+async function loadApiKeyFromKeychain() {
+  // Add this before attempting to get the password (TEMPORARY TEST CODE)
+  try {
+    // await keytar.setPassword('WritersToolkit', 'ANTHROPIC_API_KEY', '');
+
+    // // A temporary test password (NOT your real API key)
+    // const testPassword = 'test123'; 
+    // await keytar.setPassword('WritersToolkitTest', 'TestAccount', testPassword);
+    // console.log('Test password set successfully');
+    
+    // // Try retrieving it
+    // const retrievedPw = await keytar.getPassword('WritersToolkitTest', 'TestAccount');
+    // console.log(`Test retrieval ${retrievedPw === testPassword ? 'succeeded' : 'failed'}`);
+  } catch (e) {
+    console.error('Keytar test failed:', e);
+  }
+
+  try {
+    console.log('Attempting to load API key from keychain...');
+    const apiKey = await keytar.getPassword(KEYCHAIN_SERVICE, KEYCHAIN_ACCOUNT);
+    console.log('*** apiKey=', apiKey);
+    
+    if (apiKey) {
+      console.log('Successfully loaded API key from keychain');
+      process.env.ANTHROPIC_API_KEY = apiKey;
+      return true;
+    } else {
+      console.log('No API key found in keychain');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error accessing keychain:', error);
+    return false;
+  }
+}
+
+
+// In main.js, update the logToFile function to make it globally available
+// Simple logging function that writes to a file in the user's home directory
+function logToFile(message) {
+  const logPath = path.join(os.homedir(), 'writers-toolkit-debug.log');
+  const timestamp = new Date().toISOString();
+  const logLine = `${timestamp}: ${message}\n`;
+  
+  try {
+    fs.appendFileSync(logPath, logLine);
+  } catch (e) {
+    // Can't do anything if logging itself fails
+  }
+}
+
+// Make logToFile available globally so other modules can use it
+global.logToFile = logToFile;
+
+// Log startup message
+logToFile('=== APPLICATION STARTING ===');
+
+// Catch all uncaught exceptions and log them
+process.on('uncaughtException', (error) => {
+  logToFile(`CRASH ERROR: ${error.message}`);
+  logToFile(`STACK TRACE: ${error.stack}`);
+  process.exit(1); // Exit with error code
+});
+
+// Log basic environment information
+logToFile(`App executable: ${process.execPath}`);
+logToFile(`Running in ${isPackaged ? 'packaged' : 'development'} mode`);
+logToFile(`Current directory: ${process.cwd()}`);
+logToFile(`__dirname: ${__dirname}`);
+logToFile(`App path: ${app.getAppPath()}`);
+
+// Log additional paths in packaged mode
+if (isPackaged) {
+  logToFile(`Resources path: ${path.join(app.getAppPath(), '..')}`);
+}
+
+// This is the correct version for main.js that uses toolSystem.toolRegistry
+function verifyToolLoading() {
+  console.log('Verifying tool classes are accessible...');
+  
+  try {
+    // Try to require a specific tool as a test
+    const TokensWordsCounter = require('./tokens-words-counter');
+    if (TokensWordsCounter) {
+      console.log('Successfully loaded TokensWordsCounter class');
+    }
+    
+    // Try loading from registry - use toolSystem.toolRegistry instead of direct access
+    const toolsInRegistry = toolSystem.toolRegistry.getAllToolIds();
+    console.log(`Tools in registry: ${toolsInRegistry.length}`, toolsInRegistry);
+    
+    if (toolsInRegistry.length === 0) {
+      throw new Error('No tools found in registry');
+    }
+    
+    const firstTool = toolSystem.toolRegistry.getTool(toolsInRegistry[0]);
+    console.log(`First tool details:`, {
+      name: firstTool.name,
+      hasConfig: !!firstTool.config,
+      hasExecute: typeof firstTool.execute === 'function'
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Tool loading verification failed:', error);
+    throw error; // Re-throw to ensure the app fails if tools can't be loaded
+  }
+}
+
 // Define Claude API schema globally
 const CLAUDE_API_SCHEMA = [
   { name: 'max_retries',            label: 'Max Retries',                       type: 'number', default: 1,       required: true,  description: 'Maximum retry attempts if an API call fails.' },
@@ -433,11 +577,36 @@ function launchEditor() {
 // Setup handlers for tool operations
 function setupToolHandlers() {
 
+  // ipcMain.handle('get-tools', () => {
+  //   return toolSystem.toolRegistry.getAllToolIds().map(id => {
+  //     const t = toolSystem.toolRegistry.getTool(id);
+  //     return { name: id, title: t.config.title, description: t.config.description };
+  //   });
+  // });
   ipcMain.handle('get-tools', () => {
-    return toolSystem.toolRegistry.getAllToolIds().map(id => {
-      const t = toolSystem.toolRegistry.getTool(id);
-      return { name: id, title: t.config.title, description: t.config.description };
+    console.log('get-tools handler called');
+    
+    // Get all tool IDs
+    const allToolIds = toolSystem.toolRegistry.getAllToolIds();
+    console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
+    
+    // Map IDs to tool objects with required properties
+    const tools = allToolIds.map(id => {
+      const tool = toolSystem.toolRegistry.getTool(id);
+      if (!tool) {
+        throw new Error(`Tool with ID ${id} exists in registry but could not be retrieved`);
+      }
+      
+      // Ensure tool has required properties
+      return {
+        name: id,
+        title: tool.config?.title || id,
+        description: tool.config?.description || `${id} tool`
+      };
     });
+    
+    console.log(`Returning ${tools.length} tools to renderer`);
+    return tools;
   });
 
   ipcMain.handle('get-tool-options', (e, toolName) => {
@@ -1095,6 +1264,9 @@ async function main() {
     // Initialize AppState before using it
     await appState.initialize();
 
+    // Call this function before initializing the tool system
+    await loadApiKeyFromKeychain();
+
     // Set up IPC handlers first
     setupIPCHandlers();
 
@@ -1108,7 +1280,26 @@ async function main() {
       console.log(JSON.stringify(completeSettings, null, 2));
       
       // Initialize tool system with complete settings
-      await toolSystem.initializeToolSystem(completeSettings);
+      const toolSystemResult = await toolSystem.initializeToolSystem(completeSettings);
+
+      // verifyToolLoading();
+
+      // Check if API key is missing
+      if (toolSystemResult.claudeService && toolSystemResult.claudeService.apiKeyMissing) {
+        // Show notification after window is created
+        setTimeout(() => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            dialog.showMessageBox(mainWindow, {
+              type: 'warning',
+              title: 'API Key Missing',
+              message: 'Claude API key not found',
+              detail: 'Please configure your Claude API key in API Settings before using AI tools.',
+              buttons: ['OK']
+            });
+          }
+        }, 1000);
+      }
+
     } catch (toolError) {
       console.error('>>> Warning: Tool system initialization failed:', toolError.message);
       // // Show error to user but don't crash the app
@@ -1116,6 +1307,8 @@ async function main() {
       //   'API Configuration Warning', 
       //   'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
       // );
+      // Don't swallow this error - re-throw it to prevent app from starting with broken tools
+      throw toolError;
     }
     
     // Create the main window

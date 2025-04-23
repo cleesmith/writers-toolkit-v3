@@ -1,69 +1,138 @@
 // tool-system.js
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
-const { app } = require('electron');
+
+// Basic logging setup that works even if logToFile isn't defined in this context
+function safeLog(message) {
+  // Log to console first (works in development)
+  console.log(message);
+  
+  // Try to log to file if the function exists in global scope (from main.js)
+  if (typeof global.logToFile === 'function') {
+    global.logToFile(`[tool-system.js] ${message}`);
+  } else {
+    // Fallback file logging if needed
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const os = require('os');
+      const logPath = path.join(os.homedir(), 'writers-toolkit-debug.log');
+      const timestamp = new Date().toISOString();
+      const logLine = `${timestamp}: [tool-system.js] ${message}\n`;
+      fs.appendFileSync(logPath, logLine);
+    } catch (e) {
+      // Can't do anything if this fails
+    }
+  }
+}
+
+// Log module loading
+safeLog('Module loading started');
+
+// Log require attempts
+try {
+  safeLog('Loading base modules...');
+  const { app } = require('electron');
+  safeLog('Base modules loaded successfully');
+} catch (error) {
+  safeLog(`ERROR loading base modules: ${error.message}`);
+}
+
 const ClaudeAPIService = require('./client');
 
 const toolRegistry = require('./registry');
 
-// function requireTool(toolName) {
-//   console.log(`Attempting to require tool from: ${toolName}`);
-//   // Always load the file that uses hyphens on disk
-//   const file = path.join(__dirname, `${toolName.replace(/_/g, '-')}.js`);
-//   if (fs.existsSync(file)) return require(file);
+// const TokensWordsCounter = require('./tokens-words-counter');
+// const ManuscriptToOutlineCharactersWorld = require('./manuscript-to-outline-characters-world');
+// const NarrativeIntegrity = require('./narrative-integrity');
+// const BrainstormTool = require('./brainstorm');
+// const OutlineWriter = require('./outline-writer');
+// const WorldWriter = require('./world-writer');
+// const ChapterWriter = require('./chapter-writer');
+// const CharacterAnalyzer = require('./character-analyzer');
+// const TenseConsistencyChecker = require('./tense-consistency-checker');
+// const AdjectiveAdverbOptimizer = require('./adjective-adverb-optimizer');
+// const DanglingModifierChecker = require('./dangling-modifier-checker');
+// const RhythmAnalyzer = require('./rhythm-analyzer');
+// const CrowdingLeapingEvaluator = require('./crowding-leaping-evaluator');
+// const PunctuationAuditor = require('./punctuation-auditor');
+// const ConflictAnalyzer = require('./conflict-analyzer');
+// const ForeshadowingTracker = require('./foreshadowing-tracker');
+// const PlotThreadTracker = require('./plot-thread-tracker');
+// const KdpPublishingPrep = require('./kdp-publishing-prep');
+// Add this to the beginning of tool-system.js, right after the imports
 
-//   throw new Error(`Could not load tool: ${toolName}\nLooked for: ${file}`);
-// }
+function loadToolClass(toolName) {
+  const hyphenatedName = toolName.replace(/_/g, '-');
+  
+  // Get the directory where tool-system.js is located
+  const baseDir = __dirname;
+  console.log(`Base directory for tool loading: ${baseDir}`);
+  
+  // Safe logging that works in any context
+  function log(message) {
+    console.log(message);
+    if (typeof global.logToFile === 'function') {
+      global.logToFile(`[tool-system] ${message}`);
+    }
+  }
+  
+  log(`Loading tool: ${toolName} (${hyphenatedName}.js)`);
+  log(`Base directory for tool loading: ${baseDir}`);
+  
+  try {
+    // Use path.resolve to get absolute path to the module
+    const modulePath = path.resolve(baseDir, `${hyphenatedName}.js`);
+    log(`Resolved tool ${toolName} to: ${modulePath}`);
+    
+    // Check if file exists
+    if (fs.existsSync(modulePath)) {
+      log(`File exists at: ${modulePath}`);
+      const module = require(modulePath);
+      log(`Successfully loaded module: ${hyphenatedName}.js`);
+      return module;
+    } else {
+      log(`ERROR: Tool file not found at: ${modulePath}`);
+      
+      // Try an alternative location as a last resort
+      const altPath = path.resolve(baseDir, '..', `${hyphenatedName}.js`);
+      log(`Trying alternative path: ${altPath}`);
+      
+      if (fs.existsSync(altPath)) {
+        log(`File exists at alternative path: ${altPath}`);
+        const module = require(altPath);
+        log(`Successfully loaded module from alternative path: ${hyphenatedName}.js`);
+        return module;
+      }
+      
+      throw new Error(`Tool file not found: ${hyphenatedName}.js`);
+    }
+  } catch (error) {
+    log(`ERROR loading tool ${toolName}: ${error.message}`);
+    log(`Stack trace: ${error.stack}`);
+    throw error;
+  }
+}
 
-// // Dynamically load all tools
-// let TokensWordsCounter, ManuscriptToOutlineCharactersWorld, NarrativeIntegrity,
-//     BrainstormTool, OutlineWriter, WorldWriter, ChapterWriter, CharacterAnalyzer,
-//     TenseConsistencyChecker, AdjectiveAdverbOptimizer, DanglingModifierChecker,
-//     RhythmAnalyzer, CrowdingLeapingEvaluator, PunctuationAuditor,
-//     ConflictAnalyzer, ForeshadowingTracker, PlotThreadTracker, KDPPublishingPrep;
-
-// try {
-//   TokensWordsCounter = requireTool('tokens-words-counter');
-//   ManuscriptToOutlineCharactersWorld = requireTool('manuscript-to-outline-characters-world');
-//   NarrativeIntegrity = requireTool('narrative-integrity');
-//   BrainstormTool = requireTool('brainstorm');
-//   OutlineWriter = requireTool('outline-writer');
-//   WorldWriter = requireTool('world-writer');
-//   ChapterWriter = requireTool('chapter-writer');
-//   CharacterAnalyzer = requireTool('character-analyzer');
-//   TenseConsistencyChecker = requireTool('tense-consistency-checker');
-//   AdjectiveAdverbOptimizer = requireTool('adjective-adverb-optimizer');
-//   DanglingModifierChecker = requireTool('dangling-modifier-checker');
-//   RhythmAnalyzer = requireTool('rhythm-analyzer');
-//   CrowdingLeapingEvaluator = requireTool('crowding-leaping-evaluator');
-//   PunctuationAuditor = requireTool('punctuation-auditor');
-//   ConflictAnalyzer = requireTool('conflict-analyzer');
-//   ForeshadowingTracker = requireTool('foreshadowing-tracker');
-//   PlotThreadTracker = requireTool('plot-thread-tracker');
-//   KDPPublishingPrep = requireTool('kdp-publishing-prep');
-// } catch (error) {
-//   console.error('Error loading tools:', error);
-// }
-
-const TokensWordsCounter = require('./tokens-words-counter');
-const ManuscriptToOutlineCharactersWorld = require('./manuscript-to-outline-characters-world');
-const NarrativeIntegrity = require('./narrative-integrity');
-const BrainstormTool = require('./brainstorm');
-const OutlineWriter = require('./outline-writer');
-const WorldWriter = require('./world-writer');
-const ChapterWriter = require('./chapter-writer');
-const CharacterAnalyzer = require('./character-analyzer');
-const TenseConsistencyChecker = require('./tense-consistency-checker');
-const AdjectiveAdverbOptimizer = require('./adjective-adverb-optimizer');
-const DanglingModifierChecker = require('./dangling-modifier-checker');
-const RhythmAnalyzer = require('./rhythm-analyzer');
-const CrowdingLeapingEvaluator = require('./crowding-leaping-evaluator');
-const PunctuationAuditor = require('./punctuation-auditor');
-const ConflictAnalyzer = require('./conflict-analyzer');
-const ForeshadowingTracker = require('./foreshadowing-tracker');
-const PlotThreadTracker = require('./plot-thread-tracker');
-const KdpPublishingPrep = require('./kdp-publishing-prep');
-
+// Replace the existing direct imports with this approach
+const TokensWordsCounter = loadToolClass('tokens-words-counter');
+const ManuscriptToOutlineCharactersWorld = loadToolClass('manuscript-to-outline-characters-world');
+const NarrativeIntegrity = loadToolClass('narrative-integrity');
+const BrainstormTool = loadToolClass('brainstorm');
+const OutlineWriter = loadToolClass('outline-writer');
+const WorldWriter = loadToolClass('world-writer');
+const ChapterWriter = loadToolClass('chapter-writer');
+const CharacterAnalyzer = loadToolClass('character-analyzer');
+const TenseConsistencyChecker = loadToolClass('tense-consistency-checker');
+const AdjectiveAdverbOptimizer = loadToolClass('adjective-adverb-optimizer');
+const DanglingModifierChecker = loadToolClass('dangling-modifier-checker');
+const RhythmAnalyzer = loadToolClass('rhythm-analyzer');
+const CrowdingLeapingEvaluator = loadToolClass('crowding-leaping-evaluator');
+const PunctuationAuditor = loadToolClass('punctuation-auditor');
+const ConflictAnalyzer = loadToolClass('conflict-analyzer');
+const ForeshadowingTracker = loadToolClass('foreshadowing-tracker');
+const PlotThreadTracker = loadToolClass('plot-thread-tracker');
+const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
 
 // Built‑in tool definitions. No external JSON needed.
 
@@ -1231,21 +1300,104 @@ function getToolPath(toolName) {
 
 async function initializeToolSystem(settings) {
   console.log('Initializing tool system (no external DB)…');
-  // const ClaudeAPIService = require('./client');
-  const claudeService = new ClaudeAPIService(settings);
-
-  TOOL_DEFS.forEach(def => {
-    const instance = new def.Class(claudeService, {
-      title: def.title,
-      description: def.title,
-      options: def.options,
-      ...settings
+  
+  // This part is working - your existing logging code that shows file listings
+  if (typeof global.logToFile === 'function') {
+    global.logToFile('[tool-system] Starting tool system initialization');
+    global.logToFile(`[tool-system] Current directory: ${process.cwd()}`);
+    global.logToFile(`[tool-system] __dirname: ${__dirname}`);
+    
+    // This is your existing code that lists files in directories
+    try {
+      const files = fs.readdirSync(__dirname);
+      global.logToFile(`[tool-system] Files in __dirname: ${files.join(', ')}`);
+      
+      // Also check the parent directory
+      const parentDir = path.dirname(__dirname);
+      const parentFiles = fs.readdirSync(parentDir);
+      global.logToFile(`[tool-system] Files in parent directory: ${parentFiles.join(', ')}`);
+    } catch (error) {
+      global.logToFile(`[tool-system] Error listing files: ${error.message}`);
+    }
+    
+    // NEW CODE STARTS HERE - Add these new logs
+    global.logToFile('[tool-system] About to create Claude API service');
+    try {
+      global.logToFile(`[tool-system] ClaudeAPIService settings: ${JSON.stringify(settings)}`);
+    } catch (e) {
+      global.logToFile(`[tool-system] Cannot stringify settings: ${e.message}`);
+    }
+  }
+  
+  try {
+    // Create Claude API service with the provided settings
+    if (typeof global.logToFile === 'function') {
+      global.logToFile('[tool-system] Creating Claude API service');
+    }
+    
+    const claudeService = new ClaudeAPIService(settings);
+    
+    if (typeof global.logToFile === 'function') {
+      global.logToFile('[tool-system] Claude API service created successfully');
+      global.logToFile('[tool-system] Beginning tool registration');
+    }
+    
+    // Register each tool with proper configuration
+    let toolCount = 0;
+    TOOL_DEFS.forEach(def => {
+      if (typeof global.logToFile === 'function') {
+        global.logToFile(`[tool-system] Registering tool #${toolCount + 1}: ${def.id}`);
+      }
+      
+      // Ensure required properties exist
+      const toolConfig = {
+        title: def.title || def.id,
+        description: def.description || def.title || `Tool: ${def.id}`,
+        options: def.options || [],
+        ...settings
+      };
+      
+      if (typeof global.logToFile === 'function') {
+        global.logToFile(`[tool-system] Creating instance of tool: ${def.id}`);
+      }
+      
+      // Create tool instance
+      const instance = new def.Class(claudeService, toolConfig);
+      
+      if (typeof global.logToFile === 'function') {
+        global.logToFile(`[tool-system] Adding tool to registry: ${def.id}`);
+      }
+      
+      // Add to registry
+      toolRegistry.registerTool(def.id, instance);
+      
+      if (typeof global.logToFile === 'function') {
+        global.logToFile(`[tool-system] Successfully registered tool: ${def.id}`);
+      }
+      
+      toolCount++;
     });
-    toolRegistry.registerTool(def.id, instance);
-  });
-
-  console.log('Registered', toolRegistry.getAllToolIds().length, 'built‑in tools');
-  return { claudeService, toolRegistry };
+    
+    if (typeof global.logToFile === 'function') {
+      global.logToFile(`[tool-system] Completed registering all ${toolCount} tools`);
+    }
+    
+    // Log registration summary
+    const allTools = toolRegistry.getAllToolIds();
+    console.log(`Registered ${allTools.length} built-in tools:`, allTools);
+    
+    if (typeof global.logToFile === 'function') {
+      global.logToFile('[tool-system] Tool system initialization completed successfully');
+    }
+    
+    return { claudeService, toolRegistry };
+  } catch (error) {
+    if (typeof global.logToFile === 'function') {
+      global.logToFile(`[tool-system] ERROR during tool system initialization: ${error.message}`);
+      global.logToFile(`[tool-system] Error stack: ${error.stack}`);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -1295,9 +1447,48 @@ function reinitializeClaudeService(settings) {
   return claudeService;
 }
 
+/**
+ * Verify that tools are properly loaded and accessible
+ * @returns {boolean} - True if verification passes
+ */
+function verifyToolLoading() {
+  console.log('Verifying tool classes are accessible in tool-system.js...');
+  
+  try {
+    // Verify the registry has tools
+    const toolIds = toolRegistry.getAllToolIds();
+    if (!toolIds.length) {
+      throw new Error('No tools registered in registry');
+    }
+    console.log(`Tool registry contains ${toolIds.length} tools`);
+    
+    // Try to get a specific tool
+    const tokensTool = toolRegistry.getTool('tokens_words_counter');
+    if (!tokensTool) {
+      throw new Error('Could not retrieve tokens_words_counter tool');
+    }
+    
+    // Verify the tool has core properties and methods
+    if (typeof tokensTool.execute !== 'function') {
+      throw new Error('Tool missing execute method');
+    }
+    
+    if (!tokensTool.config) {
+      throw new Error('Tool missing config object');
+    }
+    
+    console.log('Tool verification passed in tool-system.js');
+    return true;
+  } catch (error) {
+    console.error('Tool verification failed in tool-system.js:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   initializeToolSystem,
   executeToolById,
-  reinitializeClaudeService, // Add the missing export here
-  toolRegistry
+  reinitializeClaudeService,
+  toolRegistry,
+  verifyToolLoading
 };

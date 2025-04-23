@@ -1,0 +1,68 @@
+(base) cleesmith:~$ out/WritersToolkit-darwin-arm64/WritersToolkit.app/Contents/MacOS/writers-toolkit 
+ToolRegistry initialized
+*** Electron Store location: /Users/cleesmith/Library/Application Support/Writer's Toolkit/writers-toolkit-config.json
+AppState initialized successfully
+Initializing tool system with complete settings:
+{
+  "max_retries": 1,
+  "request_timeout": 300,
+  "desired_output_tokens": 12000,
+  "context_window": 200000,
+  "thinking_budget_tokens": 32000,
+  "betas_max_tokens": 128000,
+  "model_name": "claude-3-7-sonnet-20250219",
+  "betas": "output-128k-2025-02-19",
+  "max_thinking_budget": 32000
+}
+Initializing tool system (no external DB)…
+Claude API Service initialized with:
+- Context window: 200000
+- Model name: claude-3-7-sonnet-20250219
+- Beta features: output-128k-2025-02-19
+- Max thinking budget: 32000
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'narrative_integrity',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep'
+]
+Registered 18 built‑in tools
+*** Screen dimensions: { width: 1464, height: 933 }
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'narrative_integrity',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep'
+]
+2025-04-23 08:42:36.020 writers-toolkit[20446:1231750] +[IMKClient subclass]: chose IMKClient_Modern
+2025-04-23 08:42:36.020 writers-toolkit[20446:1231750] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+Quit requested from renderer
+(base) cleesmith:~$ 

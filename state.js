@@ -2,6 +2,33 @@
 const path = require('path');
 const os = require('os');
 
+// Basic logging setup that works even if logToFile isn't defined in this context
+function safeLog(message) {
+  // Log to console first (works in development)
+  console.log(message);
+  
+  // Try to log to file if the function exists in global scope (from main.js)
+  if (typeof global.logToFile === 'function') {
+    global.logToFile(`[state.js] ${message}`);
+  } else {
+    // Fallback file logging if needed
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const os = require('os');
+      const logPath = path.join(os.homedir(), 'writers-toolkit-debug.log');
+      const timestamp = new Date().toISOString();
+      const logLine = `${timestamp}: [state.js] ${message}\n`;
+      fs.appendFileSync(logPath, logLine);
+    } catch (e) {
+      // Can't do anything if this fails
+    }
+  }
+}
+
+// Log module loading started
+safeLog('Module loading started');
+
 // Create a placeholder for Store that will be filled in later
 let Store = null;
 

@@ -24,6 +24,7 @@
     "argparse": "^2.0.1",
     "electron-store": "^8.1.0",
     "jsdom": "^26.1.0",
+    "keytar": "^7.9.0",
     "mammoth": "^1.9.0",
     "uuid": "^11.1.0"
   },
@@ -59,6 +60,5 @@
       "target": "dmg",
       "artifactName": "${productName}-${version}-mac.${ext}"
     }
-
   }
 }
