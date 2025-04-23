@@ -19,7 +19,11 @@ module.exports = {
     {
       name: '@electron-forge/maker-dmg',
       icon: './resources/WritersToolkit.icns',
-    },
+      config: {
+        background: './resources/.background/background.png',
+        format: 'ULFO'
+      }
+    }
   ],
   plugins: [
     {
