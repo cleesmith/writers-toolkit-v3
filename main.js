@@ -3,15 +3,15 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+
+require('dotenv').config({ path: require('os').homedir() + '/.env' });
+// console.log('!!! dotenv: process.env=', process.env);
+// console.log('!!! dotenv: process.env=', process.env.ANTHROPIC_API_KEY);
+
 const { app, BrowserWindow, Menu, ipcMain, dialog, screen } = require('electron');
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
-
-const keytar = require('keytar');
-// Define constants for the service and account
-const KEYCHAIN_SERVICE = 'WritersToolkit';
-const KEYCHAIN_ACCOUNT = 'ANTHROPIC_API_KEY';
 
 // Determine if we're running in packaged mode
 const isPackaged = app.isPackaged || !process.defaultApp;
@@ -41,44 +41,6 @@ if (isPackaged) {
   global.TOOLS_DIR = path.join(__dirname);
   console.log(`Set global TOOLS_DIR to: ${global.TOOLS_DIR}`);
 }
-
-// This attempts to load the API key from the macOS Keychain
-async function loadApiKeyFromKeychain() {
-  // Add this before attempting to get the password (TEMPORARY TEST CODE)
-  try {
-    // await keytar.setPassword('WritersToolkit', 'ANTHROPIC_API_KEY', '');
-
-    // // A temporary test password (NOT your real API key)
-    // const testPassword = 'test123'; 
-    // await keytar.setPassword('WritersToolkitTest', 'TestAccount', testPassword);
-    // console.log('Test password set successfully');
-    
-    // // Try retrieving it
-    // const retrievedPw = await keytar.getPassword('WritersToolkitTest', 'TestAccount');
-    // console.log(`Test retrieval ${retrievedPw === testPassword ? 'succeeded' : 'failed'}`);
-  } catch (e) {
-    console.error('Keytar test failed:', e);
-  }
-
-  try {
-    console.log('Attempting to load API key from keychain...');
-    const apiKey = await keytar.getPassword(KEYCHAIN_SERVICE, KEYCHAIN_ACCOUNT);
-    console.log('*** apiKey=', apiKey);
-    
-    if (apiKey) {
-      console.log('Successfully loaded API key from keychain');
-      process.env.ANTHROPIC_API_KEY = apiKey;
-      return true;
-    } else {
-      console.log('No API key found in keychain');
-      return false;
-    }
-  } catch (error) {
-    console.error('Error accessing keychain:', error);
-    return false;
-  }
-}
-
 
 // In main.js, update the logToFile function to make it globally available
 // Simple logging function that writes to a file in the user's home directory
@@ -1263,9 +1225,6 @@ async function main() {
   try {
     // Initialize AppState before using it
     await appState.initialize();
-
-    // Call this function before initializing the tool system
-    await loadApiKeyFromKeychain();
 
     // Set up IPC handlers first
     setupIPCHandlers();
