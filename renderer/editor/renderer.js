@@ -168,26 +168,40 @@ function updateThemeIcons() {
   }
 }
 
-// Quit the application
 function quitApp() {
+  // Check for unsaved changes
   if (documentChanged) {
-    // Ask user about unsaved changes
-    const confirmQuit = confirm('You have unsaved changes. Quit anyway?');
-    if (confirmQuit) {
-      // User confirmed quit, so force quit regardless of document state
-      documentChanged = false; // Reset this flag to avoid additional checks
-      
-      // Directly quit the application without further checks
-      if (window.api && window.api.quitApp) {
-        window.api.quitApp();
-      }
+    const confirmQuit = confirm('You have unsaved changes. Close anyway?');
+    if (!confirmQuit) {
+      return; // User canceled, so don't quit
     }
-    // If not confirmed, do nothing (stay in the app)
-  } else {
-    // No unsaved changes, quit directly
-    if (window.api && window.api.quitApp) {
+    documentChanged = false; // Reset flag
+  }
+
+  // Check if we're in standalone mode based on environment variable
+  // When launched from the main app, this will be undefined or false
+  const isStandalone = window.api && window.api.isStandaloneMode === true;
+  
+  console.log(`Quitting editor in ${isStandalone ? 'STANDALONE' : 'INTEGRATED'} mode`);
+  
+  if (isStandalone) {
+    // In standalone mode, use API to quit the application
+    if (window.api && typeof window.api.quitApp === 'function') {
+      console.log('Sending app-quit signal');
       window.api.quitApp();
+      
+      // Set a fallback timeout in case quitting takes too long
+      setTimeout(() => {
+        console.log('Regular quit failed, forcing exit');
+        if (window.api && typeof window.api.forceQuit === 'function') {
+          window.api.forceQuit();
+        }
+      }, 500);
     }
+  } else {
+    // In integrated mode, just close the window
+    console.log('Closing window only (integrated mode)');
+    window.close();
   }
 }
 

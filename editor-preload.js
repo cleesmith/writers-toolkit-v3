@@ -1,11 +1,21 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+// Check for standalone mode using the environment variable
+const isStandaloneMode = process.env.EDITOR_STANDALONE_MODE === 'true';
+console.log(`Editor running in ${isStandaloneMode ? 'STANDALONE' : 'INTEGRATED'} mode`);
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld(
   'api', {
     // Quit application
     quitApp: () => ipcRenderer.send('app-quit'),
+    
+    // Force quit (stronger method)
+    forceQuit: () => ipcRenderer.send('force-quit'),
+    
+    // Mode indicator for the renderer
+    isStandaloneMode: isStandaloneMode,
     
     // File operations
     saveFile: (data) => ipcRenderer.invoke('save-file', data),

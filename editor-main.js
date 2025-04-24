@@ -32,8 +32,15 @@ function createWindow() {
       preload: path.join(__dirname, 'editor-preload.js')
     },
     title: 'Writer\'s Toolkit - Editor',
-    backgroundColor: '#121212' // Dark background for better appearance during load
+    backgroundColor: '#121212', // Dark background for better appearance during load
+    autoHideMenuBar: true // Hide the menu bar but keep shortcuts accessible
   });
+
+  // Explicitly hide the menu bar
+  mainWindow.setMenuBarVisibility(false);
+  
+  // Set null menu to completely remove it
+  Menu.setApplicationMenu(null);
 
   // Center the window
   mainWindow.center();
@@ -44,86 +51,6 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-
-  // Set up the menu
-  const menuTemplate = [
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'New',
-          accelerator: 'CmdOrCtrl+N',
-          click: () => {
-            mainWindow.webContents.send('file-new');
-          }
-        },
-        {
-          label: 'Open',
-          accelerator: 'CmdOrCtrl+O',
-          click: async () => {
-            await openFile();
-          }
-        },
-        {
-          label: 'Save',
-          accelerator: 'CmdOrCtrl+S',
-          click: async () => {
-            mainWindow.webContents.send('file-save-request');
-          }
-        },
-        {
-          label: 'Save As',
-          accelerator: 'CmdOrCtrl+Shift+S',
-          click: async () => {
-            mainWindow.webContents.send('file-save-as-request');
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'Quit',
-          accelerator: 'CmdOrCtrl+Q',
-          click: () => {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'delete' },
-        { type: 'separator' },
-        { role: 'selectAll' }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        {
-          label: 'Toggle Developer Tools',
-          accelerator: 'CmdOrCtrl+Shift+I',
-          click: () => {
-            mainWindow.webContents.toggleDevTools();
-          }
-        },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
-    }
-  ];
-  
-  const menu = Menu.buildFromTemplate(menuTemplate);
-  Menu.setApplicationMenu(menu);
 }
 
 // File opening function
@@ -206,8 +133,9 @@ function setupIPC() {
     return await openFile();
   });
 
-  // Add this handler for quitting the application
+  // Fix for the Quit button - make sure it's properly registered
   ipcMain.on('app-quit', () => {
+    console.log('Quit requested from renderer process');
     app.quit();
   });
 }
