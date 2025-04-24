@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Editor</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .editor-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .editor-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .editor-close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
+      padding: 0 5px;
+      line-height: 24px;
+    }
+    
+    .editor-body {
+      flex: 1;
+      overflow: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #editor {
+      background-color: #121824;
+      border-radius: 6px;
+      padding: 15px;
+      font-family: monospace;
+      color: #e2e2e2;
+      flex: 1;
+      overflow: auto;
+      white-space: pre-wrap;
+      resize: none;
+      border: none;
+      outline: none;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .button-row button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .save-as-btn {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: monospace;
+      background-color: #1a1a1a;
+      color: #aaa;
+      min-height: 20px;
+      gap: 5px;
+    }
+
+    #position, #statistics {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #position {
+      text-align: left;
+      min-width: 100px;
+      max-width: 180px;
+    }
+
+    #statistics {
+      text-align: right;
+      min-width: 200px;
+      max-width: 260px;
+      padding-left: 10px;
+    }
+
+    .current-file-display {
+      font-size: 12px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+      text-align: center;
+      margin: 0 10px;
+      min-width: 0;
+      max-width: calc(100% - 480px);
+    }
+    
+    /* Light mode styles */
+    body.light-mode #editor {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+    
+    body.light-mode .status-bar {
+      background-color: #f0f0f0;
+      color: #666;
+    }
+    
+    body.light-mode .current-file-display {
+      color: #666;
+    }
+    
+    body.light-mode .editor-close-btn {
+      color: #333;
+    }
+    
+    .select-wrapper {
+      position: relative;
+      min-width: 60px;
+      max-width: 100px;
+      flex: 0 0 auto;
+    }
+
+    select {
+      padding: 6px 8px;
+      background-color: #2a2a2a;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 4px;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 20px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    body.light-mode select {
+      background-color: white;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .select-wrapper::after {
+      content: "▼";
+      font-size: 10px;
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #888;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="editor-container">
+    <div class="editor-header">
+      <button class="editor-close-btn" id="close-btn">×</button>
+    </div>
+    
+    <div class="editor-body">
+      <div class="button-row">
+        <button id="btnSaveAs" class="save-as-btn">Save As</button>
+        
+        <div class="select-wrapper">
+          <select id="fontSize">
+            <option value="12">12px</option>
+            <option value="14" selected>14px</option>
+            <option value="16">16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+          </select>
+        </div>
+        
+        <div class="select-wrapper">
+          <select id="wordWrap">
+            <option value="on" selected>Wrap: On</option>
+            <option value="off">Wrap: Off</option>
+          </select>
+        </div>
+      </div>
+      
+      <textarea id="editor" spellcheck="false"></textarea>
+      
+      <div class="status-bar">
+        <span id="position">Line: 1, Column: 1</span>
+        <span id="currentFile" class="current-file-display">No file opened</span>
+        <span id="statistics">Words: 0 & Characters: 0</span>
+      </div>
+    </div>
+  </div>
+  
+  <script src="editor-dialog.js"></script>
+</body>
+</html>

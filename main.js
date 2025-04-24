@@ -13,6 +13,8 @@ const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
 
+let editorDialogWindow = null;
+
 // Determine if we're running in packaged mode
 const isPackaged = app.isPackaged || !process.defaultApp;
 
@@ -514,218 +516,7 @@ function showToolSetupRunDialog(toolName) {
 function launchEditor(fileToOpen = null) {
   return new Promise((resolve) => {
     try {
-      // Log start of editor launch process
-      if (typeof global.logToFile === 'function') {
-        global.logToFile('=== EDITOR LAUNCH ATTEMPT ===');
-      }
-      
-      // Create a new browser window for the editor with proper size
-      const editorWindow = new BrowserWindow({
-        width: 1400,
-        height: 900,
-        minWidth: 800,
-        minHeight: 600,
-        webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true,
-          preload: path.join(__dirname, 'editor-preload.js')
-        },
-        backgroundColor: '#121212',
-        title: "Writer's Toolkit - Editor",
-        resizable: true
-      });
-      
-      // Create simple menu without accelerators (keyboard shortcuts)
-      const editorMenu = Menu.buildFromTemplate([
-        {
-          label: 'File',
-          submenu: [
-            { label: 'New', click: () => editorWindow.webContents.send('file-new') },
-            { 
-              label: 'Open', 
-              click: () => {
-                console.log('Menu Open button clicked');
-                editorWindow.webContents.send('file-open-request');
-              }
-            },
-            { label: 'Save', click: () => editorWindow.webContents.send('file-save-request') },
-            { label: 'Save As', click: () => editorWindow.webContents.send('file-save-as-request') },
-            { type: 'separator' },
-            { label: 'Close', click: () => editorWindow.close() }
-          ]
-        },
-        {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'delete' },
-            { type: 'separator' },
-            { role: 'selectAll' }
-          ]
-        },
-        {
-          label: 'View',
-          submenu: [
-            { role: 'resetZoom' },
-            { role: 'zoomIn' },
-            { role: 'zoomOut' },
-            { type: 'separator' },
-            { role: 'togglefullscreen' }
-          ]
-        }
-      ]);
-      
-      // Keep a reference to the original menu
-      const originalMenu = Menu.getApplicationMenu();
-      
-      // Apply the editor menu when the window is focused
-      editorWindow.on('focus', () => {
-        Menu.setApplicationMenu(editorMenu);
-      });
-      
-      // Restore the original menu when the window is blurred
-      editorWindow.on('blur', () => {
-        if (originalMenu) {
-          Menu.setApplicationMenu(originalMenu);
-        }
-      });
-      
-      // Handler for open-file-dialog with improved error handling
-      ipcMain.handle('open-file-dialog', async (event) => {
-        console.log('open-file-dialog handler called');
-        
-        // Only handle events from this window
-        if (event.sender.id !== editorWindow.webContents.id) {
-          console.log('Event not from editor window, ignoring');
-          return null;
-        }
-        
-        try {
-          const { canceled, filePaths } = await dialog.showOpenDialog(editorWindow, {
-            title: 'Open File',
-            defaultPath: path.join(os.homedir(), 'writing'),
-            filters: [
-              { name: 'Text Files', extensions: ['txt'] },
-              { name: 'All Files', extensions: ['*'] }
-            ],
-            properties: ['openFile']
-          });
-          
-          console.log('Dialog result:', { canceled, filePaths });
-          
-          if (canceled || filePaths.length === 0) {
-            console.log('Open dialog canceled or no files selected');
-            return null;
-          }
-          
-          const filePath = filePaths[0];
-          console.log('Selected file:', filePath);
-          
-          try {
-            const content = fs.readFileSync(filePath, 'utf8');
-            console.log('File content loaded, length:', content.length);
-            return { filePath, content };
-          } catch (error) {
-            console.error('Error reading file:', error);
-            dialog.showErrorBox('Error', `Failed to open file: ${error.message}`);
-            return null;
-          }
-        } catch (error) {
-          console.error('Error showing open dialog:', error);
-          return null;
-        }
-      });
-      
-      // Handler for save-file
-      ipcMain.handle('save-file', async (event, data) => {
-        console.log('save-file handler called');
-        
-        // Only handle events from this window
-        if (event.sender.id !== editorWindow.webContents.id) {
-          console.log('Event not from editor window, ignoring');
-          return { success: false };
-        }
-        
-        const { filePath, content, saveAs } = data;
-        let finalPath = filePath;
-        
-        // If no path or saveAs is true, show save dialog
-        if (!finalPath || saveAs) {
-          try {
-            const { canceled, filePath: newPath } = await dialog.showSaveDialog(editorWindow, {
-              title: 'Save File',
-              defaultPath: path.join(os.homedir(), 'writing'),
-              filters: [
-                { name: 'Text Files', extensions: ['txt'] },
-                { name: 'All Files', extensions: ['*'] }
-              ]
-            });
-            
-            if (canceled || !newPath) {
-              console.log('Save dialog canceled or no path selected');
-              return { success: false };
-            }
-            
-            finalPath = newPath;
-          } catch (error) {
-            console.error('Error showing save dialog:', error);
-            return { success: false };
-          }
-        }
-        
-        try {
-          fs.writeFileSync(finalPath, content, 'utf8');
-          console.log('File saved successfully to:', finalPath);
-          return { success: true, filePath: finalPath };
-        } catch (error) {
-          console.error('Error saving file:', error);
-          dialog.showErrorBox('Error', `Failed to save file: ${error.message}`);
-          return { success: false };
-        }
-      });
-      
-      // Load the editor HTML file
-      editorWindow.loadFile(path.join(__dirname, 'renderer', 'editor', 'index.html'));
-      
-      // If a file is specified to open, load it once the page is ready
-      if (fileToOpen) {
-        editorWindow.webContents.on('did-finish-load', () => {
-          try {
-            console.log('Loading file to open:', fileToOpen);
-            const content = fs.readFileSync(fileToOpen, 'utf8');
-            editorWindow.webContents.send('file-opened', { 
-              filePath: fileToOpen, 
-              content 
-            });
-          } catch (error) {
-            console.error('Error loading file:', error);
-            dialog.showErrorBox('Error', `Failed to load file: ${error.message}`);
-          }
-        });
-      }
-      
-      // Clean up on window close
-      editorWindow.on('closed', () => {
-        try {
-          // Remove handlers specific to this window
-          ipcMain.removeHandler('open-file-dialog');
-          ipcMain.removeHandler('save-file');
-          
-          console.log('Editor window closed, handlers removed');
-          
-          if (typeof global.logToFile === 'function') {
-            global.logToFile('=== EDITOR WINDOW CLOSED ===');
-          }
-        } catch (error) {
-          console.error('Error cleaning up editor handlers:', error);
-        }
-      });
-      
+      createEditorDialog(fileToOpen);
       resolve(true);
     } catch (error) {
       console.error('Error launching editor:', error);
@@ -745,11 +536,61 @@ ipcMain.handle('open-file-in-editor', async (event, filePath) => {
       return { success: false, error: 'File not found: ' + filePath };
     }
     
-    await launchEditor(filePath);
+    // Create editor dialog window
+    createEditorDialog(filePath);
+    
+    // Return success
     return { success: true };
   } catch (error) {
     console.error('Error opening file in editor:', error);
     return { success: false, error: error.message };
+  }
+});
+
+// Handle saving files from the editor dialog
+ipcMain.handle('save-file', async (event, data) => {
+  try {
+    const { filePath, content, saveAs } = data;
+    let finalPath = filePath;
+    
+    // If no path or saveAs is true, show save dialog
+    if (!finalPath || saveAs) {
+      try {
+        // Get the current project path as the default save directory
+        const projectPath = appState.CURRENT_PROJECT_PATH || path.join(os.homedir(), 'writing');
+        
+        const { canceled, filePath: newPath } = await dialog.showSaveDialog(editorDialogWindow, {
+          title: 'Save File',
+          defaultPath: projectPath,
+          filters: [
+            { name: 'Text Files', extensions: ['txt'] },
+            { name: 'All Files', extensions: ['*'] }
+          ]
+        });
+        
+        if (canceled || !newPath) {
+          return { success: false };
+        }
+        
+        finalPath = newPath;
+      } catch (error) {
+        console.error('Error showing save dialog:', error);
+        return { success: false };
+      }
+    }
+    
+    try {
+      fs.writeFileSync(finalPath, content, 'utf8');
+      console.log('File saved successfully to:', finalPath);
+      return { success: true, filePath: finalPath };
+    } catch (error) {
+      console.error('Error saving file:', error);
+      dialog.showErrorBox('Error', `Failed to save file: ${error.message}`);
+      return { success: false };
+    }
+  } catch (error) {
+    console.error('Error in save-file handler:', error);
+    return { success: false };
   }
 });
 
@@ -975,6 +816,79 @@ function showApiSettingsDialog() {
   }
 }
 
+function createEditorDialog(fileToOpen = null) {
+  // If there's already an editor window open, close it first
+  if (editorDialogWindow && !editorDialogWindow.isDestroyed()) {
+    editorDialogWindow.destroy();
+    editorDialogWindow = null;
+  }
+
+  // Get the parent window - either the tool window or main window
+  const parentWindow = toolSetupRunWindow || mainWindow;
+
+  // Create the dialog window
+  editorDialogWindow = new BrowserWindow({
+    width: parentWindow.getSize()[0],
+    height: parentWindow.getSize()[1],
+    x: parentWindow.getPosition()[0],
+    y: parentWindow.getPosition()[1],
+    parent: parentWindow,
+    modal: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    backgroundColor: '#121212', // Dark background
+    autoHideMenuBar: true,
+  });
+
+  // Load the HTML file
+  editorDialogWindow.loadFile(path.join(__dirname, 'editor-dialog.html'));
+
+  // Show the window when ready
+  editorDialogWindow.once('ready-to-show', () => {
+    editorDialogWindow.show();
+    
+    // Send the current theme as soon as the window is ready
+    if (parentWindow) {
+      parentWindow.webContents.executeJavaScript('document.body.classList.contains("light-mode")')
+        .then(isLightMode => {
+          if (editorDialogWindow && !editorDialogWindow.isDestroyed()) {
+            editorDialogWindow.webContents.send('set-theme', isLightMode ? 'light' : 'dark');
+          }
+        })
+        .catch(err => console.error('Error getting theme:', err));
+    }
+    
+    // If a file should be opened, send it to the window
+    if (fileToOpen) {
+      try {
+        const content = fs.readFileSync(fileToOpen, 'utf8');
+        editorDialogWindow.webContents.send('file-opened', { 
+          filePath: fileToOpen, 
+          content 
+        });
+      } catch (error) {
+        console.error('Error loading file:', error);
+        dialog.showErrorBox('Error', `Failed to load file: ${error.message}`);
+      }
+    }
+  });
+
+  // Track window destruction
+  editorDialogWindow.on('closed', () => {
+    editorDialogWindow = null;
+  });
+  
+  // Prevent the editor window from being resized or moved
+  editorDialogWindow.setResizable(false);
+  editorDialogWindow.setMovable(false);
+  
+  return editorDialogWindow;
+}
+
 // Prevent duplicate handler registration
 let apiSettingsHandlersRegistered = false;
 
@@ -1082,6 +996,19 @@ function setupIPCHandlers() {
   // Show API settings dialog
   ipcMain.on('show-api-settings-dialog', () => {
     showApiSettingsDialog();
+  });
+
+  // Show editor dialog
+  ipcMain.on('show-editor-dialog', (event, filePath) => {
+    createEditorDialog(filePath);
+  });
+  
+  // Close editor dialog
+  ipcMain.on('close-editor-dialog', () => {
+    if (editorDialogWindow && !editorDialogWindow.isDestroyed()) {
+      editorDialogWindow.destroy();
+      editorDialogWindow = null;
+    }
   });
 
   // Handler for launching the text editor

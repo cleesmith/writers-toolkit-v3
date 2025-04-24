@@ -288,11 +288,13 @@ runBtn.addEventListener('click', async () => {
           // Add click handler to the Edit button
           editButton.addEventListener('click', () => {
             const selectedFile = select.value;
+            console.log('>>> selectedFile=', selectedFile);
             if (selectedFile) {
               // Show a notification that we're opening the file
               const tempOutput = outputElement.textContent;
               // stop showing message about opening file in editor:
               // outputElement.textContent += '\nOpening file in editor: ' + selectedFile;
+              console.log('!!! selectedFile=', selectedFile);
               
               window.electronAPI.openFileInEditor(selectedFile)
                 .then(result => {

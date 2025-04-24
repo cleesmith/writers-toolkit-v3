@@ -40,8 +40,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   // Get output files for a tool run
   getToolOutputFiles: (toolId) => ipcRenderer.invoke('get-tool-output-files', toolId),
+
   // Open a file in the editor
-  openFileInEditor: (filePath) => ipcRenderer.invoke('open-file-in-editor', filePath),  
+  // openFileInEditor: (filePath) => ipcRenderer.invoke('open-file-in-editor', filePath),  
+  // Editor dialog functions
+  showEditorDialog: (filePath) => ipcRenderer.send('show-editor-dialog', filePath),
+  saveFile: (data) => ipcRenderer.invoke('save-file', data),
+  closeEditorDialog: () => ipcRenderer.send('close-editor-dialog'),
+  onFileOpened: (callback) => ipcRenderer.on('file-opened', (_, data) => callback(data)),
+  onSetTheme: (callback) => ipcRenderer.on('set-theme', (_, theme) => callback(theme)),
 
   // API settings
   getClaudeApiSettings: () => ipcRenderer.invoke('get-claude-api-settings'),
