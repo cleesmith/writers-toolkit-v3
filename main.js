@@ -84,37 +84,37 @@ if (isPackaged) {
 }
 
 // This is the correct version for main.js that uses toolSystem.toolRegistry
-function verifyToolLoading() {
-  console.log('Verifying tool classes are accessible...');
+// function verifyToolLoading() {
+//   console.log('Verifying tool classes are accessible...');
   
-  try {
-    // Try to require a specific tool as a test
-    const TokensWordsCounter = require('./tokens-words-counter');
-    if (TokensWordsCounter) {
-      console.log('Successfully loaded TokensWordsCounter class');
-    }
+//   try {
+//     // Try to require a specific tool as a test
+//     const TokensWordsCounter = require('./tokens-words-counter');
+//     if (TokensWordsCounter) {
+//       console.log('Successfully loaded TokensWordsCounter class');
+//     }
     
-    // Try loading from registry - use toolSystem.toolRegistry instead of direct access
-    const toolsInRegistry = toolSystem.toolRegistry.getAllToolIds();
-    console.log(`Tools in registry: ${toolsInRegistry.length}`, toolsInRegistry);
+//     // Try loading from registry - use toolSystem.toolRegistry instead of direct access
+//     const toolsInRegistry = toolSystem.toolRegistry.getAllToolIds();
+//     console.log(`Tools in registry: ${toolsInRegistry.length}`, toolsInRegistry);
     
-    if (toolsInRegistry.length === 0) {
-      throw new Error('No tools found in registry');
-    }
+//     if (toolsInRegistry.length === 0) {
+//       throw new Error('No tools found in registry');
+//     }
     
-    const firstTool = toolSystem.toolRegistry.getTool(toolsInRegistry[0]);
-    console.log(`First tool details:`, {
-      name: firstTool.name,
-      hasConfig: !!firstTool.config,
-      hasExecute: typeof firstTool.execute === 'function'
-    });
+//     const firstTool = toolSystem.toolRegistry.getTool(toolsInRegistry[0]);
+//     console.log(`First tool details:`, {
+//       name: firstTool.name,
+//       hasConfig: !!firstTool.config,
+//       hasExecute: typeof firstTool.execute === 'function'
+//     });
     
-    return true;
-  } catch (error) {
-    console.error('Tool loading verification failed:', error);
-    throw error; // Re-throw to ensure the app fails if tools can't be loaded
-  }
-}
+//     return true;
+//   } catch (error) {
+//     console.error('Tool loading verification failed:', error);
+//     throw error; // Re-throw to ensure the app fails if tools can't be loaded
+//   }
+// }
 
 // Define Claude API schema globally
 const CLAUDE_API_SCHEMA = [

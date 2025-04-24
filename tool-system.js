@@ -1451,44 +1451,44 @@ function reinitializeClaudeService(settings) {
  * Verify that tools are properly loaded and accessible
  * @returns {boolean} - True if verification passes
  */
-function verifyToolLoading() {
-  console.log('Verifying tool classes are accessible in tool-system.js...');
+// function verifyToolLoading() {
+//   console.log('Verifying tool classes are accessible in tool-system.js...');
   
-  try {
-    // Verify the registry has tools
-    const toolIds = toolRegistry.getAllToolIds();
-    if (!toolIds.length) {
-      throw new Error('No tools registered in registry');
-    }
-    console.log(`Tool registry contains ${toolIds.length} tools`);
+//   try {
+//     // Verify the registry has tools
+//     const toolIds = toolRegistry.getAllToolIds();
+//     if (!toolIds.length) {
+//       throw new Error('No tools registered in registry');
+//     }
+//     console.log(`Tool registry contains ${toolIds.length} tools`);
     
-    // Try to get a specific tool
-    const tokensTool = toolRegistry.getTool('tokens_words_counter');
-    if (!tokensTool) {
-      throw new Error('Could not retrieve tokens_words_counter tool');
-    }
+//     // Try to get a specific tool
+//     const tokensTool = toolRegistry.getTool('tokens_words_counter');
+//     if (!tokensTool) {
+//       throw new Error('Could not retrieve tokens_words_counter tool');
+//     }
     
-    // Verify the tool has core properties and methods
-    if (typeof tokensTool.execute !== 'function') {
-      throw new Error('Tool missing execute method');
-    }
+//     // Verify the tool has core properties and methods
+//     if (typeof tokensTool.execute !== 'function') {
+//       throw new Error('Tool missing execute method');
+//     }
     
-    if (!tokensTool.config) {
-      throw new Error('Tool missing config object');
-    }
+//     if (!tokensTool.config) {
+//       throw new Error('Tool missing config object');
+//     }
     
-    console.log('Tool verification passed in tool-system.js');
-    return true;
-  } catch (error) {
-    console.error('Tool verification failed in tool-system.js:', error);
-    throw error;
-  }
-}
+//     console.log('Tool verification passed in tool-system.js');
+//     return true;
+//   } catch (error) {
+//     console.error('Tool verification failed in tool-system.js:', error);
+//     throw error;
+//   }
+// }
 
 module.exports = {
   initializeToolSystem,
   executeToolById,
   reinitializeClaudeService,
   toolRegistry,
-  verifyToolLoading
+  // verifyToolLoading
 };
