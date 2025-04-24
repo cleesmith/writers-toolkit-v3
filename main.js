@@ -201,8 +201,6 @@ const menuTemplate = [
   {
     label: 'File',
     submenu: [
-      { label: 'New Project' },
-      { label: 'Open Project' },
       { type: 'separator' },
       { label: "Quit Writer's Toolkit", accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }
     ]
@@ -211,24 +209,9 @@ const menuTemplate = [
   {
     label: 'Edit',
     submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      { type: 'separator' },
       { label: 'API Settings', click: () => showApiSettingsDialog() }
     ]
-  },
-  // Tools menu
-  {
-    label: 'Tools',
-    submenu: [
-      { label: 'Text Editor', click: () => launchEditor() }
-    ]
   }
-  // Add more menus as needed
 ];
 
 // Set the application menu
