@@ -1,14 +1,15 @@
 // main.js - Writer's Toolkit main process
-// const { spawn } = require('child_process');
+const { app, BrowserWindow, Menu, ipcMain, dialog, screen } = require('electron');
+
+// Handle Squirrel events
+if (require('electron-squirrel-startup')) app.quit();
+
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
 require('dotenv').config({ path: require('os').homedir() + '/.env' });
-// console.log('!!! dotenv: process.env=', process.env);
-// console.log('!!! dotenv: process.env=', process.env.ANTHROPIC_API_KEY);
 
-const { app, BrowserWindow, Menu, ipcMain, dialog, screen } = require('electron');
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
@@ -42,6 +43,89 @@ if (isPackaged) {
   console.log('Running in development mode');
   global.TOOLS_DIR = path.join(__dirname);
   console.log(`Set global TOOLS_DIR to: ${global.TOOLS_DIR}`);
+}
+
+// Only one whenReady that does everything in proper sequence
+app.whenReady().then(() => {
+  // 1. Set App User Model ID first
+  app.setAppUserModelId("com.slipthetrap.writerstoolkit");
+  
+  // 2. Register DevTools shortcut
+  const { globalShortcut } = require('electron');
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+      focusedWindow.webContents.openDevTools();
+    }
+  });
+  
+  // 3. Initialize the app (replaces your existing main() function)
+  initializeApp();
+});
+
+async function initializeApp() {
+  try {
+    // Initialize AppState before using it
+    await appState.initialize();
+
+    // Set up IPC handlers first
+    setupIPCHandlers();
+
+    // Initialize tool system with COMPLETE Claude API settings
+    try {
+      // Get complete settings
+      const completeSettings = getCompleteClaudeSettings();
+      
+      // Log the complete settings
+      console.log('Initializing tool system with complete settings:');
+      console.log(JSON.stringify(completeSettings, null, 2));
+      
+      // Initialize tool system with complete settings
+      const toolSystemResult = await toolSystem.initializeToolSystem(completeSettings);
+
+      // verifyToolLoading();
+
+      // Check if API key is missing
+      if (toolSystemResult.claudeService && toolSystemResult.claudeService.apiKeyMissing) {
+        // Show notification after window is created
+        setTimeout(() => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            dialog.showMessageBox(mainWindow, {
+              type: 'warning',
+              title: 'API Key Missing',
+              message: 'Claude API key not found',
+              detail: 'Please configure your Claude API key in API Settings before using AI tools.',
+              buttons: ['OK']
+            });
+          }
+        }, 1000);
+      }
+
+    } catch (toolError) {
+      console.error('>>> Warning: Tool system initialization failed:', toolError.message);
+      // // Show error to user but don't crash the app
+      // dialog.showErrorBox(
+      //   'API Configuration Warning', 
+      //   'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
+      // );
+      // Don't swallow this error - re-throw it to prevent app from starting with broken tools
+      throw toolError;
+    }
+    
+    // Create the main window
+    createWindow();
+    
+    // Check if a project is selected, if not, show the project dialog
+    if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
+      // Give the main window time to load first
+      setTimeout(() => {
+        showProjectDialog();
+      }, 500);
+    }
+  } catch (error) {
+    console.error('Failed to initialize application:', error);
+    app.quit();
+  }
 }
 
 // In main.js, update the logToFile function to make it globally available
@@ -83,39 +167,6 @@ if (isPackaged) {
   logToFile(`Resources path: ${path.join(app.getAppPath(), '..')}`);
 }
 
-// This is the correct version for main.js that uses toolSystem.toolRegistry
-// function verifyToolLoading() {
-//   console.log('Verifying tool classes are accessible...');
-  
-//   try {
-//     // Try to require a specific tool as a test
-//     const TokensWordsCounter = require('./tokens-words-counter');
-//     if (TokensWordsCounter) {
-//       console.log('Successfully loaded TokensWordsCounter class');
-//     }
-    
-//     // Try loading from registry - use toolSystem.toolRegistry instead of direct access
-//     const toolsInRegistry = toolSystem.toolRegistry.getAllToolIds();
-//     console.log(`Tools in registry: ${toolsInRegistry.length}`, toolsInRegistry);
-    
-//     if (toolsInRegistry.length === 0) {
-//       throw new Error('No tools found in registry');
-//     }
-    
-//     const firstTool = toolSystem.toolRegistry.getTool(toolsInRegistry[0]);
-//     console.log(`First tool details:`, {
-//       name: firstTool.name,
-//       hasConfig: !!firstTool.config,
-//       hasExecute: typeof firstTool.execute === 'function'
-//     });
-    
-//     return true;
-//   } catch (error) {
-//     console.error('Tool loading verification failed:', error);
-//     throw error; // Re-throw to ensure the app fails if tools can't be loaded
-//   }
-// }
-
 // Define Claude API schema globally
 const CLAUDE_API_SCHEMA = [
   { name: 'max_retries',            label: 'Max Retries',                       type: 'number', default: 1,       required: true,  description: 'Maximum retry attempts if an API call fails.' },
@@ -148,23 +199,6 @@ function getCompleteClaudeSettings() {
   
   return completeSettings;
 }
-
-// // Set fixed working directory regardless of launch method
-// app.whenReady().then(() => {
-//   try {
-//     // Get the Resources directory path
-//     const resourcesPath = path.join(path.dirname(app.getPath('exe')), '..', 'Resources');
-//     console.log(`Setting working directory to: ${resourcesPath}`);
-//     process.chdir(resourcesPath);
-//     console.log(`New working directory: ${process.cwd()}`);
-    
-//     // Create global path to unpacked tools
-//     global.TOOLS_DIR = path.join(app.getAppPath(), '..', 'app.asar.unpacked', 'src', 'tools');
-//     console.log(`Tools directory: ${global.TOOLS_DIR}`);
-//   } catch (error) {
-//     console.error('Error setting working directory:', error);
-//   }
-// });
 
 // Store references to windows
 let mainWindow = null;
@@ -219,15 +253,15 @@ const menu = Menu.buildFromTemplate(menuTemplate);
 Menu.setApplicationMenu(menu);
 
 // Add global shortcut for DevTools
-app.whenReady().then(() => {
-  const { globalShortcut } = require('electron');
-  globalShortcut.register('CommandOrControl+Shift+I', () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    if (focusedWindow) {
-      focusedWindow.webContents.openDevTools();
-    }
-  });
-});
+// app.whenReady().then(() => {
+//   const { globalShortcut } = require('electron');
+//   globalShortcut.register('CommandOrControl+Shift+I', () => {
+//     const focusedWindow = BrowserWindow.getFocusedWindow();
+//     if (focusedWindow) {
+//       focusedWindow.webContents.openDevTools();
+//     }
+//   });
+// });
 
 // Function to create project selection dialog
 function createProjectDialog() {
@@ -1313,73 +1347,73 @@ function setupIPCHandlers() {
 }
 
 // Initialize the app state and then create the window
-async function main() {
-  try {
-    // Initialize AppState before using it
-    await appState.initialize();
+// async function main() {
+//   try {
+//     // Initialize AppState before using it
+//     await appState.initialize();
 
-    // Set up IPC handlers first
-    setupIPCHandlers();
+//     // Set up IPC handlers first
+//     setupIPCHandlers();
 
-    // Initialize tool system with COMPLETE Claude API settings
-    try {
-      // Get complete settings
-      const completeSettings = getCompleteClaudeSettings();
+//     // Initialize tool system with COMPLETE Claude API settings
+//     try {
+//       // Get complete settings
+//       const completeSettings = getCompleteClaudeSettings();
       
-      // Log the complete settings
-      console.log('Initializing tool system with complete settings:');
-      console.log(JSON.stringify(completeSettings, null, 2));
+//       // Log the complete settings
+//       console.log('Initializing tool system with complete settings:');
+//       console.log(JSON.stringify(completeSettings, null, 2));
       
-      // Initialize tool system with complete settings
-      const toolSystemResult = await toolSystem.initializeToolSystem(completeSettings);
+//       // Initialize tool system with complete settings
+//       const toolSystemResult = await toolSystem.initializeToolSystem(completeSettings);
 
-      // verifyToolLoading();
+//       // verifyToolLoading();
 
-      // Check if API key is missing
-      if (toolSystemResult.claudeService && toolSystemResult.claudeService.apiKeyMissing) {
-        // Show notification after window is created
-        setTimeout(() => {
-          if (mainWindow && !mainWindow.isDestroyed()) {
-            dialog.showMessageBox(mainWindow, {
-              type: 'warning',
-              title: 'API Key Missing',
-              message: 'Claude API key not found',
-              detail: 'Please configure your Claude API key in API Settings before using AI tools.',
-              buttons: ['OK']
-            });
-          }
-        }, 1000);
-      }
+//       // Check if API key is missing
+//       if (toolSystemResult.claudeService && toolSystemResult.claudeService.apiKeyMissing) {
+//         // Show notification after window is created
+//         setTimeout(() => {
+//           if (mainWindow && !mainWindow.isDestroyed()) {
+//             dialog.showMessageBox(mainWindow, {
+//               type: 'warning',
+//               title: 'API Key Missing',
+//               message: 'Claude API key not found',
+//               detail: 'Please configure your Claude API key in API Settings before using AI tools.',
+//               buttons: ['OK']
+//             });
+//           }
+//         }, 1000);
+//       }
 
-    } catch (toolError) {
-      console.error('>>> Warning: Tool system initialization failed:', toolError.message);
-      // // Show error to user but don't crash the app
-      // dialog.showErrorBox(
-      //   'API Configuration Warning', 
-      //   'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
-      // );
-      // Don't swallow this error - re-throw it to prevent app from starting with broken tools
-      throw toolError;
-    }
+//     } catch (toolError) {
+//       console.error('>>> Warning: Tool system initialization failed:', toolError.message);
+//       // // Show error to user but don't crash the app
+//       // dialog.showErrorBox(
+//       //   'API Configuration Warning', 
+//       //   'Some Claude API settings may be missing. You can update them in Edit → API Settings.'
+//       // );
+//       // Don't swallow this error - re-throw it to prevent app from starting with broken tools
+//       throw toolError;
+//     }
     
-    // Create the main window
-    createWindow();
+//     // Create the main window
+//     createWindow();
     
-    // Check if a project is selected, if not, show the project dialog
-    if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
-      // Give the main window time to load first
-      setTimeout(() => {
-        showProjectDialog();
-      }, 500);
-    }
-  } catch (error) {
-    console.error('Failed to initialize application:', error);
-    app.quit();
-  }
-}
+//     // Check if a project is selected, if not, show the project dialog
+//     if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
+//       // Give the main window time to load first
+//       setTimeout(() => {
+//         showProjectDialog();
+//       }, 500);
+//     }
+//   } catch (error) {
+//     console.error('Failed to initialize application:', error);
+//     app.quit();
+//   }
+// }
 
 // This method will be called when Electron has finished initialization
-app.whenReady().then(main);
+// app.whenReady().then(main);
 
 // Quit when all windows are closed
 app.on('window-all-closed', () => {
