@@ -30,6 +30,10 @@ CONTEXT WINDOW (200K)
 │                           │ THINKING (32K) │ VISIBLE (61,552 max)   │
 │                           │                │                        │
 └─────────────────────────────────────────────────────────────────────┘
+OUTPUT = 200000 - 106448   = 93552
+                  THINKING
+VISIBLE = 93552 - 32000    = 61552
+
 ```
 
 The important formula is:

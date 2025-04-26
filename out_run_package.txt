@@ -1,68 +1,87 @@
-(base) cleesmith:~$ out/WritersToolkit-darwin-arm64/WritersToolkit.app/Contents/MacOS/writers-toolkit 
-ToolRegistry initialized
-*** Electron Store location: /Users/cleesmith/Library/Application Support/Writer's Toolkit/writers-toolkit-config.json
-AppState initialized successfully
-Initializing tool system with complete settings:
-{
-  "max_retries": 1,
-  "request_timeout": 300,
-  "desired_output_tokens": 12000,
-  "context_window": 200000,
-  "thinking_budget_tokens": 32000,
-  "betas_max_tokens": 128000,
-  "model_name": "claude-3-7-sonnet-20250219",
-  "betas": "output-128k-2025-02-19",
-  "max_thinking_budget": 32000
-}
-Initializing tool system (no external DB)…
-Claude API Service initialized with:
-- Context window: 200000
-- Model name: claude-3-7-sonnet-20250219
-- Beta features: output-128k-2025-02-19
-- Max thinking budget: 32000
-All registered tool IDs: [
-  'tokens_words_counter',
-  'manuscript_to_outline_characters_world',
-  'narrative_integrity',
-  'brainstorm',
-  'outline_writer',
-  'world_writer',
-  'chapter_writer',
-  'character_analyzer',
-  'tense_consistency_checker',
-  'adjective_adverb_optimizer',
-  'dangling_modifier_checker',
-  'rhythm_analyzer',
-  'crowding_leaping_evaluator',
-  'punctuation_auditor',
-  'conflict_analyzer',
-  'foreshadowing_tracker',
-  'plot_thread_tracker',
-  'kdp_publishing_prep'
-]
-Registered 18 built‑in tools
-*** Screen dimensions: { width: 1464, height: 933 }
-All registered tool IDs: [
-  'tokens_words_counter',
-  'manuscript_to_outline_characters_world',
-  'narrative_integrity',
-  'brainstorm',
-  'outline_writer',
-  'world_writer',
-  'chapter_writer',
-  'character_analyzer',
-  'tense_consistency_checker',
-  'adjective_adverb_optimizer',
-  'dangling_modifier_checker',
-  'rhythm_analyzer',
-  'crowding_leaping_evaluator',
-  'punctuation_auditor',
-  'conflict_analyzer',
-  'foreshadowing_tracker',
-  'plot_thread_tracker',
-  'kdp_publishing_prep'
-]
-2025-04-23 08:42:36.020 writers-toolkit[20446:1231750] +[IMKClient subclass]: chose IMKClient_Modern
-2025-04-23 08:42:36.020 writers-toolkit[20446:1231750] +[IMKInputSession subclass]: chose IMKInputSession_Modern
-Quit requested from renderer
-(base) cleesmith:~$ 
+... make a distributable dmg:
+
+1.
+npm run package
+
+2.
+create-dmg \
+  --volname "Writer's Toolkit" \
+  --window-size 540 400 \
+  --icon-size 128 \
+  --icon "WritersToolkit.app" 150 200 \
+  --hide-extension "WritersToolkit.app" \
+  --app-drop-link 390 200 \
+  "out/WritersToolkit.dmg" \
+  "out/WritersToolkit-darwin-arm64/WritersToolkit.app"
+
+
+notes:
+- coz "npm run make" can't deal with hidden files in the dmg, 
+so the installer displays odd files
+
+(base) cleesmith:~$ create-dmg --help
+create-dmg 1.2.1
+
+Creates a fancy DMG file.
+
+Usage:  create-dmg [options] <output_name.dmg> <source_folder>
+
+All contents of <source_folder> will be copied into the disk image.
+
+Options:
+  --volname <name>
+      set volume name (displayed in the Finder sidebar and window title)
+  --volicon <icon.icns>
+      set volume icon
+  --background <pic.png>
+      set folder background image (provide png, gif, or jpg)
+  --window-pos <x> <y>
+      set position the folder window
+  --window-size <width> <height>
+      set size of the folder window
+  --text-size <text_size>
+      set window text size (10-16)
+  --icon-size <icon_size>
+      set window icons size (up to 128)
+  --icon file_name <x> <y>
+      set position of the file's icon
+  --hide-extension <file_name>
+      hide the extension of file
+  --app-drop-link <x> <y>
+      make a drop link to Applications, at location x,y
+  --ql-drop-link <x> <y>
+      make a drop link to user QuickLook install dir, at location x,y
+  --eula <eula_file>
+      attach a license file to the dmg (plain text or RTF)
+  --no-internet-enable
+      disable automatic mount & copy
+  --format <format>
+      specify the final disk image format (UDZO|UDBZ|ULFO|ULMO) (default is UDZO)
+  --filesystem <filesystem>
+      specify the disk image filesystem (HFS+|APFS) (default is HFS+, APFS supports macOS 10.13 or newer)
+  --encrypt
+      enable encryption for the resulting disk image (AES-256 - you will be prompted for password)
+  --encrypt-aes128
+      enable encryption for the resulting disk image (AES-128 - you will be prompted for password)
+  --add-file <target_name> <file>|<folder> <x> <y>
+      add additional file or folder (can be used multiple times)
+  --disk-image-size <x>
+      set the disk image size manually to x MB
+  --hdiutil-verbose
+      execute hdiutil in verbose mode
+  --hdiutil-quiet
+      execute hdiutil in quiet mode
+  --bless
+      bless the mount folder (deprecated, needs macOS 12.2.1 or older)
+  --codesign <signature>
+      codesign the disk image with the specified signature
+  --notarize <credentials>
+      notarize the disk image (waits and staples) with the keychain stored credentials
+  --sandbox-safe
+      execute hdiutil with sandbox compatibility and do not bless (not supported for APFS disk images)
+  --version
+      show create-dmg version number
+  -h, --help
+      display this help screen
+
+
