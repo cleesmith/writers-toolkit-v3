@@ -1,0 +1,303 @@
+Writer's Toolkit - Live Demo Script (60+ minutes)
+
+Introduction (0-5 minutes) 
+"Hi everyone, I'm doing a live walkthrough
+of Writer's Toolkit today, a free desktop application I've been
+developing over the past several months to help writers organize
+their projects and leverage AI assistance. This is a completely
+unedited demo, so you'll see exactly how the app works in real-time,
+including waiting for AI tools to process - which can take anywhere
+from 3 to 15 minutes or even longer depending on the tool and
+manuscript size.
+
+Let's start by taking a look at the main interface. As you can see,
+Writer's Toolkit has a clean, dark mode interface by default, though
+you can toggle to light mode using this sun/moon icon in the top left
+if you prefer. I'll stick with dark mode for this demo."
+
+Project Selection (5-10 minutes) 
+"The first thing you need to do when
+using Writer's Toolkit is select or create a project. All your
+writing projects are stored in a 'writing' folder in your home
+directory for easy access.
+
+I've already created a sample project, but let me show you how to
+create a new one. I'll click the 'Select Project' button here at the
+top."
+
+[Click Select Project button]
+
+"This opens the project dialog. You can either select an existing
+project from this dropdown or create a new one by entering a name
+below. Let me create a new one called 'YouTube Demo'.
+
+[Type name and click Create Project]
+
+"Great, now our project is selected and we can see the path where
+project files will be stored. For a real project, you would either
+start creating files here or import an existing document.
+
+Speaking of which, if you already have a Word document to work with,
+you can click this 'Import/Convert .docx to .txt' button to convert
+it to plain text while preserving the chapter structure. This is
+really useful if you've been working in Word and want to analyze your
+manuscript with these tools."
+
+
+Selecting a Simple Tool (10-20 minutes) 
+
+"Now, let me show you one of
+the simpler tools first - the 'Tokens & Words Counter'. This tool
+helps you understand how long your manuscript is in terms of both
+word count and token count, which is important when working with AI
+services that have token limits.
+
+I've prepared a sample text file in this project with some content we
+can analyze. Let me select the tool from this dropdown and click
+'Setup & Run'."
+
+[Select tool and click Setup & Run]
+
+"Every tool follows the same workflow. First, you set it up, then you
+run it. Let me click 'Setup' to configure this tool."
+
+[Click Setup]
+
+"For this tool, I just need to select the text file I want to
+analyze. I'll click 'Browse' and select our sample file."
+
+[Select file and click Apply]
+
+"Now I'll click 'Run' to start the analysis."
+
+[Click Run]
+
+"As you can see, the tool is now processing the file. This is one of
+the quicker tools and should take about 3-5 minutes. While we're
+waiting, let me explain a few things about the interface:
+
+Notice how most buttons are disabled while a tool is running. This
+prevents accidental interruptions.
+
+The elapsed time counter in the top shows how long the tool has been
+running.
+
+If you ever need to stop a tool that's taking too long, you can use
+the 'Force Quit' button, though I don't recommend this unless
+necessary.
+
+The output area shows real-time progress as the tool works.
+
+This particular tool is reading the file, counting words, and then
+using the Claude API to calculate token usage. Tokens are the units
+of text that AI models process, and they're not exactly the same as
+words - usually a word is about 1.3 tokens.
+
+[As results start appearing]
+
+"Now we're seeing the tool finish its processing. Note that what you
+see in this output area is just a summary of the results - basic
+statistics and information about what files were created. To see the
+detailed report, we'll need to look at the output file."
+
+[When tool completes]
+
+"The tool has finished processing. Notice that a file selector has
+appeared at the top with an 'Edit' button. This lets us view and edit
+the output file that was created. Let me click 'Edit' to show you the
+built-in text editor."
+
+[Click Edit]
+
+"This is Writer's Toolkit's simple text editor. You can change the
+font size using this dropdown and toggle word wrap with this other
+dropdown. The report shows detailed information about our text file -
+word count, token count, the ratio between them, available tokens
+within different context window sizes, and recommendations for AI
+processing.
+
+At the bottom of the editor, you can see information about your
+cursor position and text statistics. Let me scroll through the entire
+report so you can see everything it contains."
+
+[Scroll through the report slowly]
+
+"Notice the filename - it includes a timestamp to ensure you never
+overwrite previous analysis results. All these files are saved in
+your project folder, which you can easily navigate to from your
+computer's file explorer if needed.
+
+When you're done reviewing, you can close the editor with the X
+button."
+
+[Close the editor after thoroughly showing its contents]
+
+Demonstrating a Longer-Running Tool (20-50 minutes) "Now, let's try a
+more complex tool that demonstrates the AI capabilities. I'll use the
+'Narrative Integrity' tool, which analyzes your manuscript for
+consistency with your outline and world-building. This will take
+longer to run - around 10-20 minutes depending on manuscript length -
+but it shows the real power of Writer's Toolkit."
+
+[Return to main screen, select Narrative Integrity tool, click Setup
+& Run]
+
+"Again, I'll click 'Setup' to configure the tool."
+
+[Click Setup]
+
+"This tool requires multiple files to analyze. I need to select the
+manuscript file, which contains the full story text, along with the
+world file that has details about the story's setting, and optionally
+an outline file. I've prepared these files for our demo."
+
+[Configure options]
+
+"I can also select what type of integrity checks to perform - like
+world integrity, internal integrity, plot development, and unresolved
+elements. For this demo, I'll select 'All Checks' to see everything
+the tool can identify.
+
+Now I'll click 'Apply' and then 'Run' to start the analysis process."
+
+[Start the tool running]
+
+"As you can see, the tool is now running. This will take 10-20
+minutes as it's doing a complex analysis - comparing the manuscript
+against the world-building and outline to identify inconsistencies,
+plot holes, and other issues that might need addressing.
+
+While we wait, let me explain what I call 'iAI' - the intelligent use
+of AI that makes Writer's Toolkit particularly effective. This isn't
+just blindly sending text to an API. Instead, the app is making smart
+decisions about:
+
+How to utilize Claude's 32K thinking budget effectively, giving it
+space to work through complex writing problems thoroughly.
+Managing content within the 200K context window limit 
+Optimizing token usage to balance quality and cost
+
+This intelligent approach is particularly valuable for writing tasks
+like analyzing narrative integrity. The tools aren't just passing
+text back and forth - they're strategically structuring prompts and
+managing responses to get the most reliable and high-quality writing
+assistance possible.
+
+For your own use, you would need to provide your own API key. The app
+stores all settings and project information locally on your machine -
+nothing is sent to any servers except the API calls to Claude for
+processing.
+
+Each tool in Writer's Toolkit is designed to help with specific
+aspects of the writing process: 
+The 'Tokens & Words Counter' we just used helps with understanding 
+manuscript length 
+
+The 'Narrative Integrity' tool we're running now helps identify inconsistencies 
+The 'Brainstorm' tool helps with ideation when you're starting a project
+
+There are tools for creating outlines, developing characters and
+worlds Several editing tools help check for issues like tense
+consistency, modifier problems, and rhythm Advanced tools help track
+plot threads, conflicts, and foreshadowing 
+
+There's even a tool to help prepare your book for KDP publishing
+
+[Continue explaining features while the tool runs]
+
+Let me also explain the workflow for all tools. After running a tool,
+the results are saved to your project folder, so you can easily
+access them later. You can clear the output area with the 'Clear'
+button if it gets too cluttered. When you're done with a tool, you
+can close it with the X button in the top right and return to the
+main screen to select another tool.
+
+[As results start appearing]
+
+"Ah, now we're starting to see results come in. The Narrative
+Integrity tool is identifying potential issues in the manuscript -
+places where the world-building might be inconsistent, character
+behaviors that don't align with their established traits, or plot
+elements that don't connect properly. This kind of analysis would
+take hours to do manually, but the tool can spot patterns across the
+entire manuscript."
+
+[When tool completes]
+
+"Perfect! The tool has finished its work. As you can see in the
+output area, we have a summary of what was analyzed and a list of
+output files that were created. These files contain the detailed
+analysis results.
+
+Let's look at these files using the file selector at the top. You can
+see there are several files with different types of analysis, all
+with timestamps in their names to prevent overwriting previous
+results."
+
+[Select first file and click Edit]
+
+"Here's the first analysis report. Let me scroll through it so you
+can see the detailed findings."
+
+[Scroll through the report thoroughly]
+
+"This report has identified several areas where the manuscript might
+have consistency issues with the world-building details, character
+motivations that seem to shift without explanation, and some plot
+elements that could be developed further.
+
+Let's look at another output file."
+
+[Select a second file and click Edit]
+
+"This one focuses specifically on internal consistency. Notice how it
+identifies specific examples from the text and suggests potential
+revisions."
+
+[Scroll through multiple output files, taking time to show and
+explain each one]
+
+"As you can see, these reports provide extremely detailed feedback
+that would typically require multiple beta readers or a professional
+editor. The timestamped filenames ensure you never lose previous
+analysis results, and all files are saved in your project folder for
+easy reference.
+
+This kind of detailed feedback is invaluable during the revision
+process. You can edit any of these reports directly in the editor if
+you want to add your own notes or mark items as addressed."
+
+
+Wrapping Up (50-60 minutes) [Return to main screen]
+
+"This gives you a good overview of how Writer's Toolkit functions. As
+you've seen, the tools do take some time to run because they're
+performing complex AI analysis, but the results can be very valuable
+for your writing process.
+
+To recap the basic workflow: Select or create a project Choose a tool
+that matches your current writing needs Set up the tool with
+appropriate options Run the tool and wait for processing (which takes
+3-20 minutes depending on the tool) Review the detailed results in
+the output files using the editor Use these insights to improve your
+manuscript
+
+Let me also show you where to find the output files directly on your
+computer. All files are saved in your project folder, which follows
+this structure: ~/writing/YOURPROJECTNAME/
+
+The files are named with timestamps to ensure you never overwrite
+previous results, making it easy to compare analyses over time as you
+revise your manuscript.
+
+Writer's Toolkit is completely free and open source. You can find it
+on GitHub - the link is in the description below. It's designed to be
+straightforward and focused on helping you improve your writing with
+minimal distractions.
+
+If you have any questions about the app or encounter any issues, feel
+free to open an issue on GitHub, and I'll do my best to help.
+
+I hope this live demonstration has been helpful in showing how the
+application works in real-time. Thanks for watching, and happy
+writing!"
