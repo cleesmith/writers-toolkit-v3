@@ -19,7 +19,6 @@ class BrainstormTool extends BaseTool {
   constructor(claudeService, config = {}) {
     super('brainstorm', config);
     this.claudeService = claudeService;
-    // console.log('Brainstorm Tool initialized with config:', config);
   }
   
   /**
@@ -28,20 +27,18 @@ class BrainstormTool extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing Brainstorm Tool with options:', options);
-    
     // Clear the cache for this tool
     const toolName = 'brainstorm';
     fileCache.clear(toolName);
     
     // Extract options
     const ideasFile = options.ideas_file;
-    const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     const outputFiles = [];
     const continueBuildingOnIdeas = options.continue || false;
     const conceptOnly = options.concept_only || false;
     const charactersOnly = options.characters_only || false;
     const skipThinking = options.skip_thinking || false;
+    let saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     // Validate save directory
     if (!saveDir) {

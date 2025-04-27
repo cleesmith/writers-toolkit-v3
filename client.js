@@ -228,7 +228,7 @@ class ClaudeAPIService {
     }
 
     // ---------------------------------------------------------------
-    // May 2025: Claude 3.7 Sonnet with 32K extended thinking
+    // May 2025: Claude 3.7 Sonnet with 32K extended thinking & betas
     // _______________________________________________________________
     // OUTPUT  =  contextWindow - promptTokens     =  availableTokens
     //                                ↓ THINKING ↓
