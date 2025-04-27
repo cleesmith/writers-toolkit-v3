@@ -1,7 +1,6 @@
 // punctuation-auditor.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -21,8 +20,6 @@ class PunctuationAuditor extends BaseTool {
   constructor(claudeService, config = {}) {
     super('punctuation_auditor', config);
     this.claudeService = claudeService;
-    // console.log('PunctuationAuditor initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
 
   /**
@@ -79,8 +76,7 @@ class PunctuationAuditor extends BaseTool {
       // Handle logging based on the returned values
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-      this.emitOutput(`                     = manuscript + prompt instructions\n`);
+      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] = manuscript tokens + prompt tokens\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
