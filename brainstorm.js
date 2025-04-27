@@ -128,6 +128,8 @@ class BrainstormTool extends BaseTool {
       prompt = this.createCharacterPrompt(ideasContent, options);
     }
 
+    this.emitOutput(`\n*** Working on: ${promptType}.txt file...\n`);
+
     // Count tokens in the prompt
     this.emitOutput(`Counting tokens in prompt...\n`);
     const promptTokens = await this.claudeService.countTokens(prompt);
@@ -136,7 +138,7 @@ class BrainstormTool extends BaseTool {
     const tokenBudgets = this.claudeService.calculateTokenBudgets(promptTokens);
 
     // Handle logging based on the returned values
-    this.emitOutput(`\nToken stats:\n`);
+    this.emitOutput(`Token stats:\n`);
     this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
     this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
     this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
