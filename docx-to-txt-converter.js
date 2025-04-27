@@ -17,7 +17,7 @@ const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 
 // Configure file paths - update these to your document location
-const INPUT_DOCX = path.join(__dirname, 'OvidsTenth.docx'); // Update to your document
+const INPUT_DOCX = path.join(__dirname, 'OvidsTenth.docx');
 const OUTPUT_TXT = path.join(__dirname, 'manuscript_OT.txt');
 
 // Headings that indicate end of content (e.g., back matter)

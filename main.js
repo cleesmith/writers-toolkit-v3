@@ -1327,6 +1327,271 @@ function setupIPCHandlers() {
     }
   });
 
+  // Convert TXT to DOCX
+  // ipcMain.handle('convert-txt-to-docx', async (event, txtPath, outputFilename) => {
+  //   try {
+  //     // Ensure we have a current project
+  //     if (!appState.CURRENT_PROJECT_PATH) {
+  //       return {
+  //         success: false,
+  //         message: 'No active project selected'
+  //       };
+  //     }
+      
+  //     // Validate output filename
+  //     if (!outputFilename) {
+  //       outputFilename = 'manuscript.docx';
+  //     }
+      
+  //     // Ensure it has a .docx extension
+  //     if (!outputFilename.toLowerCase().endsWith('.docx')) {
+  //       outputFilename += '.docx';
+  //     }
+      
+  //     // Construct output path
+  //     const outputPath = path.join(appState.CURRENT_PROJECT_PATH, outputFilename);
+      
+  //     // Read the txt file
+  //     const textContent = await fs.promises.readFile(txtPath, 'utf8');
+      
+  //     // Import docx library
+  //     const docx = require('docx');
+      
+  //     // Split text into paragraphs (separated by empty lines)
+  //     const paragraphs = textContent.split(/\n\s*\n/).map(p => p.trim()).filter(p => p);
+      
+  //     // Helper function to identify chapter titles
+  //     function isChapterTitle(text) {
+  //       // Common chapter title patterns
+  //       const patterns = [
+  //         /^chapter\s+\d+(\s*:|\.)?/i,           // "Chapter X:" or "Chapter X." or "Chapter X"
+  //         /^chapter\s+[a-z]+(\s*:|\.)?/i,        // "Chapter One:" or "Chapter One." or "Chapter One"
+  //         /^\d+\.\s+.{1,60}$/,                   // "1. Short Title"
+  //         /^\d+:\s+.{1,60}$/,                    // "1: Short Title"
+  //         /^[IVXLCDM]+\.\s+.{1,60}$/,            // "IV. Short Title" (Roman numerals)
+  //         /^[IVXLCDM]+:\s+.{1,60}$/              // "IV: Short Title" (Roman numerals)
+  //       ];
+        
+  //       for (const pattern of patterns) {
+  //         if (pattern.test(text)) return true;
+  //       }
+        
+  //       if (text.length < 60 && text.length > 3 && 
+  //           !text.includes('.') && !text.includes(',') && 
+  //           text.split(' ').length <= 7) {
+  //         return true;
+  //       }
+        
+  //       return false;
+  //     }
+      
+  //     // Create document with single section and children
+  //     const children = [];
+  //     let chapterCount = 0;
+      
+  //     // Assume first paragraph is a chapter title if it matches the pattern
+  //     let firstParagraphIsTitle = paragraphs.length > 0 && isChapterTitle(paragraphs[0]);
+  //     if (!firstParagraphIsTitle && paragraphs.length > 0) {
+  //       firstParagraphIsTitle = true;
+  //     }
+      
+  //     // Process each paragraph
+  //     paragraphs.forEach((paragraph, index) => {
+  //       if ((index === 0 && firstParagraphIsTitle) || (index > 0 && isChapterTitle(paragraph))) {
+  //         chapterCount++;
+          
+  //         // Add page break before chapters (except the first one)
+  //         if (index > 0) {
+  //           children.push(new docx.Paragraph({ pageBreakBefore: true }));
+  //         }
+          
+  //         // Add chapter title - using direct formatting instead of styles
+  //         children.push(
+  //           new docx.Paragraph({
+  //             children: [
+  //               new docx.TextRun({
+  //                 text: paragraph,
+  //                 bold: true,
+  //                 size: 28,
+  //                 font: "Times New Roman"
+  //               })
+  //             ],
+  //             alignment: docx.AlignmentType.CENTER,
+  //             spacing: { before: 240, after: 120 }
+  //           })
+  //         );
+  //       } else {
+  //         // Regular paragraph - using direct formatting instead of styles
+  //         children.push(
+  //           new docx.Paragraph({
+  //             children: [
+  //               new docx.TextRun({
+  //                 text: paragraph,
+  //                 size: 24,
+  //                 font: "Times New Roman"
+  //               })
+  //             ],
+  //             indent: { firstLine: 720 },
+  //             spacing: { line: 480, before: 0, after: 0 }
+  //           })
+  //         );
+  //       }
+  //     });
+      
+  //     // Create document with minimal configuration
+  //     const doc = new docx.Document({
+  //       sections: [
+  //         {
+  //           properties: {
+  //             page: {
+  //               margin: {
+  //                 top: 1440,
+  //                 right: 1440,
+  //                 bottom: 1440,
+  //                 left: 1440
+  //               }
+  //             }
+  //           },
+  //           children: children
+  //         }
+  //       ]
+  //     });
+      
+  //     // Save the document
+  //     const buffer = await docx.Packer.toBuffer(doc);
+  //     await fs.promises.writeFile(outputPath, buffer);
+      
+  //     return {
+  //       success: true,
+  //       outputPath: outputPath,
+  //       outputFilename: outputFilename,
+  //       chapterCount: chapterCount,
+  //       paragraphCount: paragraphs.length
+  //     };
+  //   } catch (error) {
+  //     console.error('Error converting TXT to DOCX:', error);
+  //     return {
+  //       success: false,
+  //       message: error.message || 'Failed to convert TXT file'
+  //     };
+  //   }
+  // });
+  // Convert TXT to DOCX - using minimal, version-compatible approach
+  ipcMain.handle('convert-txt-to-docx', async (event, txtPath, outputFilename) => {
+    try {
+      // Ensure we have a current project
+      if (!appState.CURRENT_PROJECT_PATH) {
+        return {
+          success: false,
+          message: 'No active project selected'
+        };
+      }
+      
+      // Validate output filename
+      if (!outputFilename) {
+        outputFilename = 'manuscript.docx';
+      }
+      
+      // Ensure it has a .docx extension
+      if (!outputFilename.toLowerCase().endsWith('.docx')) {
+        outputFilename += '.docx';
+      }
+      
+      // Construct output path
+      const outputPath = path.join(appState.CURRENT_PROJECT_PATH, outputFilename);
+      
+      // Read the txt file
+      const textContent = await fs.promises.readFile(txtPath, 'utf8');
+      
+      // Import docx library
+      const docx = require('docx');
+      
+      // Split text into paragraphs (separated by empty lines)
+      const paragraphs = textContent.split(/\n\s*\n/).map(p => p.trim()).filter(p => p);
+      
+      // Simple function to check if a paragraph looks like a chapter heading
+      function isChapterTitle(text) {
+        // Common chapter title patterns
+        return /^chapter\s+\d+/i.test(text) || // "Chapter X"
+               /^chapter\s+[ivxlcdm]+/i.test(text) || // "Chapter IV"
+               /^\d+[\.:]\s+/i.test(text); // "1: " or "1. "
+      }
+
+      // Create array of document content
+      const children = [];
+      let chapterCount = 0;
+      
+      // Process each paragraph
+      paragraphs.forEach((paragraph, index) => {
+        // Test if it's a chapter title
+        if (isChapterTitle(paragraph)) {
+          chapterCount++;
+          
+          // Add page break before chapters (except the first one)
+          if (chapterCount > 1) {
+            children.push(new docx.Paragraph({ pageBreakBefore: true }));
+          }
+          
+          // Add chapter heading with proper formatting
+          children.push(
+            new docx.Paragraph({
+              text: paragraph,
+              heading: docx.HeadingLevel.HEADING_1,
+              alignment: docx.AlignmentType.CENTER,
+              spacing: { before: 240, after: 120 }
+            })
+          );
+        } else {
+          // Regular paragraph with first line indent
+          children.push(
+            new docx.Paragraph({
+              text: paragraph,
+              indent: { firstLine: 720 }, // 0.5 inch
+              spacing: { line: 480 } // Double spacing
+            })
+          );
+        }
+      });
+
+      // Create document with minimal options
+      const doc = new docx.Document({
+        sections: [
+          {
+            properties: {
+              page: {
+                margin: {
+                  top: 1440, // 1 inch (1440 twips)
+                  right: 1440, 
+                  bottom: 1440,
+                  left: 1440
+                }
+              }
+            },
+            children: children
+          }
+        ]
+      });
+      
+      // Save the document
+      const buffer = await docx.Packer.toBuffer(doc);
+      await fs.promises.writeFile(outputPath, buffer);
+      
+      return {
+        success: true,
+        outputPath: outputPath,
+        outputFilename: outputFilename,
+        chapterCount: chapterCount,
+        paragraphCount: paragraphs.length
+      };
+    } catch (error) {
+      console.error('Error converting TXT to DOCX:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to convert TXT file'
+      };
+    }
+  });
+
   // Get output files for a tool run
   ipcMain.handle('get-tool-output-files', (event, toolId) => {
     try {

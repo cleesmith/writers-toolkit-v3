@@ -1,7 +1,6 @@
 // narrative-integrity.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -22,8 +21,6 @@ class NarrativeIntegrity extends BaseTool {
   constructor(claudeService, config = {}) {
     super('narrative_integrity', config);
     this.claudeService = claudeService;
-    // console.log('NarrativeIntegrity initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
   
   /**
@@ -248,6 +245,7 @@ class NarrativeIntegrity extends BaseTool {
    * @returns {string} - Prompt for Claude API
    */
   createPrompt(checkType, outlineContent, worldContent, manuscriptContent) {
+    // cls: to be honest this has no effect:
     const noMarkdown = "IMPORTANT: - NO Markdown formatting";
     
     const prompts = {
@@ -517,7 +515,6 @@ ${stats}`;
         this.emitOutput(`AI thinking saved to: ${thinkingPath}\n`);
         savedFilePaths.push(thinkingPath);
       }
-      // console.log('$>$>$> Current saved paths:', savedFilePaths);
 
       this.emitOutput(`Report saved to: ${reportPath}\n`);
       return savedFilePaths;

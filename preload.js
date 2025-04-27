@@ -60,4 +60,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onSetTheme: (callback) => ipcRenderer.on('set-theme', (_, theme) => callback(theme)),
 
   convertDocxToTxt: (docxPath, outputFilename) => ipcRenderer.invoke('convert-docx-to-txt', docxPath, outputFilename),
+
+  convertTxtToDocx: (txtPath, outputFilename) => ipcRenderer.invoke('convert-txt-to-docx', txtPath, outputFilename),
 });

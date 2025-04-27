@@ -465,6 +465,201 @@ if (importDocxBtn) {
   });
 }
 
+// Export TXT button handler (add after the importDocxBtn event handler)
+const exportTxtBtn = document.getElementById('export-txt-btn');
+if (exportTxtBtn) {
+  exportTxtBtn.addEventListener('click', async () => {
+    try {
+      // Check if a project is selected
+      const projectInfo = await window.electronAPI.getProjectInfo();
+      if (!projectInfo || !projectInfo.current_project) {
+        alert('Please select a project first.');
+        return;
+      }
+      
+      // Configure file selection options for TXT files
+      const fileOptions = {
+        title: 'Select TXT File to Convert',
+        buttonLabel: 'Select TXT',
+        filters: [
+          { name: 'Text Files', extensions: ['txt'] },
+          { name: 'All Files', extensions: ['*'] }
+        ],
+        defaultPath: projectInfo.current_project_path
+      };
+      
+      // Open file selection dialog
+      const txtPath = await window.electronAPI.selectFile(fileOptions);
+      
+      // If user cancelled or no file selected
+      if (!txtPath) {
+        return;
+      }
+      
+      // Use default filename based on the selected file
+      const txtFileName = txtPath.split('/').pop().split('\\').pop();
+      const defaultOutputName = txtFileName.replace(/\.txt$/i, '.docx');
+      
+      // Create a custom dialog for filename input
+      const filenameDialog = document.createElement('div');
+      filenameDialog.style.position = 'fixed';
+      filenameDialog.style.top = '0';
+      filenameDialog.style.left = '0';
+      filenameDialog.style.width = '100%';
+      filenameDialog.style.height = '100%';
+      filenameDialog.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+      filenameDialog.style.display = 'flex';
+      filenameDialog.style.justifyContent = 'center';
+      filenameDialog.style.alignItems = 'center';
+      filenameDialog.style.zIndex = '1000';
+      
+      // Dialog content
+      const dialogContent = document.createElement('div');
+      dialogContent.style.backgroundColor = document.body.classList.contains('light-mode') ? '#ffffff' : '#1e1e1e';
+      dialogContent.style.color = document.body.classList.contains('light-mode') ? '#222222' : '#ffffff';
+      dialogContent.style.padding = '20px';
+      dialogContent.style.borderRadius = '8px';
+      dialogContent.style.width = '400px';
+      dialogContent.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+      
+      const dialogTitle = document.createElement('h3');
+      dialogTitle.textContent = 'Output Filename';
+      dialogTitle.style.marginBottom = '15px';
+      
+      const dialogMessage = document.createElement('p');
+      dialogMessage.textContent = 'Enter name for the output DOCX file:';
+      dialogMessage.style.marginBottom = '15px';
+      
+      const filenameInput = document.createElement('input');
+      filenameInput.type = 'text';
+      filenameInput.value = defaultOutputName;
+      filenameInput.style.width = '100%';
+      filenameInput.style.padding = '8px';
+      filenameInput.style.backgroundColor = document.body.classList.contains('light-mode') ? '#ffffff' : '#2a2a2a';
+      filenameInput.style.color = document.body.classList.contains('light-mode') ? '#222222' : '#ffffff';
+      filenameInput.style.border = document.body.classList.contains('light-mode') ? '1px solid #cccccc' : '1px solid #333333';
+      filenameInput.style.borderRadius = '4px';
+      filenameInput.style.fontSize = '16px';
+      filenameInput.style.marginBottom = '20px';
+      
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.justifyContent = 'flex-end';
+      buttonContainer.style.gap = '10px';
+      
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.style.padding = '8px 16px';
+      cancelButton.style.backgroundColor = 'transparent';
+      cancelButton.style.color = '#4a89dc';
+      cancelButton.style.border = '1px solid #4a89dc';
+      cancelButton.style.borderRadius = '4px';
+      cancelButton.style.cursor = 'pointer';
+      
+      const okButton = document.createElement('button');
+      okButton.textContent = 'Convert';
+      okButton.style.padding = '8px 16px';
+      okButton.style.backgroundColor = '#7e57c2';
+      okButton.style.color = 'white';
+      okButton.style.border = 'none';
+      okButton.style.borderRadius = '4px';
+      okButton.style.cursor = 'pointer';
+      
+      // Build dialog
+      buttonContainer.appendChild(cancelButton);
+      buttonContainer.appendChild(okButton);
+      
+      dialogContent.appendChild(dialogTitle);
+      dialogContent.appendChild(dialogMessage);
+      dialogContent.appendChild(filenameInput);
+      dialogContent.appendChild(buttonContainer);
+      
+      filenameDialog.appendChild(dialogContent);
+      
+      // Add dialog to document
+      document.body.appendChild(filenameDialog);
+      
+      // Focus on input
+      filenameInput.focus();
+      filenameInput.select();
+      
+      // Handle dialog actions
+      return new Promise((resolve) => {
+        cancelButton.addEventListener('click', () => {
+          document.body.removeChild(filenameDialog);
+          resolve(null);
+        });
+        
+        okButton.addEventListener('click', async () => {
+          let outputFilename = filenameInput.value.trim();
+          
+          // Ensure filename is valid
+          if (!outputFilename) {
+            outputFilename = defaultOutputName;
+          }
+          
+          // Ensure it has a .docx extension
+          if (!outputFilename.toLowerCase().endsWith('.docx')) {
+            outputFilename += '.docx';
+          }
+          
+          document.body.removeChild(filenameDialog);
+          
+          // Show a loading indicator
+          const loadingDiv = document.createElement('div');
+          loadingDiv.textContent = 'Converting TXT to DOCX...';
+          loadingDiv.style.position = 'fixed';
+          loadingDiv.style.top = '50%';
+          loadingDiv.style.left = '50%';
+          loadingDiv.style.transform = 'translate(-50%, -50%)';
+          loadingDiv.style.padding = '20px';
+          loadingDiv.style.backgroundColor = document.body.classList.contains('light-mode') ? '#f0f0f0' : '#333';
+          loadingDiv.style.color = document.body.classList.contains('light-mode') ? '#222' : '#fff';
+          loadingDiv.style.borderRadius = '5px';
+          loadingDiv.style.zIndex = '1000';
+          document.body.appendChild(loadingDiv);
+          
+          try {
+            // Call the main process to convert the file
+            const result = await window.electronAPI.convertTxtToDocx(txtPath, outputFilename);
+            
+            // Remove loading indicator
+            if (document.body.contains(loadingDiv)) {
+              document.body.removeChild(loadingDiv);
+            }
+
+            if (result.success) {
+              alert(`Conversion complete! Output saved as ${result.outputFilename}\nFormatted ${result.paragraphCount} paragraphs with ${result.chapterCount} chapters.`);
+            } else {
+              alert(`Failed to convert file: ${result.message || 'Unknown error'}`);
+            }
+
+          } catch (error) {
+            // Remove loading indicator on error
+            if (document.body.contains(loadingDiv)) {
+              document.body.removeChild(loadingDiv);
+            }
+            console.error('Conversion error:', error);
+            alert(`Error converting file: ${error.message || 'Unknown error'}`);
+          }
+          
+          resolve(true);
+        });
+        
+        // Also handle Enter key in the input
+        filenameInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            okButton.click();
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error in TXT export process:', error);
+      alert(`Error: ${error.message || 'Unknown error occurred'}`);
+    }
+  });
+}
+
 // Open API Settings dialog
 if (apiSettingsBtn) {
   apiSettingsBtn.addEventListener('click', () => {
