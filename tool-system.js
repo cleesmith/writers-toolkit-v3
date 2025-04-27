@@ -191,7 +191,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the story outline (optional)",
       "required": false,
-      "default": "outline.txt",
+      "default": "",
       "group": "Input Files"
     },
     {
@@ -236,7 +236,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "Path to ideas.txt file containing the concept and/or characters",
       "required": true,
-      "default": "",
+      "default": "ideas.txt",
       "group": "Input Files"
     },
     {
@@ -337,7 +337,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the story premise (required)",
       "required": true,
-      "default": "",
+      "default": "ideas.txt",
       "group": "Input Files"
     },
     {
@@ -456,7 +456,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "Characters",
       "required": true,
-      "default": "",
+      "default": "characters.txt",
       "group": "Input Files"
     },
     {
@@ -586,7 +586,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the manuscript to analyze (required)",
       "required": true,
-      "default": "",
+      "default": "manuscript.txt",
       "group": "Input Files"
     },
     {
@@ -633,7 +633,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the manuscript to analyze (required)",
       "required": true,
-      "default": "/Users/cleesmith/writing/A_Darker_Roast/manuscript.txt",
+      "default": "manuscript.txt",
       "group": "Input Files"
     },
     {
@@ -1014,7 +1014,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the story outline (optional)",
       "required": false,
-      "default": "outline.txt",
+      "default": "",
       "group": "Input Files"
     },
     {
@@ -1070,7 +1070,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the story outline (optional)",
       "required": false,
-      "default": "outline.txt",
+      "default": "",
       "group": "Input Files"
     },
     {
@@ -1126,7 +1126,7 @@ const TOOL_DEFS = [
       "type": "file",
       "description": "File containing the story outline (optional)",
       "required": false,
-      "default": "outline.txt",
+      "default": "",
       "group": "Input Files"
     },
     {
