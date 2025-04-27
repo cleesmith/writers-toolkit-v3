@@ -34,7 +34,6 @@ class BrainstormTool extends BaseTool {
     // Extract options
     const ideasFile = options.ideas_file;
     const outputFiles = [];
-    const continueBuildingOnIdeas = options.continue || false;
     const conceptOnly = options.concept_only || false;
     const charactersOnly = options.characters_only || false;
     const skipThinking = options.skip_thinking || false;
@@ -140,8 +139,6 @@ class BrainstormTool extends BaseTool {
     this.emitOutput(`\nToken stats:\n`);
     this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
     this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-    this.emitOutput(`                     = outline.txt + world.txt + manuscript.txt\n`);
-    this.emitOutput(`                       + prompt instructions\n`);
     this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
     this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
     this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -237,10 +234,10 @@ class BrainstormTool extends BaseTool {
       // Stats for thinking file
       const stats = `
 Details:
-Max request timeout: ${this.config.request_timeout || 300} seconds
-Max AI model context window: ${this.config.context_window || 200000} tokens
-AI model thinking budget: ${this.config.thinking_budget_tokens || 32000} tokens
-Desired output tokens: ${this.config.desired_output_tokens || 12000} tokens
+Max request timeout: ${this.config.request_timeout} seconds
+Max AI model context window: ${this.config.context_window} tokens
+AI model thinking budget: ${this.config.thinking_budget_tokens} tokens
+Desired output tokens: ${this.config.desired_output_tokens} tokens
 
 Input tokens: ${promptTokens}
 Output tokens: ${responseTokens}
@@ -428,9 +425,7 @@ IMPORTANT FORMATTING INSTRUCTIONS:
 6. Keep your writing clear, concise, and psychologically insightful
 7. This content will be appended to an ideas file for writing development`;
   }
-  
 
-  
   /**
    * Count words in text
    * @param {string} text - Text to count words in
