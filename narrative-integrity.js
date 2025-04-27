@@ -29,8 +29,6 @@ class NarrativeIntegrity extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing NarrativeIntegrity with options:', options);
-    
     // Extract options
     let manuscriptFile = options.manuscript_file;
     let worldFile = options.world_file;
@@ -56,12 +54,12 @@ class NarrativeIntegrity extends BaseTool {
     }
     
     // Log the full paths for debugging
-    console.log('Using full paths:');
-    console.log(`Manuscript: ${manuscriptFile}`);
-    console.log(`World: ${worldFile}`);
-    if (outlineFile) {
-      console.log(`Outline: ${outlineFile}`);
-    }
+    // console.log('Using full paths:');
+    // console.log(`Manuscript: ${manuscriptFile}`);
+    // console.log(`World: ${worldFile}`);
+    // if (outlineFile) {
+    //   console.log(`Outline: ${outlineFile}`);
+    // }
 
     const outputFiles = [];
     

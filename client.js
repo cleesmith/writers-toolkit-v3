@@ -226,6 +226,14 @@ class ClaudeAPIService {
     if (capThinkingBudget) {
       thinkingBudget = maxThinkingBudget;
     }
+
+    // ---------------------------------------------------------------
+    // May 2025: Claude 3.7 Sonnet with 32K extended thinking
+    // _______________________________________________________________
+    // OUTPUT  =  contextWindow - promptTokens     =  availableTokens
+    //                                ↓ THINKING ↓
+    // VISIBLE =  availableTokens  -    32000      =  maxTokens
+    // ---------------------------------------------------------------
     
     // Check if prompt is too large for the configured thinking budget
     const isPromptTooLarge = thinkingBudget < configuredThinkingBudget;
