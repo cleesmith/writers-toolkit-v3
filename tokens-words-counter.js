@@ -1,11 +1,11 @@
 // tokens-words-counter.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 
 /**
+ * FOR TESTING ONLY:
  * Creates a delay that won't completely freeze the UI
  * @param {number} seconds - Total seconds to delay
  * @param {function} progressCallback - Function to call with progress updates
@@ -34,8 +34,6 @@ class TokensWordsCounter extends BaseTool {
   constructor(claudeService, config = {}) {
     super('tokens_words_counter', config);
     this.claudeService = claudeService;
-    // console.log('TokensWordsCounter initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
   
   /**
@@ -53,8 +51,6 @@ class TokensWordsCounter extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing TokensWordsCounter with options:', options);
-    
     // Clear the cache for this tool
     const toolName = 'tokens_words_counter';
     fileCache.clear(toolName);
@@ -77,31 +73,24 @@ class TokensWordsCounter extends BaseTool {
     if (inputFile && !path.isAbsolute(inputFile) && !inputFile.startsWith('~/')) {
       // This makes relative paths like "manuscript.txt" resolve to the current project folder
       inputFile = path.join(saveDir, inputFile);
-      console.log(`Resolved relative path to: ${inputFile}`);
       this.emitOutput(`Using file: ${inputFile}\n`);
     }
 
     try {
       // Read the input file
-      console.log(`Reading file: ${inputFile}`);
       this.emitOutput(`Reading file: ${inputFile}\n`);
 
       const text = await this.readInputFile(inputFile);
-      console.log(`File read successfully, length: ${text.length} characters`);
       
       // Count words
-      console.log('Counting words...');
       this.emitOutput('Counting words...\n');
       const wordCount = this.countWords(text);
-      console.log(`Word count: ${wordCount}`);
       this.emitOutput(`Word count: ${wordCount}\n`);
       
       // Count tokens using Claude API
-      console.log('Counting tokens using Claude API...');
       this.emitOutput('Counting tokens using Claude API (this may take a few seconds)...\n');
       
       const promptTokens = await this.claudeService.countTokens(text);
-      console.log(`Token count: ${promptTokens}`);
       this.emitOutput(`Token count: ${promptTokens}\n`);
       
       // Use the shared token budgets calculator from the Claude service
@@ -122,10 +111,6 @@ class TokensWordsCounter extends BaseTool {
 Analysis of file: ${inputFile}
 Generated on: ${new Date().toLocaleString()}
 
-Word count: ${wordCount}
-Token count: ${promptTokens}
-Words per token ratio: ${wordsPerToken.toFixed(2)}
-
 Context window: ${tokenBudgets.contextWindow} tokens
 Available tokens: ${tokenBudgets.availableTokens} tokens
 Thinking budget: ${tokenBudgets.thinkingBudget} tokens
@@ -134,14 +119,19 @@ Desired output tokens: ${tokenBudgets.desiredOutputTokens} tokens
 Note:
 - This analysis shows how many tokens your text requires
 - For Claude API, the token count affects both cost and context usage
-- The words-to-token ratio helps estimate token usage for future texts`;
+- The words-to-token ratio helps estimate token usage for future texts
+
+Word count: ${wordCount}
+Token count: ${promptTokens}
+Words per token ratio: ${wordsPerToken.toFixed(2)}
+
+`;
 
       // Output the report to the console
       this.emitOutput('\n' + reportContent + '\n');
       
       // Save the report to a file
       const outputFileName = `count_${inputName}_${timestamp}.txt`;
-      console.log(`Saving report to: ${path.join(saveDir, outputFileName)}`);
       this.emitOutput(`Saving report to: ${path.join(saveDir, outputFileName)}\n`);
       
       const outputFile = await this.writeOutputFile(
@@ -156,7 +146,6 @@ Note:
       // Add to the shared file cache
       fileCache.addFile(toolName, outputFile);
       
-      console.log('TokensWordsCounter execution complete');
       this.emitOutput('Analysis complete!\n');
       
       // Return the result
