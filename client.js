@@ -38,7 +38,6 @@ class ClaudeAPIService {
       return; // don't create the client but don't crash
     }
 
-    // Create Claude API client
     this.client = new anthropic.Anthropic({
       apiKey: apiKey,
       timeout: this.config.request_timeout * 1000, // convert seconds to ms
@@ -159,9 +158,10 @@ class ClaudeAPIService {
    * @returns {Promise<void>}
    */
   async streamWithThinking(prompt, options = {}, onThinking, onText) {
+    // max_tokens: this.config.betas_max_tokens,
     const modelOptions = {
       model: this.config.model_name,
-      max_tokens: this.config.betas_max_tokens,
+      max_tokens: this.config.max_tokens,
       messages: [{ role: "user", content: prompt }],
       thinking: {
         type: "enabled",
@@ -169,6 +169,7 @@ class ClaudeAPIService {
       },
       betas: this._getBetasArray()
     };
+    console.log(`>>> modelOptions:\n`, modelOptions)
 
     // Only allow system prompt to be overridden
     if (options.system) {
@@ -214,9 +215,12 @@ class ClaudeAPIService {
     
     // Calculate available tokens after prompt
     const availableTokens = contextWindow - promptTokens;
-    
+
     // For API call, max_tokens must respect the API limit
     const maxTokens = Math.min(availableTokens, betasMaxTokens);
+    if (maxTokens > contextWindow) {
+      maxTokens = availableTokens
+    }
     
     // Thinking budget must be LESS than max_tokens to leave room for visible output
     let thinkingBudget = maxTokens - desiredOutputTokens;
@@ -226,6 +230,16 @@ class ClaudeAPIService {
     if (capThinkingBudget) {
       thinkingBudget = maxThinkingBudget;
     }
+
+    // client.js: execute:
+    // API Error: 400 {
+    //     "type":"error",
+    //     "error":{
+    //       "type":"invalid_request_error",
+    //       "message":"input length and `max_tokens` exceed 
+    //          context limit: 107398 + 128000 > 200000, 
+    //          decrease input length or `max_tokens` and try again"
+    //     }}
 
     // ---------------------------------------------------------------
     // May 2025: Claude 3.7 Sonnet with 32K extended thinking & betas

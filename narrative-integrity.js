@@ -156,6 +156,16 @@ class NarrativeIntegrity extends BaseTool {
             }
           );
         } catch (error) {
+          console.log(`\n*** client.js: execute:\nAPI Error: ${error.message}\n`);
+          // client.js: execute:
+          // API Error: 400 {
+          //     "type":"error",
+          //     "error":{
+          //       "type":"invalid_request_error",
+          //       "message":"input length and `max_tokens` exceed 
+          //          context limit: 107398 + 128000 > 200000, 
+          //          decrease input length or `max_tokens` and try again"
+          //     }}
           this.emitOutput(`\nAPI Error: ${error.message}\n`);
           throw error;
         }
