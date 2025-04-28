@@ -1,7 +1,6 @@
 // rhythm-analyzer.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -22,8 +21,6 @@ class RhythmAnalyzer extends BaseTool {
   constructor(claudeService, config = {}) {
     super('rhythm_analyzer', config);
     this.claudeService = claudeService;
-    // console.log('RhythmAnalyzer initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
 
   /**
