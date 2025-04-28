@@ -5,18 +5,18 @@ The following AI (Claude 3.7 Sonnet) Tools run using:
 
 ## Creative Fiction Writing Tools
 
-- narrative-integrity - Checks a manuscript for integrity against a world document and optionally an outline. Supports different types of consistency checks: world, internal, development, and unresolved plot elements.
-- dangling-modifier-checker - Analyzes manuscripts for dangling and misplaced modifiers. Identifies phrases that don't logically connect to the subject they're meant to modify, which can create unintended humor or confusion.
-- tense-consistency-checker - Analyzes manuscripts for verb tense consistency issues. Identifies shifts between past/present tense that might confuse readers and breaks the narrative flow.
-- character-analyzer - Analyzes manuscript, outline, and world files to identify and compare character appearances across different story documents. Helps maintain character consistency throughout your story.
-- crowding-leaping-evaluator - Analyzes manuscripts for pacing issues based on Ursula K. Le Guin's concepts of "crowding" (intense detail) and "leaping" (jumping over time or events). Identifies dense paragraphs, abrupt transitions, and visualizes pacing patterns.
-- adjective-adverb-optimizer - Analyzes manuscripts for adjective and adverb usage. Identifies unnecessary modifiers, overused qualifiers, and suggests stronger verbs/nouns to replace adjective-heavy descriptions.
-- rhythm-analyzer - Analyzes manuscripts for rhythm and flow of prose. Measures sentence length variations, detects monotonous patterns, and highlights passages where the sound doesn't match the intended mood.
-- conflict-analyzer - Analyzes manuscripts for conflict patterns at different structural levels. Identifies conflict nature, escalation, and resolution at scene, chapter, and arc levels.
-- foreshadowing-tracker - Analyzes manuscripts for foreshadowing elements, planted clues, and their payoffs. Tracks setup and resolution of story elements, ensuring narrative promises are fulfilled.
-- plot-thread-tracker - Analyzes manuscripts to identify and track distinct plot threads. Shows how plot threads interconnect, converge, and diverge throughout the narrative.
-- tokens-words-counter - Counts tokens and words in text files. Helps estimate Claude API usage and context window requirements for your writing.
-- punctuation-auditor - Analyzes manuscripts for punctuation effectiveness. Identifies issues like run-on sentences, missing commas, and odd punctuation patterns that might hinder clarity and flow.
+1. narrative-integrity - Checks a manuscript for integrity against a world document and optionally an outline. Supports different types of consistency checks: world, internal, development, and unresolved plot elements.
+1. dangling-modifier-checker - Analyzes manuscripts for dangling and misplaced modifiers. Identifies phrases that don't logically connect to the subject they're meant to modify, which can create unintended humor or confusion.
+1. tense-consistency-checker - Analyzes manuscripts for verb tense consistency issues. Identifies shifts between past/present tense that might confuse readers and breaks the narrative flow.
+1. character-analyzer - Analyzes manuscript, outline, and world files to identify and compare character appearances across different story documents. Helps maintain character consistency throughout your story.
+1. crowding-leaping-evaluator - Analyzes manuscripts for pacing issues based on Ursula K. Le Guin's concepts of "crowding" (intense detail) and "leaping" (jumping over time or events). Identifies dense paragraphs, abrupt transitions, and visualizes pacing patterns.
+1. adjective-adverb-optimizer - Analyzes manuscripts for adjective and adverb usage. Identifies unnecessary modifiers, overused qualifiers, and suggests stronger verbs/nouns to replace adjective-heavy descriptions.
+1. rhythm-analyzer - Analyzes manuscripts for rhythm and flow of prose. Measures sentence length variations, detects monotonous patterns, and highlights passages where the sound doesn't match the intended mood.
+1. conflict-analyzer - Analyzes manuscripts for conflict patterns at different structural levels. Identifies conflict nature, escalation, and resolution at scene, chapter, and arc levels.
+1. foreshadowing-tracker - Analyzes manuscripts for foreshadowing elements, planted clues, and their payoffs. Tracks setup and resolution of story elements, ensuring narrative promises are fulfilled.
+1. plot-thread-tracker - Analyzes manuscripts to identify and track distinct plot threads. Shows how plot threads interconnect, converge, and diverge throughout the narrative.
+1. tokens-words-counter - Counts tokens and words in text files. Helps estimate Claude API usage and context window requirements for your writing.
+1. punctuation-auditor - Analyzes manuscripts for punctuation effectiveness. Identifies issues like run-on sentences, missing commas, and odd punctuation patterns that might hinder clarity and flow.
 
 ---
 
