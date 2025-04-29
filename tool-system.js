@@ -42,26 +42,6 @@ const ClaudeAPIService = require('./client');
 
 const toolRegistry = require('./registry');
 
-// const TokensWordsCounter = require('./tokens-words-counter');
-// const ManuscriptToOutlineCharactersWorld = require('./manuscript-to-outline-characters-world');
-// const NarrativeIntegrity = require('./narrative-integrity');
-// const BrainstormTool = require('./brainstorm');
-// const OutlineWriter = require('./outline-writer');
-// const WorldWriter = require('./world-writer');
-// const ChapterWriter = require('./chapter-writer');
-// const CharacterAnalyzer = require('./character-analyzer');
-// const TenseConsistencyChecker = require('./tense-consistency-checker');
-// const AdjectiveAdverbOptimizer = require('./adjective-adverb-optimizer');
-// const DanglingModifierChecker = require('./dangling-modifier-checker');
-// const RhythmAnalyzer = require('./rhythm-analyzer');
-// const CrowdingLeapingEvaluator = require('./crowding-leaping-evaluator');
-// const PunctuationAuditor = require('./punctuation-auditor');
-// const ConflictAnalyzer = require('./conflict-analyzer');
-// const ForeshadowingTracker = require('./foreshadowing-tracker');
-// const PlotThreadTracker = require('./plot-thread-tracker');
-// const KdpPublishingPrep = require('./kdp-publishing-prep');
-// Add this to the beginning of tool-system.js, right after the imports
-
 function loadToolClass(toolName) {
   const hyphenatedName = toolName.replace(/_/g, '-');
   
@@ -118,6 +98,7 @@ function loadToolClass(toolName) {
 const TokensWordsCounter = loadToolClass('tokens-words-counter');
 const ManuscriptToOutlineCharactersWorld = loadToolClass('manuscript-to-outline-characters-world');
 const NarrativeIntegrity = loadToolClass('narrative-integrity');
+const DrunkClaude = loadToolClass('drunk-claude');
 const BrainstormTool = loadToolClass('brainstorm');
 const OutlineWriter = loadToolClass('outline-writer');
 const WorldWriter = loadToolClass('world-writer');
@@ -133,8 +114,6 @@ const ConflictAnalyzer = loadToolClass('conflict-analyzer');
 const ForeshadowingTracker = loadToolClass('foreshadowing-tracker');
 const PlotThreadTracker = loadToolClass('plot-thread-tracker');
 const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
-
-// Built‑in tool definitions. No external JSON needed.
 
 const TOOL_DEFS = [
   { id: 'tokens_words_counter', title: `Tokens & Words Counter`, Class: TokensWordsCounter, options: [
@@ -227,6 +206,17 @@ const TOOL_DEFS = [
       "required": false,
       "default": "",
       "group": "Output Configuration"
+    }
+  ]},
+  { id: 'drunk_claude', title: `Drunk Claude`, Class: DrunkClaude, options: [
+    {
+      "name": "manuscript_file",
+      "label": "MANUSCRIPT_FILE",
+      "type": "file",
+      "description": "File containing the manuscript to analyze",
+      "required": true,
+      "default": "manuscript.txt",
+      "group": "Input Files"
     }
   ]},
   { id: 'brainstorm', title: `Brainstorm`, Class: BrainstormTool, options: [
