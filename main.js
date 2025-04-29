@@ -223,35 +223,26 @@ const menuTemplate = [
     submenu: [
       { role: 'about' },
       { type: 'separator' },
-      { role: 'services' },
-      { type: 'separator' },
-      { role: 'hide' },
-      { role: 'hideOthers' },
-      { role: 'unhide' },
-      { type: 'separator' },
       { role: 'quit' }
-    ]
-  },
-  // File menu
-  {
-    label: 'File',
-    submenu: [
-      { type: 'separator' },
-      { label: "Quit Writer's Toolkit", accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }
     ]
   },
   // Edit menu with standard operations
   {
     label: 'Edit',
     submenu: [
-      { label: 'API Settings', click: () => showApiSettingsDialog() }
+      { role: 'copy', accelerator: 'CmdOrCtrl+C' },
+      { role: 'paste', accelerator: 'CmdOrCtrl+V' },
+      { role: 'cut', accelerator: 'CmdOrCtrl+X' },
+      { type: 'separator' },
+      { role: 'selectAll', accelerator: 'CmdOrCtrl+A' },
     ]
   }
 ];
-
 // Set the application menu
 const menu = Menu.buildFromTemplate(menuTemplate);
 Menu.setApplicationMenu(menu);
+// cls: this removes the menu, but copy/paste fails:
+// Menu.setApplicationMenu(null);
 
 // Function to create project selection dialog
 function createProjectDialog() {
@@ -827,6 +818,22 @@ function createEditorDialog(fileToOpen = null) {
   const parentWindow = toolSetupRunWindow || mainWindow;
 
   // Create the dialog window
+  // editorDialogWindow = new BrowserWindow({
+  //   width: parentWindow.getSize()[0],
+  //   height: parentWindow.getSize()[1],
+  //   x: parentWindow.getPosition()[0],
+  //   y: parentWindow.getPosition()[1],
+  //   parent: parentWindow,
+  //   modal: true,
+  //   show: false,
+  //   webPreferences: {
+  //     nodeIntegration: false,
+  //     contextIsolation: true,
+  //     preload: path.join(__dirname, 'preload.js')
+  //   },
+  //   backgroundColor: '#121212', // Dark background
+  //   autoHideMenuBar: true,
+  // });
   editorDialogWindow = new BrowserWindow({
     width: parentWindow.getSize()[0],
     height: parentWindow.getSize()[1],
@@ -838,10 +845,12 @@ function createEditorDialog(fileToOpen = null) {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      // Enable clipboard operations without spellcheck
+      additionalArguments: ['--enable-clipboard-read', '--enable-clipboard-write']
     },
     backgroundColor: '#121212', // Dark background
-    autoHideMenuBar: true,
+    autoHideMenuBar: true, // Hide the menu bar
   });
 
   // Load the HTML file
