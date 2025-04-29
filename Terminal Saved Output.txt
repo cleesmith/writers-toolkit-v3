@@ -137,7 +137,8 @@ Initializing tool system with complete settings:
   "betas_max_tokens": 128000,
   "model_name": "claude-3-7-sonnet-20250219",
   "betas": "output-128k-2025-02-19",
-  "max_thinking_budget": 32000
+  "max_thinking_budget": 32000,
+  "max_tokens": 128000
 }
 Initializing tool system (no external DB)…
 Claude API Service initialized with:
@@ -145,6 +146,78 @@ Claude API Service initialized with:
 - Model name: claude-3-7-sonnet-20250219
 - Beta features: output-128k-2025-02-19
 - Max thinking budget: 32000
+- Max tokens: 128000
+ni: constructor: config: {
+  title: 'Narrative Integrity',
+  description: 'Narrative Integrity',
+  options: [
+    {
+      name: 'manuscript_file',
+      label: 'MANUSCRIPT_FILE',
+      type: 'file',
+      description: 'File containing the manuscript/narrative to analyze',
+      required: true,
+      default: 'manuscript.txt',
+      group: 'Input Files'
+    },
+    {
+      name: 'world_file',
+      label: 'world_file',
+      type: 'file',
+      description: 'File containing the world details (required)',
+      required: true,
+      default: 'world.txt',
+      group: 'Input Files'
+    },
+    {
+      name: 'outline_file',
+      label: 'outline_file',
+      type: 'file',
+      description: 'File containing the story outline (optional)',
+      required: false,
+      default: '',
+      group: 'Input Files'
+    },
+    {
+      name: 'skip_thinking',
+      label: 'skip_thinking',
+      type: 'boolean',
+      description: 'Skip saving the AI thinking process',
+      required: false,
+      default: false,
+      group: 'Output Configuration'
+    },
+    {
+      name: 'check_type',
+      label: 'Check Type',
+      type: 'select',
+      description: 'Select type of integrity check to perform',
+      required: false,
+      default: 'all',
+      group: 'Analysis Options',
+      choices: [Array]
+    },
+    {
+      name: 'check_description',
+      label: 'check_description',
+      type: 'text',
+      description: 'Optional description to include in output filenames',
+      required: false,
+      default: '',
+      group: 'Output Configuration'
+    }
+  ],
+  max_retries: 1,
+  request_timeout: 300,
+  desired_output_tokens: 8000,
+  context_window: 200000,
+  thinking_budget_tokens: 32000,
+  betas_max_tokens: 128000,
+  model_name: 'claude-3-7-sonnet-20250219',
+  betas: 'output-128k-2025-02-19',
+  max_thinking_budget: 32000,
+  max_tokens: 128000
+}
 All registered tool IDs: [
   'tokens_words_counter',
   'manuscript_to_outline_characters_world',
@@ -228,8 +301,8 @@ Found 18 tools in registry: [
   'kdp_publishing_prep'
 ]
 Returning 18 tools to renderer
-2025-04-28 17:15:44.632 Electron[94765:5887644] +[IMKClient subclass]: chose IMKClient_Modern
-2025-04-28 17:15:44.632 Electron[94765:5887644] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+2025-04-29 09:03:36.106 Electron[98453:6200692] +[IMKClient subclass]: chose IMKClient_Modern
+2025-04-29 09:03:36.106 Electron[98453:6200692] +[IMKInputSession subclass]: chose IMKInputSession_Modern
 Creating new tool setup dialog for: narrative_integrity
 Executing tool: narrative_integrity with options: {
   manuscript_file: 'manuscript.txt',
@@ -240,10 +313,34 @@ Executing tool: narrative_integrity with options: {
   check_description: ''
 }
 Starting execution of tool: narrative_integrity
->>> modelOptions:
+>>> cTB: this.config.maxTokens= undefined
+>>> cTB: availableTokens= 98082
+>>> cTB: before if: maxTokens= 98082
+>>> cTB: after if: maxTokens= 98082
+*** ni: tokenBudgets= {
+  contextWindow: 200000,
+  promptTokens: 101918,
+  availableTokens: 98082,
+  maxTokens: 98082,
+  thinkingBudget: 32000,
+  desiredOutputTokens: 8000,
+  betasMaxTokens: 128000,
+  configuredThinkingBudget: 32000,
+  capThinkingBudget: true,
+  isPromptTooLarge: false
+}
+>>> ni: tokenBudgets.maxTokens= 98082
+*****************************************
+*** swt: options.model_name: undefined
+*** swt: options.max_tokens: 98082
+*** swt: options.thinking.budget_tokens: 32000
+*****************************************
+>>> swt: this.config.max_tokens:
+ 128000
+>>> swt: modelOptions:
  {
   model: 'claude-3-7-sonnet-20250219',
-  max_tokens: undefined,
+  max_tokens: 98082,
   messages: [
     {
       role: 'user',
@@ -473,124 +570,5 @@ Starting execution of tool: narrative_integrity
   thinking: { type: 'enabled', budget_tokens: 32000 },
   betas: [ 'output-128k-2025-02-19' ]
 }
-API streaming error: BadRequestError: 400 {"type":"error","error":{"type":"invalid_request_error","message":"max_tokens: Field required"}}
-    at APIError.generate (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/error.js:41:20)
-    at Anthropic.makeStatusError (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:307:33)
-    at Anthropic.makeRequest (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:351:30)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  status: 400,
-  headers: {
-    'anthropic-organization-id': 'a130c6ef-2cbf-4d9d-8682-9a9a0c21c3e4',
-    'cf-cache-status': 'DYNAMIC',
-    'cf-ray': '937993eabc595c93-ORD',
-    connection: 'keep-alive',
-    'content-length': '96',
-    'content-type': 'application/json',
-    date: 'Mon, 28 Apr 2025 21:15:56 GMT',
-    'request-id': 'req_011CNbpkMRkdH9Z1TjickvPS',
-    server: 'cloudflare',
-    via: '1.1 google',
-    'x-robots-tag': 'none',
-    'x-should-retry': 'false'
-  },
-  request_id: 'req_011CNbpkMRkdH9Z1TjickvPS',
-  error: {
-    type: 'error',
-    error: {
-      type: 'invalid_request_error',
-      message: 'max_tokens: Field required'
-    }
-  }
-}
-
-*** client.js: execute:
-API Error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"max_tokens: Field required"}}
-
-Error in NarrativeIntegrity: BadRequestError: 400 {"type":"error","error":{"type":"invalid_request_error","message":"max_tokens: Field required"}}
-    at APIError.generate (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/error.js:41:20)
-    at Anthropic.makeStatusError (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:307:33)
-    at Anthropic.makeRequest (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:351:30)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  status: 400,
-  headers: {
-    'anthropic-organization-id': 'a130c6ef-2cbf-4d9d-8682-9a9a0c21c3e4',
-    'cf-cache-status': 'DYNAMIC',
-    'cf-ray': '937993eabc595c93-ORD',
-    connection: 'keep-alive',
-    'content-length': '96',
-    'content-type': 'application/json',
-    date: 'Mon, 28 Apr 2025 21:15:56 GMT',
-    'request-id': 'req_011CNbpkMRkdH9Z1TjickvPS',
-    server: 'cloudflare',
-    via: '1.1 google',
-    'x-robots-tag': 'none',
-    'x-should-retry': 'false'
-  },
-  request_id: 'req_011CNbpkMRkdH9Z1TjickvPS',
-  error: {
-    type: 'error',
-    error: {
-      type: 'invalid_request_error',
-      message: 'max_tokens: Field required'
-    }
-  }
-}
-Error executing tool narrative_integrity: BadRequestError: 400 {"type":"error","error":{"type":"invalid_request_error","message":"max_tokens: Field required"}}
-    at APIError.generate (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/error.js:41:20)
-    at Anthropic.makeStatusError (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:307:33)
-    at Anthropic.makeRequest (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:351:30)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  status: 400,
-  headers: {
-    'anthropic-organization-id': 'a130c6ef-2cbf-4d9d-8682-9a9a0c21c3e4',
-    'cf-cache-status': 'DYNAMIC',
-    'cf-ray': '937993eabc595c93-ORD',
-    connection: 'keep-alive',
-    'content-length': '96',
-    'content-type': 'application/json',
-    date: 'Mon, 28 Apr 2025 21:15:56 GMT',
-    'request-id': 'req_011CNbpkMRkdH9Z1TjickvPS',
-    server: 'cloudflare',
-    via: '1.1 google',
-    'x-robots-tag': 'none',
-    'x-should-retry': 'false'
-  },
-  request_id: 'req_011CNbpkMRkdH9Z1TjickvPS',
-  error: {
-    type: 'error',
-    error: {
-      type: 'invalid_request_error',
-      message: 'max_tokens: Field required'
-    }
-  }
-}
-Error running tool narrative_integrity: BadRequestError: 400 {"type":"error","error":{"type":"invalid_request_error","message":"max_tokens: Field required"}}
-    at APIError.generate (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/error.js:41:20)
-    at Anthropic.makeStatusError (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:307:33)
-    at Anthropic.makeRequest (/Users/cleesmith/writers-toolkit-v3/node_modules/@anthropic-ai/sdk/core.js:351:30)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
-  status: 400,
-  headers: {
-    'anthropic-organization-id': 'a130c6ef-2cbf-4d9d-8682-9a9a0c21c3e4',
-    'cf-cache-status': 'DYNAMIC',
-    'cf-ray': '937993eabc595c93-ORD',
-    connection: 'keep-alive',
-    'content-length': '96',
-    'content-type': 'application/json',
-    date: 'Mon, 28 Apr 2025 21:15:56 GMT',
-    'request-id': 'req_011CNbpkMRkdH9Z1TjickvPS',
-    server: 'cloudflare',
-    via: '1.1 google',
-    'x-robots-tag': 'none',
-    'x-should-retry': 'false'
-  },
-  request_id: 'req_011CNbpkMRkdH9Z1TjickvPS',
-  error: {
-    type: 'error',
-    error: {
-      type: 'invalid_request_error',
-      message: 'max_tokens: Field required'
-    }
-  }
-}
-
+Quit requested from renderer
+(base) cleesmith:~$ 

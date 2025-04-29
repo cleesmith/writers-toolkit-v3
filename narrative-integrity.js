@@ -104,9 +104,7 @@ class NarrativeIntegrity extends BaseTool {
         // Handle logging based on the returned values
         this.emitOutput(`\nToken stats:\n`);
         this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-        this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-        this.emitOutput(`                     = outline.txt + world.txt + manuscript.txt\n`);
-        this.emitOutput(`                       + prompt instructions\n`);
+        this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}]\n`);
         this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
         this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
         this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);

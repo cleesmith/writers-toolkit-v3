@@ -25,7 +25,8 @@ class ClaudeAPIService {
       desired_output_tokens: config.desired_output_tokens,
       model_name: config.model_name,
       betas: config.betas,
-      max_thinking_budget: config.max_thinking_budget
+      max_thinking_budget: config.max_thinking_budget,
+      max_tokens: config.max_tokens
     };
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -49,6 +50,7 @@ class ClaudeAPIService {
     console.log('- Model name:', this.config.model_name);
     console.log('- Beta features:', this.config.betas);
     console.log('- Max thinking budget:', this.config.max_thinking_budget);
+    console.log('- Max tokens:', this.config.max_tokens);
   }
   
   /**
@@ -66,7 +68,7 @@ class ClaudeAPIService {
     if (!config || Object.keys(config).length === 0) {
       throw new Error("No Claude API configuration provided.");
     }
-    
+
     // List required settings
     const requiredSettings = [
       'max_retries',
@@ -77,7 +79,8 @@ class ClaudeAPIService {
       'desired_output_tokens',
       'model_name',
       'betas',
-      'max_thinking_budget'
+      'max_thinking_budget',
+      'max_tokens'
     ];
     
     // Log warnings but don't crash
@@ -113,43 +116,6 @@ class ClaudeAPIService {
   }
   
   /**
-   * Complete a prompt with thinking
-   * @param {string} prompt - Prompt to complete
-   * @param {Object} options - API options (only system is allowed to be overridden)
-   * @returns {Promise<Object>} - Response with content and thinking
-   */
-  async completeWithThinking(prompt, options = {}) {
-    const modelOptions = {
-      model: this.config.model_name,
-      max_tokens: this.config.betas_max_tokens,
-      messages: [{ role: "user", content: prompt }],
-      thinking: {
-        type: "enabled",
-        budget_tokens: this.config.thinking_budget_tokens
-      },
-      betas: this._getBetasArray()
-    };
-    
-    // Only allow system prompt to be overridden
-    if (options.system) {
-      modelOptions.system = options.system;
-    }
-    
-    try {
-      const response = await this.client.beta.messages.create(modelOptions);
-      
-      // Extract main content and thinking
-      const content = response.content[0].text;
-      const thinking = response.thinking || "";
-      
-      return { content, thinking };
-    } catch (error) {
-      console.error('API error:', error);
-      throw error;
-    }
-  }
-  
-  /**
    * Stream a response with thinking using callbacks
    * @param {string} prompt - Prompt to complete
    * @param {Object} options - API options (only system is allowed to be overridden)
@@ -161,15 +127,14 @@ class ClaudeAPIService {
     // max_tokens: this.config.betas_max_tokens,
     const modelOptions = {
       model: this.config.model_name,
-      max_tokens: this.config.max_tokens,
+      max_tokens: options.max_tokens,
       messages: [{ role: "user", content: prompt }],
       thinking: {
         type: "enabled",
-        budget_tokens: this.config.thinking_budget_tokens
+        budget_tokens: options.thinking.budget_tokens
       },
       betas: this._getBetasArray()
     };
-    console.log(`>>> modelOptions:\n`, modelOptions)
 
     // Only allow system prompt to be overridden
     if (options.system) {
@@ -212,12 +177,13 @@ class ClaudeAPIService {
     const configuredThinkingBudget = this.config.thinking_budget_tokens;
     const betasMaxTokens = this.config.betas_max_tokens;
     const maxThinkingBudget = this.config.max_thinking_budget;
+    let maxTokens = this.config.maxTokens;
     
     // Calculate available tokens after prompt
     const availableTokens = contextWindow - promptTokens;
 
     // For API call, max_tokens must respect the API limit
-    const maxTokens = Math.min(availableTokens, betasMaxTokens);
+    maxTokens = Math.min(availableTokens, betasMaxTokens);
     if (maxTokens > contextWindow) {
       maxTokens = availableTokens
     }
@@ -266,6 +232,44 @@ class ClaudeAPIService {
       isPromptTooLarge
     };
   }
+  
+  // /**
+  //  * Complete a prompt with thinking
+  //  * @param {string} prompt - Prompt to complete
+  //  * @param {Object} options - API options (only system is allowed to be overridden)
+  //  * @returns {Promise<Object>} - Response with content and thinking
+  //  */
+  // async completeWithThinking(prompt, options = {}) {
+  //   const modelOptions = {
+  //     model: this.config.model_name,
+  //     max_tokens: this.config.betas_max_tokens,
+  //     messages: [{ role: "user", content: prompt }],
+  //     thinking: {
+  //       type: "enabled",
+  //       budget_tokens: this.config.thinking_budget_tokens
+  //     },
+  //     betas: this._getBetasArray()
+  //   };
+    
+  //   // Only allow system prompt to be overridden
+  //   if (options.system) {
+  //     modelOptions.system = options.system;
+  //   }
+    
+  //   try {
+  //     const response = await this.client.beta.messages.create(modelOptions);
+      
+  //     // Extract main content and thinking
+  //     const content = response.content[0].text;
+  //     const thinking = response.thinking || "";
+      
+  //     return { content, thinking };
+  //   } catch (error) {
+  //     console.error('API error:', error);
+  //     throw error;
+  //   }
+  // }
+
 }
 
 module.exports = ClaudeAPIService;

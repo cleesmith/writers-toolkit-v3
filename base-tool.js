@@ -95,7 +95,7 @@ class BaseTool {
    * @param {string} text - Text to emit
    */
   emitOutput(text) {
-    console.log(text);
+    // console.log(text);
   }
 
   /**
