@@ -112,3 +112,86 @@ Manuscripts exceeding the size limit receive a clear error message rather than p
 
 ---
 
+Got it! Here’s a concise breakdown of the **core types of editing** used in book creation, focusing on definitions and purposes:
+
+---
+
+### **1. Developmental Editing**  
+- **Purpose**: Big-picture shaping of the manuscript.  
+- **Focus**:  
+  - Structure, plot, pacing, character arcs (fiction).  
+  - Argument flow, organization, clarity (non-fiction).  
+- **Example**: Fixing plot holes, suggesting new chapters, or reordering sections.  
+
+---
+
+### **2. Line Editing**  
+- **Purpose**: Enhancing readability and voice.  
+- **Focus**:  
+  - Sentence flow, rhythm, and tone.  
+  - Word choice, eliminating redundancy, and improving clarity.  
+- **Example**: Rewriting clunky sentences or adjusting dialogue to sound more natural.  
+
+---
+
+### **3. Copyediting**  
+- **Purpose**: Technical precision and consistency.  
+- **Focus**:  
+  - Grammar, spelling, punctuation.  
+  - Adherence to style guides (e.g., *Chicago Manual of Style*).  
+  - Consistency in terms, timelines, or formatting (e.g., “UK vs. US spelling”).  
+- **Example**: Correcting “their” vs. “there” or ensuring “e-mail” becomes “email” throughout.  
+
+---
+
+### **4. Proofreading**  
+- **Purpose**: Final polish before publication.  
+- **Focus**:  
+  - Catching typos, formatting errors, or layout issues (e.g., misplaced page numbers).  
+  - No major rewriting—just surface-level fixes.  
+- **Example**: Fixing a missing period or a widow/orphan line in a printed book.  
+
+---
+
+### **5. Substantive Editing** (a blend of developmental + line editing)  
+- **Purpose**: Deep revision of content and language.  
+- **Focus**:  
+  - Improving both structure *and* prose.  
+  - Often used in academic or complex non-fiction.  
+- **Example**: Streamlining a dense research chapter while clarifying jargon.  
+
+---
+
+### **6. Sensitivity Reading**  
+- **Purpose**: Ensuring respectful, accurate representation.  
+- **Focus**:  
+  - Cultural, racial, gender, or disability-related content.  
+  - Often performed by external experts.  
+- **Example**: Flagging stereotypes in a character’s portrayal.  
+
+---
+
+### **7. Fact-Checking** (common in non-fiction/memoir)  
+- **Purpose**: Verifying accuracy.  
+- **Focus**:  
+  - Dates, names, quotes, scientific claims, or historical events.  
+- **Example**: Confirming a cited study actually supports the author’s argument.  
+
+---
+
+### **8. Editorial Assessment**  
+- **Purpose**: A high-level critique *before* full editing.  
+- **Focus**:  
+  - A 5–10 page report identifying strengths/weaknesses.  
+  - No in-manuscript edits—just guidance.  
+- **Example**: “The memoir’s middle section sags; consider cutting Chapter 8.”  
+
+---
+
+### **Key Differences**  
+- **Developmental**: “Does this story *work*?”  
+- **Line**: “Does this sentence *sing*?”  
+- **Copy**: “Is this sentence *correct*?”  
+- **Proofreading**: “Is this sentence *perfect*?”  
+
+Most manuscripts go through multiple rounds (e.g., developmental → line → copy → proofreading). Let me know if you want deeper dives into any! 📚

@@ -690,15 +690,43 @@ function generateOptionsForm(options) {
 
 
 // Validate a single input field
+// function validateInput(input, errorElement, option) {
+//   if (option.required && !input.value.trim()) {
+//     errorElement.textContent = 'This field is required';
+//     errorElement.style.display = 'block';
+//     return false;
+//   } else {
+//     errorElement.style.display = 'none';
+//     return true;
+//   }
+// }
 function validateInput(input, errorElement, option) {
   if (option.required && !input.value.trim()) {
     errorElement.textContent = 'This field is required';
     errorElement.style.display = 'block';
     return false;
-  } else {
-    errorElement.style.display = 'none';
-    return true;
+  } 
+  
+  // Add number validation:
+  if (option.type === 'number') {
+    const value = parseFloat(input.value);
+    if (!isNaN(value)) {
+      if (option.min !== undefined && value < option.min) {
+        errorElement.textContent = `Value must be at least ${option.min}`;
+        errorElement.style.display = 'block';
+        return false;
+      }
+      
+      if (option.max !== undefined && value > option.max) {
+        errorElement.textContent = `Value must be at most ${option.max}`;
+        errorElement.style.display = 'block';
+        return false;
+      }
+    }
   }
+  
+  errorElement.style.display = 'none';
+  return true;
 }
 
 // Validate the options form
