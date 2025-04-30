@@ -112,7 +112,8 @@ Manuscripts exceeding the size limit receive a clear error message rather than p
 
 ---
 
-Got it! Here’s a concise breakdown of the **core types of editing** used in book creation, focusing on definitions and purposes:
+Here’s a concise breakdown of the **core types of editing** used in
+book creation, focusing on definitions and purposes:
 
 ---
 

@@ -98,6 +98,7 @@ function loadToolClass(toolName) {
 const TokensWordsCounter = loadToolClass('tokens-words-counter');
 const ManuscriptToOutlineCharactersWorld = loadToolClass('manuscript-to-outline-characters-world');
 const NarrativeIntegrity = loadToolClass('narrative-integrity');
+const LineEditing = loadToolClass('line-editing');
 const DrunkClaude = loadToolClass('drunk-claude');
 const BrainstormTool = loadToolClass('brainstorm');
 const OutlineWriter = loadToolClass('outline-writer');
@@ -165,6 +166,34 @@ const TOOL_DEFS = [
       "required": true,
       "default": "manuscript.txt",
       "group": "Input Files"
+    }
+  ]},
+  { id: 'line_editing', title: `Line Editing`, Class: LineEditing, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Fiction manuscript file to analyze",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": [
+            "txt"
+          ]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "chapter_number",
+      "label": "Chapter Number",
+      "type": "text",
+      "description": "The chapter number to analyze (e.g. '1', '5', '20')",
+      "required": true,
+      "default": "1",
+      "group": "Analysis Options"
     }
   ]},
   { id: 'narrative_integrity', title: `Narrative Integrity`, Class: NarrativeIntegrity, options: [
