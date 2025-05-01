@@ -1425,6 +1425,28 @@ async function initializeToolSystem(settings) {
  * @param {Object} options - Tool options
  * @returns {Promise<Object>} - Tool execution result
  */
+// async function executeToolById(toolId, options) {
+//   console.log(`Executing tool: ${toolId} with options:`, options);
+  
+//   // Get the tool implementation
+//   const tool = toolRegistry.getTool(toolId);
+  
+//   if (!tool) {
+//     console.error(`Tool not found: ${toolId}`);
+//     throw new Error(`Tool not found: ${toolId}`);
+//   }
+  
+//   try {
+//     // Execute the tool
+//     console.log(`Starting execution of tool: ${toolId}`);
+//     const result = await tool.execute(options);
+//     console.log(`Tool execution complete: ${toolId}`);
+//     return result;
+//   } catch (error) {
+//     console.error(`Error executing tool ${toolId}:`, error);
+//     throw error;
+//   }
+// }
 async function executeToolById(toolId, options) {
   console.log(`Executing tool: ${toolId} with options:`, options);
   
@@ -1437,13 +1459,33 @@ async function executeToolById(toolId, options) {
   }
   
   try {
+    console.log('*** Client before recreate:', !!tool.claudeService.client);
+    // Recreate the Claude API client for a fresh connection
+    if (tool.claudeService) {
+      tool.claudeService.recreate();
+    }
+    console.log('*** Client after recreate:', !!tool.claudeService.client);
+    
     // Execute the tool
     console.log(`Starting execution of tool: ${toolId}`);
+
     const result = await tool.execute(options);
     console.log(`Tool execution complete: ${toolId}`);
+    
+    // Close the client after successful execution
+    if (tool.claudeService) {
+      tool.claudeService.close();
+    }
+    
     return result;
   } catch (error) {
     console.error(`Error executing tool ${toolId}:`, error);
+    
+    // Ensure the client is closed even if execution fails
+    if (tool && tool.claudeService) {
+      tool.claudeService.close();
+    }
+    
     throw error;
   }
 }
@@ -1453,6 +1495,18 @@ async function executeToolById(toolId, options) {
  * @param {Object} settings - Claude API settings
  * @returns {Object} - New Claude API service instance
  */
+// function reinitializeClaudeService(settings) {
+//   // Create a new Claude service with the updated settings
+//   const claudeService = new ClaudeAPIService(settings);
+  
+//   // Update the service in all registered tools
+//   for (const toolId of toolRegistry.getAllToolIds()) {
+//     const tool = toolRegistry.getTool(toolId);
+//     tool.claudeService = claudeService;
+//   }
+  
+//   return claudeService;
+// }
 function reinitializeClaudeService(settings) {
   // Create a new Claude service with the updated settings
   const claudeService = new ClaudeAPIService(settings);
@@ -1460,6 +1514,12 @@ function reinitializeClaudeService(settings) {
   // Update the service in all registered tools
   for (const toolId of toolRegistry.getAllToolIds()) {
     const tool = toolRegistry.getTool(toolId);
+    
+    // Close any existing client first
+    if (tool.claudeService) {
+      tool.claudeService.close();
+    }
+    
     tool.claudeService = claudeService;
   }
   

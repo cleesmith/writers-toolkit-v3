@@ -7,6 +7,7 @@ const anthropic = require('@anthropic-ai/sdk');
  * Uses UI settings with no hardcoded values
  */
 class ClaudeAPIService {
+
   /**
    * Constructor
    * @param {Object} config - API configuration from UI settings
@@ -269,6 +270,49 @@ class ClaudeAPIService {
   //     throw error;
   //   }
   // }
+
+  /**
+   * Close the Anthropic client and clean up resources
+   */
+  close() {
+    if (this.client) {
+      console.log('Closing Anthropic client...');
+      // The Anthropic SDK doesn't have an explicit close method,
+      // but we can remove our reference to allow garbage collection
+      this.client = null;
+    }
+  }
+
+  /**
+   * Recreate the client with the same settings
+   * Useful when we need a fresh connection
+   */
+  recreate() {
+    console.log('Recreating Anthropic client...');
+    console.log('*** recreate: client before closing:', !!this.client);
+    
+    // Ensure any existing client is closed first
+    this.close();
+    console.log('*** recreate: client after closing:', !!this.client);
+    
+    // Only create a new client if the API key exists
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.error('ANTHROPIC_API_KEY environment variable not found');
+      this.apiKeyMissing = true;
+      return;
+    }
+
+    // Create a new client with the same settings
+    this.client = new anthropic.Anthropic({
+      apiKey: apiKey,
+      timeout: this.config.request_timeout * 1000, // convert seconds to ms
+      maxRetries: this.config.max_retries,
+    });
+    
+    console.log('*** recreate: client after recreate:', !!this.client);
+    console.log('Anthropic client recreated successfully');
+  }
 
 }
 

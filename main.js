@@ -1469,3 +1469,15 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+app.on('before-quit', async (event) => {
+  console.log('Application is quitting, cleaning up resources...');
+  
+  // Close any active Claude API clients
+  for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
+    const tool = toolSystem.toolRegistry.getTool(toolId);
+    if (tool && tool.claudeService) {
+      tool.claudeService.close();
+    }
+  }
+});

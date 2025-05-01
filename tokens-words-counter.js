@@ -113,7 +113,7 @@ class TokensWordsCounter extends BaseTool {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const inputBase = path.basename(inputFile);
       const inputName = path.parse(inputBase).name;
-      const outputFileName = `analysis_${inputName}_${timestamp}.txt`;
+      const outputFileName = `tokens_words_counter_${inputName}_${timestamp}.txt`;
       this.emitOutput(`Saving report to: ${path.join(saveDir, outputFileName)}\n`);
       
       const outputFile = await this.writeOutputFile(
