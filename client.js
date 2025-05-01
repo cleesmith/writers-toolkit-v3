@@ -125,7 +125,6 @@ class ClaudeAPIService {
    * @returns {Promise<void>}
    */
   async streamWithThinking(prompt, options = {}, onThinking, onText) {
-    // max_tokens: this.config.betas_max_tokens,
     const modelOptions = {
       model: this.config.model_name,
       max_tokens: options.max_tokens,
