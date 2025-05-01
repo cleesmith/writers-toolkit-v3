@@ -133,28 +133,6 @@ const TOOL_DEFS = [
           ]
         }
       ]
-    },
-    {
-      "name": "max_chapters_per_group",
-      "label": "Max Chapters Per Group",
-      "type": "number",
-      "description": "Maximum number of chapters to include in a single group (1-5)",
-      "required": false,
-      "default": 5,
-      "min": 1,
-      "max": 5,
-      "step": 1
-    },
-    {
-      "name": "target_tokens_per_group",
-      "label": "Target Tokens Per Group",
-      "type": "number",
-      "description": "Target token count for each chapter group",
-      "required": false,
-      "default": 20000,
-      "min": 5000,
-      "max": 30000,
-      "step": 5000
     }
   ]},
   { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, Class: ManuscriptToOutlineCharactersWorld, options: [

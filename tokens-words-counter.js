@@ -7,8 +7,8 @@ const fs = require('fs').promises;
 
 /**
  * TokensWordsCounter Tool
- * Enhanced to analyze manuscripts, count tokens/words, identify chapters,
- * and suggest optimal chapter groupings for line editing
+ * Enhanced to analyze manuscripts, count tokens/words, and identify chapters
+ * with visualizations for each chapter's token usage
  */
 class TokensWordsCounter extends BaseTool {
   constructor(claudeService, config = {}) {
@@ -39,34 +39,6 @@ class TokensWordsCounter extends BaseTool {
       // Extract options
       let inputFile = options.input_file;
 
-      // Extract and validate the chapter grouping options
-      const originalMaxChapters = options.max_chapters_per_group;
-      const maxChaptersOption = this.config.options.find(opt => opt.name === 'max_chapters_per_group');
-      let maxChaptersPerGroup = originalMaxChapters !== undefined ? originalMaxChapters : maxChaptersOption.default;
-      
-      // Apply min/max constraints
-      const validatedMaxChapters = Math.max(maxChaptersOption.min, Math.min(maxChaptersOption.max, maxChaptersPerGroup));
-      // Notify if adjusted
-      if (validatedMaxChapters !== maxChaptersPerGroup) {
-        this.emitOutput(`Note: Max Chapters Per Group value (${maxChaptersPerGroup}) adjusted to ${validatedMaxChapters} to stay within allowed range (${maxChaptersOption.min}-${maxChaptersOption.max}).\n`);
-      }
-      maxChaptersPerGroup = validatedMaxChapters;
-
-      // Do the same validation for target tokens
-      const originalTargetTokens = options.target_tokens_per_group;
-      const targetTokensOption = this.config.options.find(opt => opt.name === 'target_tokens_per_group');
-      let targetTokensPerGroup = originalTargetTokens !== undefined ? originalTargetTokens : targetTokensOption.default;
-      
-      // Apply min/max constraints
-      const validatedTargetTokens = Math.max(targetTokensOption.min, Math.min(targetTokensOption.max, targetTokensPerGroup));
-      // Notify if adjusted
-      if (validatedTargetTokens !== targetTokensPerGroup) {
-        this.emitOutput(`Note: Target Tokens Per Group value (${targetTokensPerGroup}) adjusted to ${validatedTargetTokens} to stay within allowed range (${targetTokensOption.min}-${targetTokensOption.max}).\n`);
-      }
-      targetTokensPerGroup = validatedTargetTokens;
-      
-      this.emitOutput(`Using values: maxChaptersPerGroup=${maxChaptersPerGroup}, targetTokensPerGroup=${targetTokensPerGroup}\n`);
-
       // Get Claude API configuration from this.config
       const thinkingBudget = this.config.thinking_budget_tokens;
       const contextWindow = this.config.context_window;
@@ -87,7 +59,6 @@ class TokensWordsCounter extends BaseTool {
       // Fix relative paths by resolving them against the project directory
       if (inputFile && !path.isAbsolute(inputFile) && !inputFile.startsWith('~/')) {
         inputFile = path.join(saveDir, inputFile);
-        this.emitOutput(`Using file: ${inputFile}\n`);
       }
 
       // Read the input file
@@ -99,7 +70,6 @@ class TokensWordsCounter extends BaseTool {
       const wordCount = this.countWords(text);
       this.emitOutput(`Word count: ${wordCount.toLocaleString()}\n`);
       
-      this.emitOutput('Counting tokens using Claude API (this may take a few seconds)...\n');
       const totalTokens = await this.claudeService.countTokens(text);
       this.emitOutput(`Token count: ${totalTokens.toLocaleString()}\n`);
       
@@ -124,16 +94,6 @@ class TokensWordsCounter extends BaseTool {
       this.emitOutput('Analyzing chapter statistics...\n');
       const chaptersWithCounts = await this.countChapterStats(chapters);
       
-      // Create optimal chapter groupings for line editing
-      this.emitOutput('\nCreating optimal chapter groupings for line editing...\n');
-      const groupings = this.createChapterGroupings(
-        chaptersWithCounts, 
-        maxChaptersPerGroup, 
-        targetTokensPerGroup,
-        thinkingBudget,
-        contextWindow
-      );
-      
       // Generate the full report
       let reportContent = this.generateReport(
         inputFile, 
@@ -141,8 +101,7 @@ class TokensWordsCounter extends BaseTool {
         totalTokens, 
         wordsPerToken, 
         tokenBudgets, 
-        chaptersWithCounts, 
-        groupings,
+        chaptersWithCounts,
         thinkingBudget,
         contextWindow
       );
@@ -180,7 +139,6 @@ class TokensWordsCounter extends BaseTool {
           tokenCount: totalTokens,
           wordsPerToken: wordsPerToken.toFixed(2),
           chapterCount: chapters.length,
-          groupingCount: groupings.length,
           thinkingBudget,
           availableOutputTokens
         }
@@ -265,6 +223,21 @@ class TokensWordsCounter extends BaseTool {
   async countChapterStats(chapters) {
     const updatedChapters = [];
     
+    // Helper function to pause execution
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    
+    // Use a very short delay of 5ms between API calls
+    const delayMs = 5;
+    
+    // Get configuration values we need for visualization
+    const thinkingBudget = this.config.thinking_budget_tokens;
+    const contextWindow = this.config.context_window;
+    
+    // Inform user about processing
+    if (chapters.length > 1) {
+      this.emitOutput(`Processing ${chapters.length} chapters with minimal delay between requests.\n\n`);
+    }
+    
     for (let i = 0; i < chapters.length; i++) {
       const chapter = chapters[i];
       
@@ -275,11 +248,30 @@ class TokensWordsCounter extends BaseTool {
         // Use Claude API to count tokens
         const tokenCount = await this.claudeService.countTokens(chapter.content);
         
+        // Calculate remaining tokens for this chapter
+        const remainingTokens = contextWindow - tokenCount - thinkingBudget;
+        
+        // Calculate tool capacity score (0-100%)
+        const toolCapacity = Math.min(100, Math.round((remainingTokens / 100000) * 100));
+        
+        // Calculate context utilization percentage
+        const contextPercent = ((tokenCount / contextWindow) * 100).toFixed(1);
+        
+        // Add the chapter with counts to our results
         updatedChapters.push({
           ...chapter,
           wordCount,
           tokenCount
         });
+        
+        // Output the chapter analysis immediately
+        // this.emitOutput(`\nChapter ${chapter.number}${chapter.title ? `: ${chapter.title}` : ''} - ${wordCount.toLocaleString()} words, ${tokenCount.toLocaleString()} tokens, available for Tool: ${remainingTokens.toLocaleString()} tokens\n`);
+        // this.emitOutput(`${this.generateContextVisualization(tokenCount, thinkingBudget, contextWindow)}\n\n`);
+        
+        // Add minimal delay between API calls (except for the last chapter)
+        if (i < chapters.length - 1) {
+          await sleep(delayMs);
+        }
       } catch (error) {
         this.emitOutput(`Error analyzing Chapter ${chapter.number}: ${error.message}\n`);
         throw error;
@@ -288,112 +280,13 @@ class TokensWordsCounter extends BaseTool {
     
     return updatedChapters;
   }
-
+  
   /**
-   * Creates optimal chapter groupings for line editing
-   * @param {Array} chapters - Chapters with word and token counts
-   * @param {number} maxChaptersPerGroup - Maximum chapters per group
-   * @param {number} targetTokensPerGroup - Target tokens per group
-   * @param {number} thinkingBudget - Thinking budget from configuration
-   * @param {number} contextWindow - Context window size from configuration
-   * @returns {Array} Suggested chapter groupings
-   */
-  createChapterGroupings(chapters, maxChaptersPerGroup, targetTokensPerGroup, thinkingBudget, contextWindow) {
-    // Use passed parameters directly - they've been validated in execute()
-    const groupings = [];
-    let currentGroup = [];
-    let currentTokens = 0;
-    
-    // Define overhead buffer as a percentage of the context window
-    const PROMPT_OVERHEAD_PERCENT = 0.025; // 2.5% of context window
-    const promptOverheadBuffer = Math.floor(contextWindow * PROMPT_OVERHEAD_PERCENT);
-    
-    // Calculate maximum tokens per group
-    const maxTokensPerGroup = Math.min(
-      targetTokensPerGroup,
-      contextWindow - thinkingBudget - promptOverheadBuffer
-    );
-    
-    for (let i = 0; i < chapters.length; i++) {
-      const chapter = chapters[i];
-      
-      // Check if we need to start a new group
-      if ((currentGroup.length >= maxChaptersPerGroup) || 
-          (currentTokens + chapter.tokenCount > maxTokensPerGroup && currentGroup.length > 0)) {
-        
-        if (currentGroup.length > 0) {
-          // Finalize the current group
-          const firstChapter = currentGroup[0].number;
-          const lastChapter = currentGroup[currentGroup.length - 1].number;
-          
-          groupings.push({
-            range: `${firstChapter}-${lastChapter}`,
-            chapters: currentGroup.map(c => c.number),
-            totalTokens: currentTokens,
-            totalWords: currentGroup.reduce((sum, ch) => sum + ch.wordCount, 0),
-            description: this.generateGroupDescription(currentGroup),
-            // Calculate context utilization and remaining tokens
-            contextUtilization: (currentTokens / (contextWindow - thinkingBudget)) * 100,
-            remainingTokens: (contextWindow - thinkingBudget) - currentTokens,
-            thinkingBudget: thinkingBudget
-          });
-          
-          // Reset for next group
-          currentGroup = [];
-          currentTokens = 0;
-        }
-      }
-      
-      // Add chapter to current group
-      currentGroup.push(chapter);
-      currentTokens += chapter.tokenCount;
-    }
-    
-    // Add any remaining chapters as the final group
-    if (currentGroup.length > 0) {
-      const firstChapter = currentGroup[0].number;
-      const lastChapter = currentGroup[currentGroup.length - 1].number;
-      
-      groupings.push({
-        range: `${firstChapter}-${lastChapter}`,
-        chapters: currentGroup.map(c => c.number),
-        totalTokens: currentTokens,
-        totalWords: currentGroup.reduce((sum, ch) => sum + ch.wordCount, 0),
-        description: this.generateGroupDescription(currentGroup),
-        // Calculate context utilization and remaining tokens
-        contextUtilization: (currentTokens / (contextWindow - thinkingBudget)) * 100,
-        remainingTokens: (contextWindow - thinkingBudget) - currentTokens,
-        thinkingBudget: thinkingBudget
-      });
-    }
-    
-    return groupings;
-  }
-
-  /**
-   * Generates a description for a group of chapters
-   * @param {Array} chapters - Chapter objects in the group
-   * @returns {string} Group description
-   */
-  generateGroupDescription(chapters) {
-    if (chapters.length === 1) {
-      const ch = chapters[0];
-      return `Chapter ${ch.number}${ch.title ? `: ${ch.title}` : ''} (${ch.wordCount.toLocaleString()} words, ${ch.tokenCount.toLocaleString()} tokens)`;
-    } else {
-      const firstCh = chapters[0];
-      const lastCh = chapters[chapters.length - 1];
-      const totalWords = chapters.reduce((sum, ch) => sum + ch.wordCount, 0);
-      const totalTokens = chapters.reduce((sum, ch) => sum + ch.tokenCount, 0);
-      return `Chapters ${firstCh.number}-${lastCh.number} (${totalWords.toLocaleString()} words, ${totalTokens.toLocaleString()} tokens)`;
-    }
-  }
-
-  /**
-   * Creates a visual representation of context window utilization with high contrast
-   * @param {number} usedTokens - Tokens used by chapters
+   * Creates a visual representation of context window utilization with emojis
+   * @param {number} usedTokens - Tokens used by chapter
    * @param {number} thinkingBudget - Tokens reserved for thinking (from config)
    * @param {number} contextWindow - Total context window size (from config)
-   * @returns {string} ASCII visualization
+   * @returns {string} Visualization with emojis
    */
   generateContextVisualization(usedTokens, thinkingBudget, contextWindow) {
     const totalWidth = 50; // Width of visualization in characters
@@ -403,20 +296,17 @@ class TokensWordsCounter extends BaseTool {
     const thinkingWidth = Math.round((thinkingBudget / contextWindow) * totalWidth);
     const remainingWidth = totalWidth - usedWidth - thinkingWidth;
     
-    // Create the visualization with high contrast characters
-    const usedBar = '##'.repeat(Math.ceil(usedWidth/2));      // ## for chapters
-    const thinkingBar = '=='.repeat(Math.ceil(thinkingWidth/2)); // == for thinking
-    const remainingBar = '..'.repeat(Math.ceil(remainingWidth/2)); // .. for available
+    // Create the visualization with emojis
+    let usedBar = '📝'.repeat(Math.ceil(usedWidth/2)); // for chapters
+    if (usedBar.length <= 0) {
+      usedBar = '📝';
+    }
+
+    const thinkingBar = '🧠'.repeat(Math.ceil(thinkingWidth/2)); // for thinking
+    const remainingBar = '🤖'.repeat(Math.ceil(remainingWidth/2)); // for available
     
-    // Calculate the available tokens for line editing
-    const availableForOutput = contextWindow - usedTokens - thinkingBudget;
-    
-    // Assemble the visualization with legend and emphasis on available tokens
-    return `Context window utilization:
-[${usedBar}${thinkingBar}${remainingBar}] ${Math.round((usedTokens + thinkingBudget) / contextWindow * 100)}% used
- ${usedBar ? '## Chapters' : ''} ${thinkingBar ? `== Thinking (${thinkingBudget.toLocaleString()})` : ''} ${remainingBar ? '.. Available for Line Editing' : ''}
- 
- AVAILABLE FOR LINE EDITING: ${availableForOutput.toLocaleString()} tokens`;
+    // Assemble the visualization
+    return `visualize Context Window usage:\n${usedBar}${thinkingBar}${remainingBar} ${Math.round((usedTokens + thinkingBudget) / contextWindow * 100)}% used\n📝 chapters | 🧠 thinking (${thinkingBudget.toLocaleString()}) | 🤖 available for Tool usage`;
   }
 
   /**
@@ -427,93 +317,77 @@ class TokensWordsCounter extends BaseTool {
    * @param {number} wordsPerToken - Words per token ratio
    * @param {Object} tokenBudgets - Token budget calculations
    * @param {Array} chapters - Analyzed chapters
-   * @param {Array} groupings - Chapter groupings
    * @param {number} thinkingBudget - Thinking budget from configuration
    * @param {number} contextWindow - Context window size from configuration
    * @returns {string} Formatted report
    */
-  generateReport(filePath, wordCount, totalTokens, wordsPerToken, tokenBudgets, chapters, groupings, thinkingBudget, contextWindow) {
+  generateReport(filePath, wordCount, totalTokens, wordsPerToken, tokenBudgets, chapters, thinkingBudget, contextWindow) {
     const availableOutputTokens = tokenBudgets.availableTokens - thinkingBudget;
     
-    // Calculate recommended output token size for line editing (15% of available, max 20K)
-    const recommendedLineEditingSize = Math.min(20000, Math.floor(availableOutputTokens * 0.15));
-    
-    let report = `MANUSCRIPT ANALYSIS REPORT
-=========================
+    let report = `MANUSCRIPT ANALYSIS REPORT  ${new Date().toLocaleString()}
 
 File: ${filePath}
-Generated on: ${new Date().toLocaleString()}
 
-SUMMARY
+
 -------
+SUMMARY
+
 Total Chapters: ${chapters.length}
-Total Words: ${wordCount.toLocaleString()}
-Total Tokens: ${totalTokens.toLocaleString()}
+Total Human Words: ${wordCount.toLocaleString()}
+Total AI Tokens: ${totalTokens.toLocaleString()}
 Words per token ratio: ${wordsPerToken.toFixed(2)}
 
-LINE EDITING CONFIGURATION
--------------------------
+-------------------
+TOOL CONFIGURATION:
+
 Context window: ${contextWindow.toLocaleString()} tokens
 Thinking budget (preserved): ${thinkingBudget.toLocaleString()} tokens (for deep manuscript analysis)
 Manuscript size: ${totalTokens.toLocaleString()} tokens
-REMAINING FOR LINE EDITING: ${availableOutputTokens.toLocaleString()} tokens
-
-RECOMMENDED LINE EDITING OUTPUT SIZE: ${recommendedLineEditingSize.toLocaleString()} tokens
-(This is the suggested token limit for Claude's responses when doing line editing)
+Remaining For Tool: ${availableOutputTokens.toLocaleString()} tokens
 
 ${this.generateContextVisualization(totalTokens, thinkingBudget, contextWindow)}
 
-CHAPTER BREAKDOWN
-----------------
+
+------------------
+CHAPTER BREAKDOWN:
+
 `;
 
+    // Add detailed analysis for each chapter with visualization
     chapters.forEach(ch => {
-      report += `Chapter ${ch.number}${ch.title ? `: ${ch.title}` : ''} - ${ch.wordCount.toLocaleString()} words, ${ch.tokenCount.toLocaleString()} tokens\n`;
+      // Calculate remaining tokens for this chapter
+      const remainingTokens = contextWindow - ch.tokenCount - thinkingBudget;
+      
+      // Calculate tool capacity score (0-100%)
+      const toolCapacity = Math.min(100, Math.round((remainingTokens / 100000) * 100));
+      
+      // Calculate context utilization percentage
+      const contextPercent = ((ch.tokenCount / contextWindow) * 100).toFixed(1);
+      
+      report += `\nChapter ${ch.number}${ch.title ? `: ${ch.title}` : ''} - ${ch.wordCount.toLocaleString()} words, ${ch.tokenCount.toLocaleString()} tokens, available for Tool: ${remainingTokens.toLocaleString()} tokens\n`;
+      report += `${this.generateContextVisualization(ch.tokenCount, thinkingBudget, contextWindow)}\n\n`;
     });
 
-    report += `\nSUGGESTED GROUPINGS FOR LINE EDITING
----------------------------------
-These groupings are optimized for Claude API with a preserved ${thinkingBudget.toLocaleString()} token thinking budget.
-Each group is designed to fit well within Claude's token limits while maximizing available tokens for detailed line editing.
+    report += `\n
+--------------------
+TOOL RECOMMENDATIONS
 
-`;
-
-    // Enhanced group formatting with focus on line editing capacity
-    groupings.forEach((group, idx) => {
-      const totalWords = group.totalWords.toLocaleString();
-      const totalTokens = group.totalTokens.toLocaleString();
-      const contextPercent = ((group.totalTokens / (contextWindow - thinkingBudget)) * 100).toFixed(1);
-      const remainingTokens = group.remainingTokens.toLocaleString();
-      
-      // Calculate a line editing capacity score (0-100%)
-      // Higher score = more tokens available for detailed editing feedback
-      const lineEditingCapacity = Math.min(100, Math.round((group.remainingTokens / 100000) * 100));
-      
-      report += `GROUP ${idx + 1}: Chapters ${group.range}  is `;
-      report += `${totalWords} words or ${totalTokens} AI tokens\n`;
-      report += `LINE EDITING CAPACITY: ${lineEditingCapacity}% (${remainingTokens} tokens available for detailed feedback)\n`;
-      report += `${contextPercent}% of available context used\n`;
-      report += `${this.generateContextVisualization(group.totalTokens, thinkingBudget, contextWindow)}\n\n`;
-    });
-
-    report += `\nLINE EDITING RECOMMENDATIONS
--------------------------
 1. For best results, preserve the ${thinkingBudget.toLocaleString()} token thinking budget for Claude to thoroughly analyze your writing
-2. Each group above can be processed as a single unit for line editing
-3. The "LINE EDITING CAPACITY" percentage provides a quick reference for how much detailed feedback Claude can provide:
-   - 90-100%: Excellent capacity for very detailed line-by-line feedback
-   - 70-89%: Good capacity for comprehensive editing suggestions
-   - 50-69%: Moderate capacity for targeted editing of key passages
+2. Each chapter can be processed individually for detailed analysis
+3. The "TOOL CAPACITY" percentage provides a quick reference for how much detailed feedback Claude can provide:
+   - 90-100%: Excellent capacity for very detailed feedback
+   - 70-89%: Good capacity for comprehensive suggestions
+   - 50-69%: Moderate capacity for targeted analysis of key passages
    - Below 50%: Limited capacity, focus on most critical sections only
 
-4. When submitting chapters for line editing:
+4. When submitting chapters for processing:
    - Include specific instructions about style, clarity, word choice, and sentence structure
    - Consider breaking larger chapters into smaller segments if you need more detailed feedback
    - Request sample rewrites of problematic passages to maximize the value of remaining tokens
 
 5. IMPORTANT: The large token numbers (150K+) represent the theoretical maximum space for Claude's response, 
    but actual effective feedback is typically 10-20K tokens. Higher remaining tokens simply ensure Claude 
-   has plenty of room to provide thorough line edits without hitting token limits.
+   has plenty of room to provide thorough analysis without hitting token limits.
 `;
 
     return report;
