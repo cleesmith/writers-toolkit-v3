@@ -94,7 +94,7 @@ function loadToolClass(toolName) {
   }
 }
 
-// Replace the existing direct imports with this approach
+// AI based tools:
 const TokensWordsCounter = loadToolClass('tokens-words-counter');
 const ManuscriptToOutlineCharactersWorld = loadToolClass('manuscript-to-outline-characters-world');
 const NarrativeIntegrity = loadToolClass('narrative-integrity');
@@ -115,6 +115,9 @@ const ConflictAnalyzer = loadToolClass('conflict-analyzer');
 const ForeshadowingTracker = loadToolClass('foreshadowing-tracker');
 const PlotThreadTracker = loadToolClass('plot-thread-tracker');
 const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
+
+// non-AI tools:
+const DocxComments = loadToolClass('docx-comments-extractor');
 
 const TOOL_DEFS = [
   { id: 'tokens_words_counter', title: `Tokens & Words Counter`, Class: TokensWordsCounter, options: [
@@ -1255,7 +1258,27 @@ const TOOL_DEFS = [
       "default": true,
       "group": "Output Options"
     }
-  ]}
+  ]},
+  { id: 'docx_comments', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
+    {
+      "name": "docx_file",
+      "label": "DOCX File",
+      "type": "file",
+      "description": "Word document file containing comments to extract and match to text",
+      "required": true,
+      "default": "",
+      "filters": [
+        {
+          "name": "DOCX Files",
+          "extensions": [
+            "docx"
+          ]
+        }
+      ],
+      "group": "Input Files"
+    }
+  ]},
+
 ];
 
 module.exports = TOOL_DEFS;
