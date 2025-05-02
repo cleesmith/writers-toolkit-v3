@@ -87,9 +87,16 @@ const currentProjectName = document.getElementById('current-project-name');
 const currentProjectPath = document.getElementById('current-project-path');
 
 // Tool selection functionality
-const toolSelect = document.getElementById('tool-select');
-const toolDescription = document.getElementById('tool-description');
-const setupRunBtn = document.getElementById('setup-run-btn');
+const aiToolSelect = document.getElementById('ai-tool-select');
+const aiToolDescription = document.getElementById('ai-tool-description');
+const aiSetupRunBtn = document.getElementById('ai-setup-run-btn');
+
+const nonAiToolSelect = document.getElementById('non-ai-tool-select');
+const nonAiToolDescription = document.getElementById('non-ai-tool-description');
+const nonAiSetupRunBtn = document.getElementById('non-ai-setup-run-btn');
+
+// List of non-AI tool IDs
+const nonAiToolIds = ["docx_comments_extractor"];
 
 // Load current project info when the app starts
 async function loadProjectInfo() {
@@ -134,20 +141,33 @@ window.electronAPI.onProjectUpdated((event) => {
     });
     
     // Reload tools list after project change
-    loadTools();
+    loadAiTools();
+    loadNonAiTools();
   }
 });
 
-async function loadTools() {
-  console.log('Fetching tools from main process...');
+// Function to determine if a tool is an AI tool
+function isAiTool(tool) {
+  return !nonAiToolIds.includes(tool.name);
+}
+
+async function loadAiTools() {
+  console.log('Fetching AI tools from main process...');
   const tools = await window.electronAPI.getTools();
   console.log(`Received ${tools.length} tools from main process:`, tools);
   
-  // Clear any existing options
-  toolSelect.innerHTML = '';
+  // Filter to only include AI tools
+  const aiTools = tools.filter(tool => isAiTool(tool));
   
-  if (!tools || tools.length === 0) {
-    throw new Error('No tools returned from main process');
+  // Clear any existing options
+  aiToolSelect.innerHTML = '';
+  
+  if (!aiTools || aiTools.length === 0) {
+    const option = document.createElement('option');
+    option.disabled = true;
+    option.textContent = 'No AI tools available';
+    aiToolSelect.appendChild(option);
+    return;
   }
   
   // Define tool categories
@@ -158,13 +178,13 @@ async function loadTools() {
   const addedTools = new Set();
   
   // First add the top tools (first 2 only - brainstorm will go in rough draft section)
-  tools.forEach(tool => {
+  aiTools.forEach(tool => {
     if (topTools.includes(tool.name) && tool.name !== "brainstorm") {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
-      toolSelect.appendChild(option);
+      aiToolSelect.appendChild(option);
       addedTools.add(tool.name);
       console.log(`Added top tool: ${tool.name}`);
     }
@@ -179,16 +199,16 @@ async function loadTools() {
   roughDraftHeader.style.fontWeight = 'bold';
   roughDraftHeader.style.backgroundColor = '#252525';
   roughDraftHeader.style.padding = '2px';
-  toolSelect.appendChild(roughDraftHeader);
+  aiToolSelect.appendChild(roughDraftHeader);
   
   // Add the rough draft tools
-  tools.forEach(tool => {
+  aiTools.forEach(tool => {
     if (roughDraftTools.includes(tool.name)) {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
-      toolSelect.appendChild(option);
+      aiToolSelect.appendChild(option);
       addedTools.add(tool.name);
       console.log(`Added rough draft tool: ${tool.name}`);
     }
@@ -203,47 +223,107 @@ async function loadTools() {
   editorHeader.style.fontWeight = 'bold';
   editorHeader.style.backgroundColor = '#252525';
   editorHeader.style.padding = '2px';
-  toolSelect.appendChild(editorHeader);
+  aiToolSelect.appendChild(editorHeader);
   
-  // Add all remaining tools that haven't been added yet
-  tools.forEach(tool => {
+  // Add all remaining AI tools that haven't been added yet
+  aiTools.forEach(tool => {
     if (!addedTools.has(tool.name)) {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
-      toolSelect.appendChild(option);
-      console.log(`Added other tool: ${tool.name}`);
+      aiToolSelect.appendChild(option);
+      console.log(`Added other AI tool: ${tool.name}`);
     }
   });
   
   // Count the actual options (excluding headers)
-  const actualOptions = Array.from(toolSelect.options).filter(opt => !opt.disabled).length;
-  console.log(`Added ${actualOptions} selectable tool options to dropdown`);
+  const actualOptions = Array.from(aiToolSelect.options).filter(opt => !opt.disabled).length;
+  console.log(`Added ${actualOptions} selectable AI tool options to dropdown`);
   
   // Select the first tool by default
   if (actualOptions > 0) {
     // Find first non-disabled option
-    const firstOption = Array.from(toolSelect.options).find(opt => !opt.disabled);
+    const firstOption = Array.from(aiToolSelect.options).find(opt => !opt.disabled);
     if (firstOption) {
-      toolSelect.value = firstOption.value;
-      toolDescription.textContent = firstOption.dataset.description;
-      console.log(`Selected default tool: ${firstOption.value}`);
+      aiToolSelect.value = firstOption.value;
+      aiToolDescription.textContent = firstOption.dataset.description;
+      console.log(`Selected default AI tool: ${firstOption.value}`);
     }
   }
 }
 
-// Update the description when a different tool is selected
-toolSelect.addEventListener('change', () => {
-  const selectedOption = toolSelect.options[toolSelect.selectedIndex];
+async function loadNonAiTools() {
+  console.log('Fetching non-AI tools from main process...');
+  const tools = await window.electronAPI.getTools();
+  
+  // Filter to only include non-AI tools
+  const nonAiTools = tools.filter(tool => nonAiToolIds.includes(tool.name));
+  
+  // Clear any existing options
+  nonAiToolSelect.innerHTML = '';
+  
+  if (!nonAiTools || nonAiTools.length === 0) {
+    const option = document.createElement('option');
+    option.disabled = true;
+    option.textContent = 'No non-AI tools available';
+    nonAiToolSelect.appendChild(option);
+    return;
+  }
+  
+  // Add all non-AI tools
+  nonAiTools.forEach(tool => {
+    const option = document.createElement('option');
+    option.value = tool.name;
+    option.textContent = tool.title;
+    option.dataset.description = tool.description;
+    nonAiToolSelect.appendChild(option);
+    console.log(`Added non-AI tool: ${tool.name}`);
+  });
+  
+  // Count the actual options
+  const actualOptions = nonAiTools.length;
+  console.log(`Added ${actualOptions} selectable non-AI tool options to dropdown`);
+  
+  // Select the first tool by default
+  if (actualOptions > 0) {
+    nonAiToolSelect.value = nonAiTools[0].name;
+    nonAiToolDescription.textContent = nonAiTools[0].description;
+    console.log(`Selected default non-AI tool: ${nonAiTools[0].name}`);
+  }
+}
+
+// Update the AI tool description when a different tool is selected
+aiToolSelect.addEventListener('change', () => {
+  const selectedOption = aiToolSelect.options[aiToolSelect.selectedIndex];
   if (selectedOption) {
-    toolDescription.textContent = selectedOption.dataset.description || 'No description available.';
+    aiToolDescription.textContent = selectedOption.dataset.description || 'No description available.';
   }
 });
 
-// Handle the Setup & Run button
-setupRunBtn.addEventListener('click', () => {
-  const selectedTool = toolSelect.value;
+// Update the non-AI tool description when a different tool is selected
+nonAiToolSelect.addEventListener('change', () => {
+  const selectedOption = nonAiToolSelect.options[nonAiToolSelect.selectedIndex];
+  if (selectedOption) {
+    nonAiToolDescription.textContent = selectedOption.dataset.description || 'No description available.';
+  }
+});
+
+// Handle the AI Setup & Run button
+aiSetupRunBtn.addEventListener('click', () => {
+  const selectedTool = aiToolSelect.value;
+  if (!selectedTool) {
+    alert('Please select a tool first.');
+    return;
+  }
+  
+  // Launch the tool setup dialog with the current selection
+  window.electronAPI.showToolSetupDialog(selectedTool);
+});
+
+// Handle the non-AI Setup & Run button
+nonAiSetupRunBtn.addEventListener('click', () => {
+  const selectedTool = nonAiToolSelect.value;
   if (!selectedTool) {
     alert('Please select a tool first.');
     return;
@@ -693,7 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Rest of your existing initialization code
   loadProjectInfo();
-  loadTools();
+  loadAiTools();
+  loadNonAiTools();
 });
 
 // Add this to listen for when a tool run finishes and the window gains focus again

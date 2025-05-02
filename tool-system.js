@@ -1259,7 +1259,7 @@ const TOOL_DEFS = [
       "group": "Output Options"
     }
   ]},
-  { id: 'docx_comments', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
+  { id: 'docx_comments_extractor', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
     {
       "name": "docx_file",
       "label": "DOCX File",
@@ -1277,7 +1277,7 @@ const TOOL_DEFS = [
       ],
       "group": "Input Files"
     }
-  ]},
+  ]}
 
 ];
 
