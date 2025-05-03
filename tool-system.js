@@ -117,7 +117,8 @@ const PlotThreadTracker = loadToolClass('plot-thread-tracker');
 const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
 
 // non-AI tools:
-const DocxComments = loadToolClass('docx-comments-extractor');
+const DocxComments = loadToolClass('docx-comments');
+const EpubConverter = loadToolClass('epub-converter');
 
 const TOOL_DEFS = [
   { id: 'tokens_words_counter', title: `Tokens & Words Counter`, Class: TokensWordsCounter, options: [
@@ -1259,7 +1260,7 @@ const TOOL_DEFS = [
       "group": "Output Options"
     }
   ]},
-  { id: 'docx_comments_extractor', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
+  { id: 'docx_comments', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
     {
       "name": "docx_file",
       "label": "DOCX File",
@@ -1277,7 +1278,27 @@ const TOOL_DEFS = [
       ],
       "group": "Input Files"
     }
-  ]}
+  ]},
+  { 
+    id: 'epub_converter', 
+    title: `EPUB to TXT Converter`, 
+    Class: EpubConverter, 
+    options: [
+      {
+        "name": "epub_file",
+        "label": "EPUB File",
+        "type": "file",
+        "description": "EPUB file to convert to plain text",
+        "required": true,
+        "filters": [
+          {
+            "name": "EPUB Files",
+            "extensions": ["epub"]
+          }
+        ]
+      }
+    ]
+  }
 
 ];
 

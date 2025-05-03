@@ -1,0 +1,48 @@
+
+Complete Process for Adding a New Non-AI Tool
+
+1. Create the tool implementation file 
+   (e.g., `your-new-tool.js`) that extends BaseTool
+   // your-new-tool.js
+   const BaseTool = require('./base-tool');
+   
+   class YourNewTool extends BaseTool {
+     constructor(config = {}) {
+       super('your_new_tool', config);
+       // No claudeService needed for non-AI tools
+     }
+     
+     async execute(options) {
+       // Your tool implementation
+     }
+   }
+   
+   module.exports = YourNewTool;
+
+2. Register the tool in tool-system.js by:
+   - Adding the class import: 
+     const YourNewTool = loadToolClass('your-new-tool');
+
+   - Adding to the TOOL_DEFS array:
+     { 
+       id: 'your_new_tool', 
+       title: `Your New Tool Title`, 
+       Class: YourNewTool, 
+       options: [
+         // Tool options here
+       ]
+     }
+
+3. Add to nonAiToolIds in renderer.js:
+   const nonAiToolIds = ["docx_comments_extractor", "your_new_tool"];
+
+All three steps are necessary to make your new non-AI tool appear in
+the dropdown and function correctly. The nonAiToolIds array is
+crucial because it determines which tools appear in which section of
+the UI, but it's not sufficient on its own.
+
+Remember that consistency is key: the ID you use in the tool
+constructor, the TOOL_DEFS array, and the nonAiToolIds array must all
+match exactly (typically using underscores, like `your_new_tool`),
+while the filename typically uses hyphens (`your-new-tool.js`).
+

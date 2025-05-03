@@ -598,8 +598,7 @@ function generateOptionsForm(options) {
               try {
                 // Get current tool name for DOCX filtering
                 const currentToolName = toolData ? toolData.name : '';
-                const isDocxExtractorTool = currentToolName === 'docx_comments' || 
-                                           currentToolName === 'docx_comments_extractor';
+                const isDocxExtractorTool = currentToolName === 'docx_comments';
                 
                 // Default filters or use option's filters
                 let filters = option.filters || [{ name: 'All Files', extensions: ['*'] }];

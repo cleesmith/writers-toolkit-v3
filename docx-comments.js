@@ -18,12 +18,10 @@ const os = require('os');
 class DocxComments extends BaseTool {
   /**
    * Constructor
-   * @param {Object} claudeService - Claude API service (not used in this tool)
    * @param {Object} config - Tool configuration
    */
-  constructor(claudeService, config = {}) {
+  constructor(config = {}) {
     super('docx_comments', config);
-    this.claudeService = claudeService; // Not used in this tool, but kept for consistency
   }
 
   /**

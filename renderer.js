@@ -96,7 +96,8 @@ const nonAiToolDescription = document.getElementById('non-ai-tool-description');
 const nonAiSetupRunBtn = document.getElementById('non-ai-setup-run-btn');
 
 // List of non-AI tool IDs
-const nonAiToolIds = ["docx_comments_extractor"];
+const nonAiToolIds = ["docx_comments"];
+// const nonAiToolIds = ["docx_comments", "epub_converter"];
 
 // Load current project info when the app starts
 async function loadProjectInfo() {
