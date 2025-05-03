@@ -18,10 +18,11 @@ const os = require('os');
 class DocxComments extends BaseTool {
   /**
    * Constructor
+   * @param {string} name - Tool name
    * @param {Object} config - Tool configuration
    */
-  constructor(config = {}) {
-    super('docx_comments', config);
+  constructor(name, config = {}) {
+    super(name, config);
   }
 
   /**

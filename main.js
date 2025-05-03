@@ -594,29 +594,64 @@ ipcMain.handle('save-file', async (event, data) => {
 
 // Setup handlers for tool operations
 function setupToolHandlers() {
+  // ipcMain.handle('get-tools', () => {
+  //   console.log('get-tools handler called');
+    
+  //   // Get all tool IDs
+  //   const allToolIds = toolSystem.toolRegistry.getAllToolIds();
+  //   console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
+    
+  //   // Map IDs to tool objects with required properties
+  //   const tools = allToolIds.map(id => {
+  //     const tool = toolSystem.toolRegistry.getTool(id);
+  //     if (!tool) {
+  //       throw new Error(`Tool with ID ${id} exists in registry but could not be retrieved`);
+  //     }
+      
+  //     // Ensure tool has required properties
+  //     return {
+  //       name: id,
+  //       title: tool.config?.title || id,
+  //       description: tool.config?.description || `${id} tool`
+  //     };
+  //   });
+    
+  //   console.log(`Returning ${tools.length} tools to renderer`);
+  //   return tools;
+  // });
   ipcMain.handle('get-tools', () => {
     console.log('get-tools handler called');
     
     // Get all tool IDs
     const allToolIds = toolSystem.toolRegistry.getAllToolIds();
     console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
+    console.log('Raw tool IDs from registry:', allToolIds);
     
     // Map IDs to tool objects with required properties
     const tools = allToolIds.map(id => {
       const tool = toolSystem.toolRegistry.getTool(id);
       if (!tool) {
+        console.error(`Tool with ID ${id} exists in registry but could not be retrieved`);
         throw new Error(`Tool with ID ${id} exists in registry but could not be retrieved`);
       }
+      
+      // Log each tool's properties
+      console.log(`Tool ${id} properties:`, {
+        hasConfig: !!tool.config,
+        title: tool.config?.title || 'missing',
+        description: tool.config?.description || 'missing'
+      });
       
       // Ensure tool has required properties
       return {
         name: id,
         title: tool.config?.title || id,
-        description: tool.config?.description || `${id} tool`
+        description: tool.config?.description || tool.title || `Tool: ${id}`
       };
     });
     
     console.log(`Returning ${tools.length} tools to renderer`);
+    console.log('Tool details being returned:', tools);
     return tools;
   });
 
@@ -1472,12 +1507,17 @@ app.on('activate', () => {
 
 app.on('before-quit', async (event) => {
   console.log('Application is quitting, cleaning up resources...');
-  
   // Close any active Claude API clients
   for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
     const tool = toolSystem.toolRegistry.getTool(toolId);
     if (tool && tool.claudeService) {
-      tool.claudeService.close();
+      try {
+        tool.claudeService.close();
+      } catch (error) {
+        // Ignore close errors during shutdown
+      } finally {
+        tool.claudeService = null;
+      }
     }
   }
 });

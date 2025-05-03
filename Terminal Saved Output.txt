@@ -1,0 +1,797 @@
+(base) cleesmith:~$ npm start
+
+> writers-toolkit@2.0.0 start
+> electron-forge start
+
+✔ Checking your system
+✔ Locating application
+✔ Loading configuration
+✔ Preparing native dependencies [0.1s]
+✔ Running generateAssets hook
+✔ Running preStart hook
+
+Module loading started
+Module loading started
+Loading base modules...
+Base modules loaded successfully
+ToolRegistry initialized
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: tokens-words-counter (tokens-words-counter.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool tokens-words-counter to: /Users/cleesmith/writers-toolkit-v3/tokens-words-counter.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/tokens-words-counter.js
+Successfully loaded module: tokens-words-counter.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: manuscript-to-outline-characters-world (manuscript-to-outline-characters-world.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool manuscript-to-outline-characters-world to: /Users/cleesmith/writers-toolkit-v3/manuscript-to-outline-characters-world.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/manuscript-to-outline-characters-world.js
+Successfully loaded module: manuscript-to-outline-characters-world.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: narrative-integrity (narrative-integrity.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool narrative-integrity to: /Users/cleesmith/writers-toolkit-v3/narrative-integrity.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/narrative-integrity.js
+Successfully loaded module: narrative-integrity.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: line-editing (line-editing.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool line-editing to: /Users/cleesmith/writers-toolkit-v3/line-editing.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/line-editing.js
+Successfully loaded module: line-editing.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: drunk-claude (drunk-claude.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool drunk-claude to: /Users/cleesmith/writers-toolkit-v3/drunk-claude.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/drunk-claude.js
+Successfully loaded module: drunk-claude.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: brainstorm (brainstorm.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool brainstorm to: /Users/cleesmith/writers-toolkit-v3/brainstorm.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/brainstorm.js
+Successfully loaded module: brainstorm.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: outline-writer (outline-writer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool outline-writer to: /Users/cleesmith/writers-toolkit-v3/outline-writer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/outline-writer.js
+Successfully loaded module: outline-writer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: world-writer (world-writer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool world-writer to: /Users/cleesmith/writers-toolkit-v3/world-writer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/world-writer.js
+Successfully loaded module: world-writer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: chapter-writer (chapter-writer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool chapter-writer to: /Users/cleesmith/writers-toolkit-v3/chapter-writer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/chapter-writer.js
+Successfully loaded module: chapter-writer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: character-analyzer (character-analyzer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool character-analyzer to: /Users/cleesmith/writers-toolkit-v3/character-analyzer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/character-analyzer.js
+Successfully loaded module: character-analyzer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: tense-consistency-checker (tense-consistency-checker.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool tense-consistency-checker to: /Users/cleesmith/writers-toolkit-v3/tense-consistency-checker.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/tense-consistency-checker.js
+Successfully loaded module: tense-consistency-checker.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: adjective-adverb-optimizer (adjective-adverb-optimizer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool adjective-adverb-optimizer to: /Users/cleesmith/writers-toolkit-v3/adjective-adverb-optimizer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/adjective-adverb-optimizer.js
+Successfully loaded module: adjective-adverb-optimizer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: dangling-modifier-checker (dangling-modifier-checker.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool dangling-modifier-checker to: /Users/cleesmith/writers-toolkit-v3/dangling-modifier-checker.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/dangling-modifier-checker.js
+Successfully loaded module: dangling-modifier-checker.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: rhythm-analyzer (rhythm-analyzer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool rhythm-analyzer to: /Users/cleesmith/writers-toolkit-v3/rhythm-analyzer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/rhythm-analyzer.js
+Successfully loaded module: rhythm-analyzer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: crowding-leaping-evaluator (crowding-leaping-evaluator.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool crowding-leaping-evaluator to: /Users/cleesmith/writers-toolkit-v3/crowding-leaping-evaluator.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/crowding-leaping-evaluator.js
+Successfully loaded module: crowding-leaping-evaluator.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: punctuation-auditor (punctuation-auditor.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool punctuation-auditor to: /Users/cleesmith/writers-toolkit-v3/punctuation-auditor.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/punctuation-auditor.js
+Successfully loaded module: punctuation-auditor.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: conflict-analyzer (conflict-analyzer.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool conflict-analyzer to: /Users/cleesmith/writers-toolkit-v3/conflict-analyzer.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/conflict-analyzer.js
+Successfully loaded module: conflict-analyzer.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: foreshadowing-tracker (foreshadowing-tracker.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool foreshadowing-tracker to: /Users/cleesmith/writers-toolkit-v3/foreshadowing-tracker.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/foreshadowing-tracker.js
+Successfully loaded module: foreshadowing-tracker.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: plot-thread-tracker (plot-thread-tracker.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool plot-thread-tracker to: /Users/cleesmith/writers-toolkit-v3/plot-thread-tracker.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/plot-thread-tracker.js
+Successfully loaded module: plot-thread-tracker.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: kdp-publishing-prep (kdp-publishing-prep.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool kdp-publishing-prep to: /Users/cleesmith/writers-toolkit-v3/kdp-publishing-prep.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/kdp-publishing-prep.js
+Successfully loaded module: kdp-publishing-prep.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: docx-comments (docx-comments.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool docx-comments to: /Users/cleesmith/writers-toolkit-v3/docx-comments.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/docx-comments.js
+Successfully loaded module: docx-comments.js
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Loading tool: epub-converter (epub-converter.js)
+Base directory for tool loading: /Users/cleesmith/writers-toolkit-v3
+Resolved tool epub-converter to: /Users/cleesmith/writers-toolkit-v3/epub-converter.js
+File exists at: /Users/cleesmith/writers-toolkit-v3/epub-converter.js
+Successfully loaded module: epub-converter.js
+Running in development mode
+Set global TOOLS_DIR to: /Users/cleesmith/writers-toolkit-v3
+*** Electron Store location: /Users/cleesmith/Library/Application Support/Writer's Toolkit/writers-toolkit-config.json
+AppState initialized successfully
+Initializing tool system with complete settings:
+{
+  "max_retries": 1,
+  "request_timeout": 300,
+  "desired_output_tokens": 8000,
+  "context_window": 200000,
+  "thinking_budget_tokens": 32000,
+  "betas_max_tokens": 128000,
+  "model_name": "claude-3-7-sonnet-20250219",
+  "betas": "output-128k-2025-02-19",
+  "max_thinking_budget": 32000,
+  "max_tokens": 128000
+}
+Initializing tool system (no external DB)…
+Claude API Service initialized with:
+- Context window: 200000
+- Model name: claude-3-7-sonnet-20250219
+- Beta features: output-128k-2025-02-19
+- Max thinking budget: 32000
+- Max tokens: 128000
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Registered 22 built-in tools: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+*** Screen dimensions: { width: 1464, height: 933 }
+get-tools handler called
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Found 22 tools in registry: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Raw tool IDs from registry: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Tool tokens_words_counter properties: {
+  hasConfig: true,
+  title: 'Tokens & Words Counter',
+  description: 'Tokens & Words Counter'
+}
+Tool manuscript_to_outline_characters_world properties: {
+  hasConfig: true,
+  title: 'Use manuscript.txt  to create: outline, characters, and world files',
+  description: 'Use manuscript.txt  to create: outline, characters, and world files'
+}
+Tool line_editing properties: { hasConfig: true, title: 'Line Editing', description: 'Line Editing' }
+Tool narrative_integrity properties: {
+  hasConfig: true,
+  title: 'Narrative Integrity',
+  description: 'Narrative Integrity'
+}
+Tool drunk_claude properties: { hasConfig: true, title: 'Drunk Claude', description: 'Drunk Claude' }
+Tool brainstorm properties: { hasConfig: true, title: 'Brainstorm', description: 'Brainstorm' }
+Tool outline_writer properties: {
+  hasConfig: true,
+  title: 'Outline Writer',
+  description: 'Outline Writer'
+}
+Tool world_writer properties: { hasConfig: true, title: 'World Writer', description: 'World Writer' }
+Tool chapter_writer properties: {
+  hasConfig: true,
+  title: 'Chapter Writer',
+  description: 'Chapter Writer'
+}
+Tool character_analyzer properties: {
+  hasConfig: true,
+  title: 'Character Analyzer',
+  description: 'Character Analyzer'
+}
+Tool tense_consistency_checker properties: {
+  hasConfig: true,
+  title: 'Tense Consistency Checker',
+  description: 'Tense Consistency Checker'
+}
+Tool adjective_adverb_optimizer properties: {
+  hasConfig: true,
+  title: 'Adjective Adverb Optimizer',
+  description: 'Adjective Adverb Optimizer'
+}
+Tool dangling_modifier_checker properties: {
+  hasConfig: true,
+  title: 'Dangling Modifier Checker',
+  description: 'Dangling Modifier Checker'
+}
+Tool rhythm_analyzer properties: {
+  hasConfig: true,
+  title: 'Rhythm Analyzer',
+  description: 'Rhythm Analyzer'
+}
+Tool crowding_leaping_evaluator properties: {
+  hasConfig: true,
+  title: 'Crowding Leaping Evaluator',
+  description: 'Crowding Leaping Evaluator'
+}
+Tool punctuation_auditor properties: {
+  hasConfig: true,
+  title: 'Punctuation Auditor',
+  description: 'Punctuation Auditor'
+}
+Tool conflict_analyzer properties: {
+  hasConfig: true,
+  title: 'Conflict Analyzer',
+  description: 'Conflict Analyzer'
+}
+Tool foreshadowing_tracker properties: {
+  hasConfig: true,
+  title: 'Foreshadowing Tracker',
+  description: 'Foreshadowing Tracker'
+}
+Tool plot_thread_tracker properties: {
+  hasConfig: true,
+  title: 'Plot Thread Tracker',
+  description: 'Plot Thread Tracker'
+}
+Tool kdp_publishing_prep properties: {
+  hasConfig: true,
+  title: 'KDP Publishing Prep - Generate Amazon KDP Elements',
+  description: 'KDP Publishing Prep - Generate Amazon KDP Elements'
+}
+Tool docx_comments properties: { hasConfig: true, title: 'missing', description: 'missing' }
+Tool epub_converter properties: { hasConfig: true, title: 'missing', description: 'missing' }
+Returning 22 tools to renderer
+Tool details being returned: [
+  {
+    name: 'tokens_words_counter',
+    title: 'Tokens & Words Counter',
+    description: 'Tokens & Words Counter'
+  },
+  {
+    name: 'manuscript_to_outline_characters_world',
+    title: 'Use manuscript.txt  to create: outline, characters, and world files',
+    description: 'Use manuscript.txt  to create: outline, characters, and world files'
+  },
+  {
+    name: 'line_editing',
+    title: 'Line Editing',
+    description: 'Line Editing'
+  },
+  {
+    name: 'narrative_integrity',
+    title: 'Narrative Integrity',
+    description: 'Narrative Integrity'
+  },
+  {
+    name: 'drunk_claude',
+    title: 'Drunk Claude',
+    description: 'Drunk Claude'
+  },
+  {
+    name: 'brainstorm',
+    title: 'Brainstorm',
+    description: 'Brainstorm'
+  },
+  {
+    name: 'outline_writer',
+    title: 'Outline Writer',
+    description: 'Outline Writer'
+  },
+  {
+    name: 'world_writer',
+    title: 'World Writer',
+    description: 'World Writer'
+  },
+  {
+    name: 'chapter_writer',
+    title: 'Chapter Writer',
+    description: 'Chapter Writer'
+  },
+  {
+    name: 'character_analyzer',
+    title: 'Character Analyzer',
+    description: 'Character Analyzer'
+  },
+  {
+    name: 'tense_consistency_checker',
+    title: 'Tense Consistency Checker',
+    description: 'Tense Consistency Checker'
+  },
+  {
+    name: 'adjective_adverb_optimizer',
+    title: 'Adjective Adverb Optimizer',
+    description: 'Adjective Adverb Optimizer'
+  },
+  {
+    name: 'dangling_modifier_checker',
+    title: 'Dangling Modifier Checker',
+    description: 'Dangling Modifier Checker'
+  },
+  {
+    name: 'rhythm_analyzer',
+    title: 'Rhythm Analyzer',
+    description: 'Rhythm Analyzer'
+  },
+  {
+    name: 'crowding_leaping_evaluator',
+    title: 'Crowding Leaping Evaluator',
+    description: 'Crowding Leaping Evaluator'
+  },
+  {
+    name: 'punctuation_auditor',
+    title: 'Punctuation Auditor',
+    description: 'Punctuation Auditor'
+  },
+  {
+    name: 'conflict_analyzer',
+    title: 'Conflict Analyzer',
+    description: 'Conflict Analyzer'
+  },
+  {
+    name: 'foreshadowing_tracker',
+    title: 'Foreshadowing Tracker',
+    description: 'Foreshadowing Tracker'
+  },
+  {
+    name: 'plot_thread_tracker',
+    title: 'Plot Thread Tracker',
+    description: 'Plot Thread Tracker'
+  },
+  {
+    name: 'kdp_publishing_prep',
+    title: 'KDP Publishing Prep - Generate Amazon KDP Elements',
+    description: 'KDP Publishing Prep - Generate Amazon KDP Elements'
+  },
+  {
+    name: 'docx_comments',
+    title: 'docx_comments',
+    description: 'Tool: docx_comments'
+  },
+  {
+    name: 'epub_converter',
+    title: 'epub_converter',
+    description: 'Tool: epub_converter'
+  }
+]
+get-tools handler called
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Found 22 tools in registry: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Raw tool IDs from registry: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Tool tokens_words_counter properties: {
+  hasConfig: true,
+  title: 'Tokens & Words Counter',
+  description: 'Tokens & Words Counter'
+}
+Tool manuscript_to_outline_characters_world properties: {
+  hasConfig: true,
+  title: 'Use manuscript.txt  to create: outline, characters, and world files',
+  description: 'Use manuscript.txt  to create: outline, characters, and world files'
+}
+Tool line_editing properties: { hasConfig: true, title: 'Line Editing', description: 'Line Editing' }
+Tool narrative_integrity properties: {
+  hasConfig: true,
+  title: 'Narrative Integrity',
+  description: 'Narrative Integrity'
+}
+Tool drunk_claude properties: { hasConfig: true, title: 'Drunk Claude', description: 'Drunk Claude' }
+Tool brainstorm properties: { hasConfig: true, title: 'Brainstorm', description: 'Brainstorm' }
+Tool outline_writer properties: {
+  hasConfig: true,
+  title: 'Outline Writer',
+  description: 'Outline Writer'
+}
+Tool world_writer properties: { hasConfig: true, title: 'World Writer', description: 'World Writer' }
+Tool chapter_writer properties: {
+  hasConfig: true,
+  title: 'Chapter Writer',
+  description: 'Chapter Writer'
+}
+Tool character_analyzer properties: {
+  hasConfig: true,
+  title: 'Character Analyzer',
+  description: 'Character Analyzer'
+}
+Tool tense_consistency_checker properties: {
+  hasConfig: true,
+  title: 'Tense Consistency Checker',
+  description: 'Tense Consistency Checker'
+}
+Tool adjective_adverb_optimizer properties: {
+  hasConfig: true,
+  title: 'Adjective Adverb Optimizer',
+  description: 'Adjective Adverb Optimizer'
+}
+Tool dangling_modifier_checker properties: {
+  hasConfig: true,
+  title: 'Dangling Modifier Checker',
+  description: 'Dangling Modifier Checker'
+}
+Tool rhythm_analyzer properties: {
+  hasConfig: true,
+  title: 'Rhythm Analyzer',
+  description: 'Rhythm Analyzer'
+}
+Tool crowding_leaping_evaluator properties: {
+  hasConfig: true,
+  title: 'Crowding Leaping Evaluator',
+  description: 'Crowding Leaping Evaluator'
+}
+Tool punctuation_auditor properties: {
+  hasConfig: true,
+  title: 'Punctuation Auditor',
+  description: 'Punctuation Auditor'
+}
+Tool conflict_analyzer properties: {
+  hasConfig: true,
+  title: 'Conflict Analyzer',
+  description: 'Conflict Analyzer'
+}
+Tool foreshadowing_tracker properties: {
+  hasConfig: true,
+  title: 'Foreshadowing Tracker',
+  description: 'Foreshadowing Tracker'
+}
+Tool plot_thread_tracker properties: {
+  hasConfig: true,
+  title: 'Plot Thread Tracker',
+  description: 'Plot Thread Tracker'
+}
+Tool kdp_publishing_prep properties: {
+  hasConfig: true,
+  title: 'KDP Publishing Prep - Generate Amazon KDP Elements',
+  description: 'KDP Publishing Prep - Generate Amazon KDP Elements'
+}
+Tool docx_comments properties: { hasConfig: true, title: 'missing', description: 'missing' }
+Tool epub_converter properties: { hasConfig: true, title: 'missing', description: 'missing' }
+Returning 22 tools to renderer
+Tool details being returned: [
+  {
+    name: 'tokens_words_counter',
+    title: 'Tokens & Words Counter',
+    description: 'Tokens & Words Counter'
+  },
+  {
+    name: 'manuscript_to_outline_characters_world',
+    title: 'Use manuscript.txt  to create: outline, characters, and world files',
+    description: 'Use manuscript.txt  to create: outline, characters, and world files'
+  },
+  {
+    name: 'line_editing',
+    title: 'Line Editing',
+    description: 'Line Editing'
+  },
+  {
+    name: 'narrative_integrity',
+    title: 'Narrative Integrity',
+    description: 'Narrative Integrity'
+  },
+  {
+    name: 'drunk_claude',
+    title: 'Drunk Claude',
+    description: 'Drunk Claude'
+  },
+  {
+    name: 'brainstorm',
+    title: 'Brainstorm',
+    description: 'Brainstorm'
+  },
+  {
+    name: 'outline_writer',
+    title: 'Outline Writer',
+    description: 'Outline Writer'
+  },
+  {
+    name: 'world_writer',
+    title: 'World Writer',
+    description: 'World Writer'
+  },
+  {
+    name: 'chapter_writer',
+    title: 'Chapter Writer',
+    description: 'Chapter Writer'
+  },
+  {
+    name: 'character_analyzer',
+    title: 'Character Analyzer',
+    description: 'Character Analyzer'
+  },
+  {
+    name: 'tense_consistency_checker',
+    title: 'Tense Consistency Checker',
+    description: 'Tense Consistency Checker'
+  },
+  {
+    name: 'adjective_adverb_optimizer',
+    title: 'Adjective Adverb Optimizer',
+    description: 'Adjective Adverb Optimizer'
+  },
+  {
+    name: 'dangling_modifier_checker',
+    title: 'Dangling Modifier Checker',
+    description: 'Dangling Modifier Checker'
+  },
+  {
+    name: 'rhythm_analyzer',
+    title: 'Rhythm Analyzer',
+    description: 'Rhythm Analyzer'
+  },
+  {
+    name: 'crowding_leaping_evaluator',
+    title: 'Crowding Leaping Evaluator',
+    description: 'Crowding Leaping Evaluator'
+  },
+  {
+    name: 'punctuation_auditor',
+    title: 'Punctuation Auditor',
+    description: 'Punctuation Auditor'
+  },
+  {
+    name: 'conflict_analyzer',
+    title: 'Conflict Analyzer',
+    description: 'Conflict Analyzer'
+  },
+  {
+    name: 'foreshadowing_tracker',
+    title: 'Foreshadowing Tracker',
+    description: 'Foreshadowing Tracker'
+  },
+  {
+    name: 'plot_thread_tracker',
+    title: 'Plot Thread Tracker',
+    description: 'Plot Thread Tracker'
+  },
+  {
+    name: 'kdp_publishing_prep',
+    title: 'KDP Publishing Prep - Generate Amazon KDP Elements',
+    description: 'KDP Publishing Prep - Generate Amazon KDP Elements'
+  },
+  {
+    name: 'docx_comments',
+    title: 'docx_comments',
+    description: 'Tool: docx_comments'
+  },
+  {
+    name: 'epub_converter',
+    title: 'epub_converter',
+    description: 'Tool: epub_converter'
+  }
+]
+2025-05-03 09:08:53.821 Electron[40878:11691651] +[IMKClient subclass]: chose IMKClient_Modern
+2025-05-03 09:08:53.821 Electron[40878:11691651] +[IMKInputSession subclass]: chose IMKInputSession_Modern
+Creating new tool setup dialog for: docx_comments
+Quit requested from renderer
+Application is quitting, cleaning up resources...
+All registered tool IDs: [
+  'tokens_words_counter',
+  'manuscript_to_outline_characters_world',
+  'line_editing',
+  'narrative_integrity',
+  'drunk_claude',
+  'brainstorm',
+  'outline_writer',
+  'world_writer',
+  'chapter_writer',
+  'character_analyzer',
+  'tense_consistency_checker',
+  'adjective_adverb_optimizer',
+  'dangling_modifier_checker',
+  'rhythm_analyzer',
+  'crowding_leaping_evaluator',
+  'punctuation_auditor',
+  'conflict_analyzer',
+  'foreshadowing_tracker',
+  'plot_thread_tracker',
+  'kdp_publishing_prep',
+  'docx_comments',
+  'epub_converter'
+]
+Closing Anthropic client...
+(base) cleesmith:~$ 

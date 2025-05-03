@@ -31,6 +31,10 @@ class TokensWordsCounter extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
+    if (!this.claudeService) {
+      throw new Error('Claude service not initialized for TokensWordsCounter');
+    }
+
     try {
       // Clear the cache for this tool
       const toolName = 'tokens_words_counter';
@@ -146,8 +150,12 @@ class TokensWordsCounter extends BaseTool {
     } catch (error) {
       console.error('Error in TokensWordsCounter:', error);
       this.emitOutput(`\nError: ${error.message}\n`);
+      if (!this.claudeService) {
+        console.error('claudeService is null');
+      }
       throw error;
     }
+
   }
 
   /**
@@ -288,25 +296,68 @@ class TokensWordsCounter extends BaseTool {
    * @param {number} contextWindow - Total context window size (from config)
    * @returns {string} Visualization with emojis
    */
-  generateContextVisualization(usedTokens, thinkingBudget, contextWindow) {
-    const totalWidth = 50; // Width of visualization in characters
+  // generateContextVisualization(usedTokens, thinkingBudget, contextWindow) {
+  //   const totalWidth = 50; // Width of visualization in characters
     
-    // Calculate proportions
-    const usedWidth = Math.round((usedTokens / contextWindow) * totalWidth);
-    const thinkingWidth = Math.round((thinkingBudget / contextWindow) * totalWidth);
-    const remainingWidth = totalWidth - usedWidth - thinkingWidth;
+  //   // Calculate proportions
+  //   const usedWidth = Math.round((usedTokens / contextWindow) * totalWidth);
+  //   const thinkingWidth = Math.round((thinkingBudget / contextWindow) * totalWidth);
+  //   const remainingWidth = totalWidth - usedWidth - thinkingWidth;
     
-    // Create the visualization with emojis
+  //   // Create the visualization with emojis
+  //   let usedBar = '📝'.repeat(Math.ceil(usedWidth/2)); // for chapters
+  //   if (usedBar.length <= 0) {
+  //     usedBar = '📝';
+  //   }
+
+  //   const thinkingBar = '🧠'.repeat(Math.ceil(thinkingWidth/2)); // for thinking
+  //   const remainingBar = '🤖'.repeat(Math.ceil(remainingWidth/2)); // for available
+    
+  //   // Assemble the visualization
+  //   return `visualize Context Window usage:\n${usedBar}${thinkingBar}${remainingBar} ${Math.round((usedTokens + thinkingBudget) / contextWindow * 100)}% used\n📝 chapters | 🧠 thinking (${thinkingBudget.toLocaleString()}) | 🤖 available for Tool usage`;
+  // }
+  generateContextVisualization(promptTokens, contextWindow) {
+    const maxWidth = 50;
+    const thinkingBudget = this.claudeService.config.thinking_budget_tokens;
+    
+    // Calculate widths with safety checks to prevent negative values
+    let usedWidth = Math.floor((promptTokens / contextWindow) * maxWidth);
+    let thinkingWidth = Math.floor((thinkingBudget / contextWindow) * maxWidth);
+    let remainingWidth = maxWidth - usedWidth - thinkingWidth;
+    
+    // Handle case where document exceeds context window
+    if (usedWidth < 0 || promptTokens > contextWindow) {
+      const overflowPercentage = ((promptTokens - contextWindow) / contextWindow) * 100;
+      let overflowBar = '📝'.repeat(maxWidth);
+      
+      return `
+  Context Window Usage: EXCEEDS LIMIT
+  [${overflowBar}] ${((promptTokens / contextWindow) * 100).toFixed(1)}%
+  ${promptTokens.toLocaleString()} / ${contextWindow.toLocaleString()} tokens
+
+  WARNING: Document exceeds context window by ${overflowPercentage.toFixed(1)}%
+           Please split your manuscript into smaller sections.
+      `;
+    }
+    
+    // Ensure no negative values can reach repeat()
+    usedWidth = Math.max(0, usedWidth);
+    thinkingWidth = Math.max(0, thinkingWidth);
+    remainingWidth = Math.max(0, remainingWidth);
+    
+    // Create bars using your emoji choices
     let usedBar = '📝'.repeat(Math.ceil(usedWidth/2)); // for chapters
     if (usedBar.length <= 0) {
       usedBar = '📝';
     }
-
     const thinkingBar = '🧠'.repeat(Math.ceil(thinkingWidth/2)); // for thinking
     const remainingBar = '🤖'.repeat(Math.ceil(remainingWidth/2)); // for available
     
-    // Assemble the visualization
-    return `visualize Context Window usage:\n${usedBar}${thinkingBar}${remainingBar} ${Math.round((usedTokens + thinkingBudget) / contextWindow * 100)}% used\n📝 chapters | 🧠 thinking (${thinkingBudget.toLocaleString()}) | 🤖 available for Tool usage`;
+    return `
+  Context Window Usage:
+  [${usedBar}${thinkingBar}${remainingBar}] ${((promptTokens / contextWindow) * 100).toFixed(1)}%
+  ${promptTokens.toLocaleString()} / ${contextWindow.toLocaleString()} tokens
+    `;
   }
 
   /**

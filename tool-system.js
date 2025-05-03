@@ -1260,30 +1260,24 @@ const TOOL_DEFS = [
       "group": "Output Options"
     }
   ]},
-  { id: 'docx_comments', title: `DOCX Text/Comments Extractor`, Class: DocxComments, options: [
-    {
-      "name": "docx_file",
-      "label": "DOCX File",
-      "type": "file",
-      "description": "Word document file containing comments to extract and match to text",
-      "required": true,
-      "default": "",
-      "filters": [
-        {
-          "name": "DOCX Files",
-          "extensions": [
-            "docx"
-          ]
-        }
-      ],
-      "group": "Input Files"
-    }
+  { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
+      {
+        "name": "docx_file",
+        "label": "DOCX File",
+        "type": "file",
+        "description": "Word document file containing comments to extract and match to text",
+        "required": true,
+        "default": "",
+        "filters": [
+          {
+            "name": "DOCX Files",
+            "extensions": ["docx"]
+          }
+        ],
+        "group": "Input Files"
+      }
   ]},
-  { 
-    id: 'epub_converter', 
-    title: `EPUB to TXT Converter`, 
-    Class: EpubConverter, 
-    options: [
+  { id: 'epub_converter', title: 'EPUB to TXT Converter', description: 'Converts EPUB files to plain text format while preserving structure', Class: EpubConverter, options: [
       {
         "name": "epub_file",
         "label": "EPUB File",
@@ -1297,8 +1291,7 @@ const TOOL_DEFS = [
           }
         ]
       }
-    ]
-  }
+  ]}
 
 ];
 
@@ -1361,49 +1354,81 @@ function getToolPath(toolName) {
   }
 }
 
+// async function initializeToolSystem(settings) {
+//   console.log('Initializing tool system (no external DB)…');
+  
+//   try {
+//     // Create Claude API service with the provided settings
+//     const claudeService = new ClaudeAPIService(settings);
+    
+//     // Define which tools are non-AI and don't need Claude service
+//     const nonAiToolIds = ['docx_comments', 'epub_converter'];
+    
+//     // Register each tool with proper configuration
+//     let toolCount = 0;
+//     TOOL_DEFS.forEach(def => {
+//       if (typeof global.logToFile === 'function') {
+//         global.logToFile(`[tool-system] Registering tool #${toolCount + 1}: ${def.id}`);
+//       }
+      
+//       // Create tool config with all properties from definition
+//       const toolConfig = {
+//         name: def.id,  // Add the tool ID as name
+//         title: def.title,
+//         description: def.description,
+//         options: def.options || [],
+//         ...settings
+//       };
+      
+//       // Create tool instance
+//       let instance;
+      
+//       // Check if this is a non-AI tool
+//       if (nonAiToolIds.includes(def.id)) {
+//         // Non-AI tools don't get Claude service
+//         instance = new def.Class(def.id, toolConfig);
+//         console.log(`Initialized non-AI tool ${def.id} without Claude service`);
+//       } else {
+//         // AI tools get Claude service as first parameter
+//         instance = new def.Class(claudeService, toolConfig);
+        
+//         // If the tool doesn't properly store claudeService, add it here
+//         if (!instance.claudeService) {
+//           instance.claudeService = claudeService;
+//         }
+        
+//         console.log(`Initialized AI tool ${def.id} with Claude service`);
+//       }
+      
+//       if (typeof global.logToFile === 'function') {
+//         global.logToFile(`[tool-system] Adding tool to registry: ${def.id}`);
+//       }
+      
+//       // Add to registry
+//       toolRegistry.registerTool(def.id, instance);
+      
+//       toolCount++;
+//     });
+    
+//     return { claudeService, toolRegistry };
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 async function initializeToolSystem(settings) {
   console.log('Initializing tool system (no external DB)…');
   
-  // This part is working - your existing logging code that shows file listings
   if (typeof global.logToFile === 'function') {
     global.logToFile('[tool-system] Starting tool system initialization');
-    global.logToFile(`[tool-system] Current directory: ${process.cwd()}`);
-    global.logToFile(`[tool-system] __dirname: ${__dirname}`);
-    
-    // This is your existing code that lists files in directories
-    try {
-      const files = fs.readdirSync(__dirname);
-      global.logToFile(`[tool-system] Files in __dirname: ${files.join(', ')}`);
-      
-      // Also check the parent directory
-      const parentDir = path.dirname(__dirname);
-      const parentFiles = fs.readdirSync(parentDir);
-      global.logToFile(`[tool-system] Files in parent directory: ${parentFiles.join(', ')}`);
-    } catch (error) {
-      global.logToFile(`[tool-system] Error listing files: ${error.message}`);
-    }
-    
-    // NEW CODE STARTS HERE - Add these new logs
-    global.logToFile('[tool-system] About to create Claude API service');
-    try {
-      global.logToFile(`[tool-system] ClaudeAPIService settings: ${JSON.stringify(settings)}`);
-    } catch (e) {
-      global.logToFile(`[tool-system] Cannot stringify settings: ${e.message}`);
-    }
   }
   
   try {
     // Create Claude API service with the provided settings
-    if (typeof global.logToFile === 'function') {
-      global.logToFile('[tool-system] Creating Claude API service');
-    }
-    
     const claudeService = new ClaudeAPIService(settings);
+    console.log('Created ClaudeAPIService instance');
     
-    if (typeof global.logToFile === 'function') {
-      global.logToFile('[tool-system] Claude API service created successfully');
-      global.logToFile('[tool-system] Beginning tool registration');
-    }
+    // Define which tools are non-AI and don't need Claude service
+    const nonAiToolIds = ['docx_comments', 'epub_converter'];
     
     // Register each tool with proper configuration
     let toolCount = 0;
@@ -1412,53 +1437,59 @@ async function initializeToolSystem(settings) {
         global.logToFile(`[tool-system] Registering tool #${toolCount + 1}: ${def.id}`);
       }
       
-      // Ensure required properties exist
+      // Create tool config with all properties from definition
       const toolConfig = {
-        title: def.title || def.id,
-        description: def.description || def.title || `Tool: ${def.id}`,
+        name: def.id,
+        title: def.title,
+        description: def.description,
         options: def.options || [],
         ...settings
       };
       
-      if (typeof global.logToFile === 'function') {
-        global.logToFile(`[tool-system] Creating instance of tool: ${def.id}`);
-      }
+      console.log(`Creating instance of tool: ${def.id}`);
       
       // Create tool instance
-      const instance = new def.Class(claudeService, toolConfig);
+      let instance;
       
-      if (typeof global.logToFile === 'function') {
-        global.logToFile(`[tool-system] Adding tool to registry: ${def.id}`);
+      // Check if this is a non-AI tool
+      if (nonAiToolIds.includes(def.id)) {
+        // Non-AI tools don't get Claude service
+        instance = new def.Class(def.id, toolConfig);
+        console.log(`Initialized non-AI tool ${def.id} without Claude service`);
+      } else {
+        // AI tools get Claude service as first parameter
+        console.log(`Passing claudeService to AI tool ${def.id}`);
+        instance = new def.Class(claudeService, toolConfig);
+        
+        // Verify the service was stored
+        console.log(`Tool ${def.id} has claudeService: ${!!instance.claudeService}`);
+        
+        // If the tool doesn't properly store claudeService, add it here
+        if (!instance.claudeService) {
+          console.log(`Manually setting claudeService for tool ${def.id}`);
+          instance.claudeService = claudeService;
+        }
+        
+        console.log(`Initialized AI tool ${def.id} with Claude service`);
       }
       
       // Add to registry
       toolRegistry.registerTool(def.id, instance);
       
-      if (typeof global.logToFile === 'function') {
-        global.logToFile(`[tool-system] Successfully registered tool: ${def.id}`);
-      }
+      // Verify the tool in registry
+      const registeredTool = toolRegistry.getTool(def.id);
+      console.log(`Verified tool ${def.id} in registry has claudeService: ${!!registeredTool.claudeService}`);
       
       toolCount++;
     });
-    
-    if (typeof global.logToFile === 'function') {
-      global.logToFile(`[tool-system] Completed registering all ${toolCount} tools`);
-    }
     
     // Log registration summary
     const allTools = toolRegistry.getAllToolIds();
     console.log(`Registered ${allTools.length} built-in tools:`, allTools);
     
-    if (typeof global.logToFile === 'function') {
-      global.logToFile('[tool-system] Tool system initialization completed successfully');
-    }
-    
     return { claudeService, toolRegistry };
   } catch (error) {
-    if (typeof global.logToFile === 'function') {
-      global.logToFile(`[tool-system] ERROR during tool system initialization: ${error.message}`);
-      global.logToFile(`[tool-system] Error stack: ${error.stack}`);
-    }
+    console.error(`[tool-system] ERROR during initialization: ${error.message}`);
     throw error;
   }
 }
@@ -1473,6 +1504,8 @@ async function initializeToolSystem(settings) {
 //   console.log(`Executing tool: ${toolId} with options:`, options);
   
 //   // Get the tool implementation
+//   // Change from: const tool = toolSystem.toolRegistry.getTool(toolId);
+//   // To:
 //   const tool = toolRegistry.getTool(toolId);
   
 //   if (!tool) {
@@ -1481,16 +1514,49 @@ async function initializeToolSystem(settings) {
 //   }
   
 //   try {
+//     console.log('*** Client before recreate:', !!tool.claudeService?.client);
+//     // Recreate the Claude API client for a fresh connection
+//     if (tool.claudeService) {
+//       tool.claudeService.recreate();
+//     }
+//     console.log('*** Client after recreate:', !!tool.claudeService?.client);
+    
 //     // Execute the tool
 //     console.log(`Starting execution of tool: ${toolId}`);
 //     const result = await tool.execute(options);
 //     console.log(`Tool execution complete: ${toolId}`);
+    
+//     // Close the client after successful execution
+//     if (tool.claudeService) {
+//       try {
+//         tool.claudeService.close();
+//       } catch (error) {
+//         console.warn(`Error closing Claude service for tool ${toolId}:`, error);
+//       } finally {
+//         tool.claudeService = null;  // Always set to null, even if close() threw an error
+//       }
+//     }
+    
 //     return result;
 //   } catch (error) {
 //     console.error(`Error executing tool ${toolId}:`, error);
+    
+//     // Ensure the client is closed even if execution fails
+//     if (tool && tool.claudeService) {
+//       try {
+//         tool.claudeService.close();
+//       } catch (closeError) {
+//         console.warn(`Error closing Claude service after execution error:`, closeError);
+//       } finally {
+//         tool.claudeService = null;  // Always set to null, even if close() threw an error
+//       }
+//     }
+    
 //     throw error;
 //   }
 // }
+// In tool-system.js, let's be more careful about when we set claudeService to null
+
 async function executeToolById(toolId, options) {
   console.log(`Executing tool: ${toolId} with options:`, options);
   
@@ -1502,23 +1568,36 @@ async function executeToolById(toolId, options) {
     throw new Error(`Tool not found: ${toolId}`);
   }
   
+  // Store the original claudeService in case we need to restore it
+  const originalClaudeService = tool.claudeService;
+  
   try {
-    console.log('*** Client before recreate:', !!tool.claudeService.client);
-    // Recreate the Claude API client for a fresh connection
-    if (tool.claudeService) {
+    console.log('*** Client before recreate:', !!tool.claudeService?.client);
+    
+    // Only try to recreate if tool has a claudeService
+    if (tool.claudeService && typeof tool.claudeService.recreate === 'function') {
       tool.claudeService.recreate();
+    } else {
+      console.log(`Tool ${toolId} does not have a valid Claude service (has claudeService: ${!!tool.claudeService})`);
     }
-    console.log('*** Client after recreate:', !!tool.claudeService.client);
+    
+    console.log('*** Client after recreate:', !!tool.claudeService?.client);
     
     // Execute the tool
     console.log(`Starting execution of tool: ${toolId}`);
-
     const result = await tool.execute(options);
     console.log(`Tool execution complete: ${toolId}`);
     
     // Close the client after successful execution
-    if (tool.claudeService) {
-      tool.claudeService.close();
+    if (tool.claudeService && typeof tool.claudeService.close === 'function') {
+      try {
+        tool.claudeService.close();
+      } catch (error) {
+        console.warn(`Error closing Claude service for tool ${toolId}:`, error);
+      } finally {
+        // Don't set to null here - this might be causing the problem!
+        // tool.claudeService = null;
+      }
     }
     
     return result;
@@ -1526,8 +1605,15 @@ async function executeToolById(toolId, options) {
     console.error(`Error executing tool ${toolId}:`, error);
     
     // Ensure the client is closed even if execution fails
-    if (tool && tool.claudeService) {
-      tool.claudeService.close();
+    if (tool && tool.claudeService && typeof tool.claudeService.close === 'function') {
+      try {
+        tool.claudeService.close();
+      } catch (closeError) {
+        console.warn(`Error closing Claude service after execution error:`, closeError);
+      } finally {
+        // Don't set to null here either
+        // tool.claudeService = null;
+      }
     }
     
     throw error;
@@ -1546,6 +1632,12 @@ async function executeToolById(toolId, options) {
 //   // Update the service in all registered tools
 //   for (const toolId of toolRegistry.getAllToolIds()) {
 //     const tool = toolRegistry.getTool(toolId);
+    
+//     // Close any existing client first
+//     if (tool.claudeService) {
+//       tool.claudeService.close();
+//     }
+    
 //     tool.claudeService = claudeService;
 //   }
   
@@ -1556,12 +1648,18 @@ function reinitializeClaudeService(settings) {
   const claudeService = new ClaudeAPIService(settings);
   
   // Update the service in all registered tools
-  for (const toolId of toolRegistry.getAllToolIds()) {
-    const tool = toolRegistry.getTool(toolId);
+  for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
+    const tool = toolSystem.toolRegistry.getTool(toolId);
     
     // Close any existing client first
     if (tool.claudeService) {
-      tool.claudeService.close();
+      try {
+        tool.claudeService.close();
+      } catch (error) {
+        console.warn(`Error closing Claude service during reinitialization:`, error);
+      } finally {
+        tool.claudeService = null;  // This ALWAYS happens
+      }
     }
     
     tool.claudeService = claudeService;

@@ -96,8 +96,7 @@ const nonAiToolDescription = document.getElementById('non-ai-tool-description');
 const nonAiSetupRunBtn = document.getElementById('non-ai-setup-run-btn');
 
 // List of non-AI tool IDs
-const nonAiToolIds = ["docx_comments"];
-// const nonAiToolIds = ["docx_comments", "epub_converter"];
+const nonAiToolIds = ["docx_comments", "epub_converter"];
 
 // Load current project info when the app starts
 async function loadProjectInfo() {
@@ -149,7 +148,7 @@ window.electronAPI.onProjectUpdated((event) => {
 
 // Function to determine if a tool is an AI tool
 function isAiTool(tool) {
-  return !nonAiToolIds.includes(tool.name);
+  return !nonAiToolIds.includes(tool.name.toLowerCase());
 }
 
 async function loadAiTools() {
@@ -256,15 +255,23 @@ async function loadAiTools() {
 
 async function loadNonAiTools() {
   console.log('Fetching non-AI tools from main process...');
+  console.log('Current nonAiToolIds:', nonAiToolIds);
+  
   const tools = await window.electronAPI.getTools();
+  console.log('All tools received from main process:', tools);
+  console.log('All tool names:', tools.map(tool => tool.name));
   
   // Filter to only include non-AI tools
   const nonAiTools = tools.filter(tool => nonAiToolIds.includes(tool.name));
+  console.log('Filtered non-AI tools:', nonAiTools);
+  console.log('Number of non-AI tools after filtering:', nonAiTools.length);
   
   // Clear any existing options
   nonAiToolSelect.innerHTML = '';
+  console.log('Cleared existing options from nonAiToolSelect');
   
   if (!nonAiTools || nonAiTools.length === 0) {
+    console.log('No non-AI tools found, adding disabled message');
     const option = document.createElement('option');
     option.disabled = true;
     option.textContent = 'No non-AI tools available';
@@ -273,23 +280,33 @@ async function loadNonAiTools() {
   }
   
   // Add all non-AI tools
-  nonAiTools.forEach(tool => {
+  nonAiTools.forEach((tool, index) => {
+    console.log(`Adding non-AI tool ${index + 1}:`, tool);
+    console.log(`Tool title: "${tool.title}", Tool description: "${tool.description}"`);
     const option = document.createElement('option');
     option.value = tool.name;
     option.textContent = tool.title;
-    option.dataset.description = tool.description;
+    option.dataset.description = tool.description || 'No description available.';
     nonAiToolSelect.appendChild(option);
-    console.log(`Added non-AI tool: ${tool.name}`);
+    console.log(`Added non-AI tool: ${tool.name} with title: ${tool.title}`);
   });
   
   // Count the actual options
   const actualOptions = nonAiTools.length;
   console.log(`Added ${actualOptions} selectable non-AI tool options to dropdown`);
   
+  // Verify the options were actually added to the DOM
+  console.log('Final nonAiToolSelect content:', nonAiToolSelect.innerHTML);
+  console.log('Final nonAiToolSelect.options:', Array.from(nonAiToolSelect.options).map(opt => ({
+    value: opt.value,
+    text: opt.textContent,
+    disabled: opt.disabled
+  })));
+  
   // Select the first tool by default
   if (actualOptions > 0) {
     nonAiToolSelect.value = nonAiTools[0].name;
-    nonAiToolDescription.textContent = nonAiTools[0].description;
+    nonAiToolDescription.textContent = nonAiTools[0].description || 'No description available.';
     console.log(`Selected default non-AI tool: ${nonAiTools[0].name}`);
   }
 }

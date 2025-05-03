@@ -16,10 +16,11 @@ const xpath = require('xpath');
 class EpubConverter extends BaseTool {
   /**
    * Constructor
+   * @param {string} name - Tool name
    * @param {Object} config - Tool configuration
    */
-  constructor(config = {}) {
-    super('epub_converter', config);
+  constructor(name, config = {}) {
+    super(name, config);
   }
 
   /**
