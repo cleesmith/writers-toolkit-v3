@@ -122,7 +122,7 @@ const EpubConverter = loadToolClass('epub-converter');
 
 // , description: ``
 const TOOL_DEFS = [
-  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `Counts words and AI tokens for a given text file.`, Class: TokensWordsCounter, options: [
+  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `Counts the approximate tokens and words in text files. Helps estimate Claude API usage and context window requirements for your writing.`, Class: TokensWordsCounter, options: [
     {
       "name": "input_file",
       "label": "Input File",
