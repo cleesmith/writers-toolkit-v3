@@ -15,7 +15,7 @@ class ToolRegistry {
    * @param {object} toolInstance - Tool instance
    */
   registerTool(toolId, toolInstance) {
-    // console.log(`Registering tool: ${toolId}`);
+    console.log(`Registering tool: ${toolId}`);
     this.tools.set(toolId, toolInstance);
   }
   

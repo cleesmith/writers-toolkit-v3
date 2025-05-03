@@ -83,8 +83,6 @@ async function initializeApp() {
       // Initialize tool system with complete settings
       const toolSystemResult = await toolSystem.initializeToolSystem(completeSettings);
 
-      // verifyToolLoading();
-
       // Check if API key is missing
       if (toolSystemResult.claudeService && toolSystemResult.claudeService.apiKeyMissing) {
         // Show notification after window is created
@@ -594,31 +592,6 @@ ipcMain.handle('save-file', async (event, data) => {
 
 // Setup handlers for tool operations
 function setupToolHandlers() {
-  // ipcMain.handle('get-tools', () => {
-  //   console.log('get-tools handler called');
-    
-  //   // Get all tool IDs
-  //   const allToolIds = toolSystem.toolRegistry.getAllToolIds();
-  //   console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
-    
-  //   // Map IDs to tool objects with required properties
-  //   const tools = allToolIds.map(id => {
-  //     const tool = toolSystem.toolRegistry.getTool(id);
-  //     if (!tool) {
-  //       throw new Error(`Tool with ID ${id} exists in registry but could not be retrieved`);
-  //     }
-      
-  //     // Ensure tool has required properties
-  //     return {
-  //       name: id,
-  //       title: tool.config?.title || id,
-  //       description: tool.config?.description || `${id} tool`
-  //     };
-  //   });
-    
-  //   console.log(`Returning ${tools.length} tools to renderer`);
-  //   return tools;
-  // });
   ipcMain.handle('get-tools', () => {
     console.log('get-tools handler called');
     
@@ -630,6 +603,7 @@ function setupToolHandlers() {
     // Map IDs to tool objects with required properties
     const tools = allToolIds.map(id => {
       const tool = toolSystem.toolRegistry.getTool(id);
+      console.log(`>>> tool:`, tool);
       if (!tool) {
         console.error(`Tool with ID ${id} exists in registry but could not be retrieved`);
         throw new Error(`Tool with ID ${id} exists in registry but could not be retrieved`);
@@ -641,7 +615,12 @@ function setupToolHandlers() {
         title: tool.config?.title || 'missing',
         description: tool.config?.description || 'missing'
       });
-      
+
+      console.log(`>>> Tool ${id} description debugging:`, {
+        'tool.config?.description': tool.config?.description,
+        'tool.title': tool.config?.title
+      });      
+
       // Ensure tool has required properties
       return {
         name: id,

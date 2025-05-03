@@ -152,7 +152,7 @@ function isAiTool(tool) {
 }
 
 async function loadAiTools() {
-  console.log('Fetching AI tools from main process...');
+  console.log('*** loadAiTools: Fetching AI tools from main process...');
   const tools = await window.electronAPI.getTools();
   console.log(`Received ${tools.length} tools from main process:`, tools);
   
@@ -184,6 +184,7 @@ async function loadAiTools() {
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
+      console.log(`*** tool.description=`, tool.description);
       aiToolSelect.appendChild(option);
       addedTools.add(tool.name);
       console.log(`Added top tool: ${tool.name}`);
@@ -208,6 +209,7 @@ async function loadAiTools() {
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
+      console.log(`*** tool.description=`, tool.description);
       aiToolSelect.appendChild(option);
       addedTools.add(tool.name);
       console.log(`Added rough draft tool: ${tool.name}`);
@@ -232,6 +234,7 @@ async function loadAiTools() {
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
+      console.log(`*** tool.description=`, tool.description);
       aiToolSelect.appendChild(option);
       console.log(`Added other AI tool: ${tool.name}`);
     }
@@ -248,6 +251,7 @@ async function loadAiTools() {
     if (firstOption) {
       aiToolSelect.value = firstOption.value;
       aiToolDescription.textContent = firstOption.dataset.description;
+      console.log(`*** tool.description=`, tool.description);
       console.log(`Selected default AI tool: ${firstOption.value}`);
     }
   }

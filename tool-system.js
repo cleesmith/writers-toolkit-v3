@@ -120,13 +120,14 @@ const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
 const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 
+// , description: ``
 const TOOL_DEFS = [
-  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, Class: TokensWordsCounter, options: [
+  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `Counts words and AI tokens for a given text file.`, Class: TokensWordsCounter, options: [
     {
       "name": "input_file",
       "label": "Input File",
       "type": "file",
-      "description": "The text file to analyze",
+      "description": "Count tokens & words in text file.",
       "required": true,
       "default": "manuscript.txt",
       "filters": [
@@ -139,7 +140,7 @@ const TOOL_DEFS = [
       ]
     }
   ]},
-  { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, Class: ManuscriptToOutlineCharactersWorld, options: [
+  { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, description: ``, Class: ManuscriptToOutlineCharactersWorld, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -150,7 +151,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'line_editing', title: `Line Editing`, Class: LineEditing, options: [
+  { id: 'line_editing', title: `Line Editing`, description: ``, Class: LineEditing, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -178,7 +179,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'narrative_integrity', title: `Narrative Integrity`, Class: NarrativeIntegrity, options: [
+  { id: 'narrative_integrity', title: `Narrative Integrity`, description: ``, Class: NarrativeIntegrity, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -241,7 +242,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'drunk_claude', title: `Drunk Claude`, Class: DrunkClaude, options: [
+  { id: 'drunk_claude', title: `Drunk Claude`, description: ``, Class: DrunkClaude, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -252,7 +253,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'brainstorm', title: `Brainstorm`, Class: BrainstormTool, options: [
+  { id: 'brainstorm', title: `Brainstorm`, description: ``, Class: BrainstormTool, options: [
     {
       "name": "ideas_file",
       "label": "IDEAS_FILE",
@@ -353,7 +354,7 @@ const TOOL_DEFS = [
       "group": "Content Configuration"
     }
   ]},
-  { id: 'outline_writer', title: `Outline Writer`, Class: OutlineWriter, options: [
+  { id: 'outline_writer', title: `Outline Writer`, description: ``, Class: OutlineWriter, options: [
     {
       "name": "premise_file",
       "label": "PREMISE_FILE",
@@ -445,7 +446,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'world_writer', title: `World Writer`, Class: WorldWriter, options: [
+  { id: 'world_writer', title: `World Writer`, description: ``, Class: WorldWriter, options: [
     {
       "name": "lang",
       "label": "LANG",
@@ -501,7 +502,7 @@ const TOOL_DEFS = [
       "group": "Content Configuration"
     }
   ]},
-  { id: 'chapter_writer', title: `Chapter Writer`, Class: ChapterWriter, options: [
+  { id: 'chapter_writer', title: `Chapter Writer`, description: ``, Class: ChapterWriter, options: [
     {
       "name": "chapters_to_write",
       "label": "chapters_to_write",
@@ -602,7 +603,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'character_analyzer', title: `Character Analyzer`, Class: CharacterAnalyzer, options: [
+  { id: 'character_analyzer', title: `Character Analyzer`, description: ``, description: ``, Class: CharacterAnalyzer, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -649,7 +650,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'tense_consistency_checker', title: `Tense Consistency Checker`, Class: TenseConsistencyChecker, options: [
+  { id: 'tense_consistency_checker', title: `Tense Consistency Checker`, description: ``, Class: TenseConsistencyChecker, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -696,7 +697,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'adjective_adverb_optimizer', title: `Adjective Adverb Optimizer`, Class: AdjectiveAdverbOptimizer, options: [
+  { id: 'adjective_adverb_optimizer', title: `Adjective Adverb Optimizer`, description: ``, Class: AdjectiveAdverbOptimizer, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -743,7 +744,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'dangling_modifier_checker', title: `Dangling Modifier Checker`, Class: DanglingModifierChecker, options: [
+  { id: 'dangling_modifier_checker', title: `Dangling Modifier Checker`, description: ``, Class: DanglingModifierChecker, options: [
     {
       "name": "manuscript_file",
       "label": "Select Manuscript file",
@@ -844,7 +845,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'rhythm_analyzer', title: `Rhythm Analyzer`, Class: RhythmAnalyzer, options: [
+  { id: 'rhythm_analyzer', title: `Rhythm Analyzer`, description: ``, Class: RhythmAnalyzer, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -900,7 +901,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'crowding_leaping_evaluator', title: `Crowding Leaping Evaluator`, Class: CrowdingLeapingEvaluator, options: [
+  { id: 'crowding_leaping_evaluator', title: `Crowding Leaping Evaluator`, description: ``, Class: CrowdingLeapingEvaluator, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -965,7 +966,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'punctuation_auditor', title: `Punctuation Auditor`, Class: PunctuationAuditor, options: [
+  { id: 'punctuation_auditor', title: `Punctuation Auditor`, description: ``, Class: PunctuationAuditor, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -1021,7 +1022,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'conflict_analyzer', title: `Conflict Analyzer`, Class: ConflictAnalyzer, options: [
+  { id: 'conflict_analyzer', title: `Conflict Analyzer`, description: ``, Class: ConflictAnalyzer, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -1077,7 +1078,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'foreshadowing_tracker', title: `Foreshadowing Tracker`, Class: ForeshadowingTracker, options: [
+  { id: 'foreshadowing_tracker', title: `Foreshadowing Tracker`, description: ``, Class: ForeshadowingTracker, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -1133,7 +1134,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'plot_thread_tracker', title: `Plot Thread Tracker`, Class: PlotThreadTracker, options: [
+  { id: 'plot_thread_tracker', title: `Plot Thread Tracker`, description: ``, Class: PlotThreadTracker, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -1198,7 +1199,7 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     }
   ]},
-  { id: 'kdp_publishing_prep', title: `KDP Publishing Prep - Generate Amazon KDP Elements`, Class: KdpPublishingPrep, options: [
+  { id: 'kdp_publishing_prep', title: `KDP Publishing Prep - Generate Amazon KDP Elements`, description: `Manuscript analysis utility for identifying and tracking distinct plot threads\u2014revealing how they interconnect, converge, and diverge throughout the narrative.\n It uses text-based representations (with optional ASCII art visualization) and supports configurable analysis depth (basic, detailed, or comprehensive) to produce detailed reports with progression maps, thread connections, and narrative assessments, including manuscript excerpts and recommendations for strengthening the plot architecture.`, Class: KdpPublishingPrep, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -1354,69 +1355,8 @@ function getToolPath(toolName) {
   }
 }
 
-// async function initializeToolSystem(settings) {
-//   console.log('Initializing tool system (no external DB)…');
-  
-//   try {
-//     // Create Claude API service with the provided settings
-//     const claudeService = new ClaudeAPIService(settings);
-    
-//     // Define which tools are non-AI and don't need Claude service
-//     const nonAiToolIds = ['docx_comments', 'epub_converter'];
-    
-//     // Register each tool with proper configuration
-//     let toolCount = 0;
-//     TOOL_DEFS.forEach(def => {
-//       if (typeof global.logToFile === 'function') {
-//         global.logToFile(`[tool-system] Registering tool #${toolCount + 1}: ${def.id}`);
-//       }
-      
-//       // Create tool config with all properties from definition
-//       const toolConfig = {
-//         name: def.id,  // Add the tool ID as name
-//         title: def.title,
-//         description: def.description,
-//         options: def.options || [],
-//         ...settings
-//       };
-      
-//       // Create tool instance
-//       let instance;
-      
-//       // Check if this is a non-AI tool
-//       if (nonAiToolIds.includes(def.id)) {
-//         // Non-AI tools don't get Claude service
-//         instance = new def.Class(def.id, toolConfig);
-//         console.log(`Initialized non-AI tool ${def.id} without Claude service`);
-//       } else {
-//         // AI tools get Claude service as first parameter
-//         instance = new def.Class(claudeService, toolConfig);
-        
-//         // If the tool doesn't properly store claudeService, add it here
-//         if (!instance.claudeService) {
-//           instance.claudeService = claudeService;
-//         }
-        
-//         console.log(`Initialized AI tool ${def.id} with Claude service`);
-//       }
-      
-//       if (typeof global.logToFile === 'function') {
-//         global.logToFile(`[tool-system] Adding tool to registry: ${def.id}`);
-//       }
-      
-//       // Add to registry
-//       toolRegistry.registerTool(def.id, instance);
-      
-//       toolCount++;
-//     });
-    
-//     return { claudeService, toolRegistry };
-//   } catch (error) {
-//     throw error;
-//   }
-// }
 async function initializeToolSystem(settings) {
-  console.log('Initializing tool system (no external DB)…');
+  console.log('Initializing tool system...');
   
   if (typeof global.logToFile === 'function') {
     global.logToFile('[tool-system] Starting tool system initialization');
@@ -1500,63 +1440,6 @@ async function initializeToolSystem(settings) {
  * @param {Object} options - Tool options
  * @returns {Promise<Object>} - Tool execution result
  */
-// async function executeToolById(toolId, options) {
-//   console.log(`Executing tool: ${toolId} with options:`, options);
-  
-//   // Get the tool implementation
-//   // Change from: const tool = toolSystem.toolRegistry.getTool(toolId);
-//   // To:
-//   const tool = toolRegistry.getTool(toolId);
-  
-//   if (!tool) {
-//     console.error(`Tool not found: ${toolId}`);
-//     throw new Error(`Tool not found: ${toolId}`);
-//   }
-  
-//   try {
-//     console.log('*** Client before recreate:', !!tool.claudeService?.client);
-//     // Recreate the Claude API client for a fresh connection
-//     if (tool.claudeService) {
-//       tool.claudeService.recreate();
-//     }
-//     console.log('*** Client after recreate:', !!tool.claudeService?.client);
-    
-//     // Execute the tool
-//     console.log(`Starting execution of tool: ${toolId}`);
-//     const result = await tool.execute(options);
-//     console.log(`Tool execution complete: ${toolId}`);
-    
-//     // Close the client after successful execution
-//     if (tool.claudeService) {
-//       try {
-//         tool.claudeService.close();
-//       } catch (error) {
-//         console.warn(`Error closing Claude service for tool ${toolId}:`, error);
-//       } finally {
-//         tool.claudeService = null;  // Always set to null, even if close() threw an error
-//       }
-//     }
-    
-//     return result;
-//   } catch (error) {
-//     console.error(`Error executing tool ${toolId}:`, error);
-    
-//     // Ensure the client is closed even if execution fails
-//     if (tool && tool.claudeService) {
-//       try {
-//         tool.claudeService.close();
-//       } catch (closeError) {
-//         console.warn(`Error closing Claude service after execution error:`, closeError);
-//       } finally {
-//         tool.claudeService = null;  // Always set to null, even if close() threw an error
-//       }
-//     }
-    
-//     throw error;
-//   }
-// }
-// In tool-system.js, let's be more careful about when we set claudeService to null
-
 async function executeToolById(toolId, options) {
   console.log(`Executing tool: ${toolId} with options:`, options);
   
@@ -1668,48 +1551,9 @@ function reinitializeClaudeService(settings) {
   return claudeService;
 }
 
-/**
- * Verify that tools are properly loaded and accessible
- * @returns {boolean} - True if verification passes
- */
-// function verifyToolLoading() {
-//   console.log('Verifying tool classes are accessible in tool-system.js...');
-  
-//   try {
-//     // Verify the registry has tools
-//     const toolIds = toolRegistry.getAllToolIds();
-//     if (!toolIds.length) {
-//       throw new Error('No tools registered in registry');
-//     }
-//     console.log(`Tool registry contains ${toolIds.length} tools`);
-    
-//     // Try to get a specific tool
-//     const tokensTool = toolRegistry.getTool('tokens_words_counter');
-//     if (!tokensTool) {
-//       throw new Error('Could not retrieve tokens_words_counter tool');
-//     }
-    
-//     // Verify the tool has core properties and methods
-//     if (typeof tokensTool.execute !== 'function') {
-//       throw new Error('Tool missing execute method');
-//     }
-    
-//     if (!tokensTool.config) {
-//       throw new Error('Tool missing config object');
-//     }
-    
-//     console.log('Tool verification passed in tool-system.js');
-//     return true;
-//   } catch (error) {
-//     console.error('Tool verification failed in tool-system.js:', error);
-//     throw error;
-//   }
-// }
-
 module.exports = {
   initializeToolSystem,
   executeToolById,
   reinitializeClaudeService,
-  toolRegistry,
-  // verifyToolLoading
+  toolRegistry
 };
