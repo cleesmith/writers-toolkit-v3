@@ -54,10 +54,8 @@ class Proofreader extends BaseTool {
       // Read the input files
       this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
-
-      console.log(this.extractChapterList(manuscriptContent));
-
-      // Create prompt using the template with language substitution and chapter number
+      
+      // Create prompt using the template with language substitution
       const prompt = this.createPrompt(manuscriptContent, language);
 
       // Count tokens in the prompt
@@ -109,8 +107,8 @@ class Proofreader extends BaseTool {
       let fullResponse = "";
       let thinkingContent = "";
       
-      // Create system prompt
-      const systemPrompt = "NO Markdown formatting! Never use headers, bullets, numbering, asterisks, hyphens, or any formatting symbols. Plain text only.";
+      // Create system prompt - more explicit guidance
+      const systemPrompt = "You are a meticulous proofreader. Be thorough and careful. DO NOT use any Markdown formatting - no headers, bullets, numbering, asterisks, hyphens, or any formatting symbols. Plain text only. You must find and report ALL errors, even small ones.";
 
       // Use the calculated values in the API call
       try {
@@ -185,133 +183,46 @@ class Proofreader extends BaseTool {
     }
   }
   
- /**
+  /**
    * Create prompt
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language for proofreading (default: English)
    * @returns {string} - Prompt for Claude API
    */
   createPrompt(manuscriptContent, language = 'English') {
-    // Read the prompt template from the file and replace placeholders
-    const template = `You are a professional proofreader specializing in ${language} creative fiction. You must carefully and systematically proofread this manuscript chapter by chapter to avoid errors and hallucinations, and some proofreading issues will involve comparing and reading all of the other chapters in the manuscript.
+    // Simplified and focused prompt template
+    const template = `You are a professional proofreader for ${language} creative fiction. Find and report ALL surface-level errors in the manuscript below.
 
-CRITICAL INSTRUCTIONS:
-1. First, identify ALL chapters in the manuscript (look for "Chapter" markers)
-2. Process each chapter INDIVIDUALLY and IN ORDER, after thoroughly reading the manuscript as some proofreading issues span multiple chapters to be noticed
-3. ONLY report actual errors found in the text - DO NOT make up or hallucinate issues
-4. Check each error against the actual manuscript text before reporting it
+CRITICAL RULES:
+1. Completely ignore chapter numbers and chapter titles
+2. Focus ONLY on the actual text errors
+3. When reporting errors, copy the problematic text EXACTLY as it appears
+4. Do NOT add quotation marks when showing the problematic text
+5. Check the ENTIRE manuscript thoroughly
 
-MANUSCRIPT TYPE: ${language} Creative Fiction
+Look specifically for these errors:
+- Missing closing quotation marks
+- Typos and misspellings (like "diabotical" instead of "diabolical") 
+- Character name inconsistencies (like Mrs. Flynn vs. Mrs. Elwood)
+- POV shifts (like "we" in third-person narration)
+- Word errors (like "asses" instead of "assets")
+- Missing or extra words
+- Punctuation errors
 
-PROOFREADING PROCESS:
+FORMAT FOR EACH ERROR:
+Copy the exact problematic text here
 
-Step 1: Chapter Identification
-- Scan the manuscript to identify all chapters
-- Make a mental list of chapters in order, for later output
+ISSUE: Describe what's wrong with it
 
-Step 2: Chapter-by-Chapter Processing
-For each chapter:
-- Look for actual errors in the text
-- Double-check each error exists in the manuscript
-- Report using the exact format below
-- Complete the chapter before moving to the next
-- Look for inconsistencies with previous chapters
-
-PROOFREADING GUIDELINES FOR FICTION:
-
-IMPORTANT:
-Take your time and "think hard" as you thoroughly read and re-read the manuscript text, see: === MANUSCRIPT ===
-
-1. Focus Areas:
-   - Catching typos and spelling errors (using standard ${language} conventions)
-   - Identifying formatting inconsistencies in dialogue, internal thoughts, and narrative
-   - Fixing punctuation errors, especially in dialogue tags and quotations
-   - Catching missing words or duplicated words
-   - Ensuring consistent use of quotation marks per ${language} conventions
-   - Checking spacing issues around punctuation marks
-   - Identifying inconsistencies in character names or place names
-
-2. Fiction-Specific Checks:
-   - Dialogue punctuation (proper formatting for the ${language})
-   - Consistent formatting of thoughts (italics vs. quotes)
-   - Paragraph breaks in dialogue
-   - Scene break formatting consistency
-   - Consistent use of formal/informal speech patterns
-
-3. What NOT to do:
-   - Do not add double quotes around the original text from the manuscript; use the text as it is
-   - Do not rewrite for style, pacing, or dramatic effect
-   - Do not suggest plot or character changes
-   - Do not alter the author's voice or narrative style
-   - Do not change creative spelling in dialogue meant to show accent/dialect
-   - Do not standardize intentional fragments or stylistic choices
-   - Do not correct "errors" that might be intentional character voice
-   - DO NOT make up errors that don't exist in the text
-
-4. Output Format:
-   1. List all chapters found, each on a separate line, like: Chapter 1: the first one ... in order to verify you are seeing the chapters correctly
-   2. Then for each issue found, provide:
-       1. Chapter number and caption/title
-       2. The original text (exactly as it appears - verbatim)
-       3. One newline
-       3. ISSUE:
-       The description of what's wrong with this text
-       4. Two newlines for separation
-
-   Example format:
-   Chapter 3: The Beginning
-   "Hello." She said quietly.
-   ISSUE:
-   Incorrect dialogue punctuation. Should be "Hello," with comma instead of period before dialogue tag.
-
-   Repeat this format for every issue found.
-
-5. Final Report:
-   After processing all chapters, provide:
-   - A summary of error patterns
-   - Note any recurring issues that might need a global fix
-
-IMPORTANT: Process chapters in numerical order, focus on one chapter at a time, and ensure all reported errors actually exist in the manuscript text. Do not skip ahead or mix chapters.
+[leave two blank lines between errors]
 
 === MANUSCRIPT ===
 ${manuscriptContent}
 === END MANUSCRIPT ===
 
-Please proofread the creative fiction manuscript above following these guidelines. Start by identifying all chapters, then process each one systematically. Present your findings in a clear, organized manner, beginning with Chapter 1 and proceeding in order. Remember to respect the author's creative choices and only report genuine errors.`;
+Find ALL errors. Missing errors is unacceptable. Report them in the format above.`;
 
     return template;
-  }
-
-  /**
-   * Extract chapters from manuscript content following the format "Chapter #: title"
-   * @param {string} manuscriptContent - The full manuscript text
-   * @returns {Array<Object>} - Array of chapter objects with number and title
-   */
-  extractChapterList(manuscriptContent) {
-    const chapters = [];
-    const lines = manuscriptContent.split('\n');
-    
-    // Look for "Chapter #: title" format (with colon, not period)
-    const chapterRegex = /^Chapter\s+(\d+):\s*(.*)$/i;
-    
-    lines.forEach((line, index) => {
-      const match = chapterRegex.exec(line.trim());
-      
-      if (match) {
-        // chapters.push({
-        //   number: parseInt(match[1], 10),
-        //   title: match[2].trim() || '',
-        //   lineNumber: index + 1
-        // });
-        chapters.push({
-          parseInt(match[1], 10),
-          ': ',
-          title: match[2].trim() || ''
-        });
-      }
-    });
-    
-    return chapters;
   }
 
   /**
@@ -374,7 +285,7 @@ Please proofread the creative fiction manuscript above following these guideline
       // Create timestamp for filename
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
-      // Create descriptive filename with chapter number
+      // Create descriptive filename
       const baseFilename = `proofreading_${language.toLowerCase()}_${timestamp}`;
       
       // Array to collect all saved file paths
