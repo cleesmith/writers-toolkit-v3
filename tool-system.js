@@ -115,6 +115,7 @@ const ConflictAnalyzer = loadToolClass('conflict-analyzer');
 const ForeshadowingTracker = loadToolClass('foreshadowing-tracker');
 const PlotThreadTracker = loadToolClass('plot-thread-tracker');
 const KdpPublishingPrep = loadToolClass('kdp-publishing-prep');
+const Proofreader = loadToolClass('proofreader');
 
 // non-AI tools:
 const DocxComments = loadToolClass('docx-comments');
@@ -1261,6 +1262,32 @@ const TOOL_DEFS = [
       "group": "Output Options"
     }
   ]},
+  { id: 'proofreader', title: `Proofreader`, description: `Performs professional proofreading on manuscripts for creative fiction. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Fiction manuscript file to proofread",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": ["txt"]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "language",
+      "label": "Language",
+      "type": "text",
+      "description": "Language for proofreading (e.g., English, Spanish, French)",
+      "required": false,
+      "default": "English",
+      "group": "Settings"
+    }
+  ]},
   { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
       {
         "name": "docx_file",
@@ -1508,31 +1535,20 @@ async function executeToolById(toolId, options) {
  * @param {Object} settings - Claude API settings
  * @returns {Object} - New Claude API service instance
  */
-// function reinitializeClaudeService(settings) {
-//   // Create a new Claude service with the updated settings
-//   const claudeService = new ClaudeAPIService(settings);
-  
-//   // Update the service in all registered tools
-//   for (const toolId of toolRegistry.getAllToolIds()) {
-//     const tool = toolRegistry.getTool(toolId);
-    
-//     // Close any existing client first
-//     if (tool.claudeService) {
-//       tool.claudeService.close();
-//     }
-    
-//     tool.claudeService = claudeService;
-//   }
-  
-//   return claudeService;
-// }
+// In tool-system.js, update the reinitializeClaudeService function (around line 1559):
+
+/**
+ * Reinitialize the Claude API service with updated settings
+ * @param {Object} settings - Claude API settings
+ * @returns {Object} - New Claude API service instance
+ */
 function reinitializeClaudeService(settings) {
   // Create a new Claude service with the updated settings
   const claudeService = new ClaudeAPIService(settings);
   
   // Update the service in all registered tools
-  for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
-    const tool = toolSystem.toolRegistry.getTool(toolId);
+  for (const toolId of toolRegistry.getAllToolIds()) {
+    const tool = toolRegistry.getTool(toolId);
     
     // Close any existing client first
     if (tool.claudeService) {
