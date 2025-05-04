@@ -121,7 +121,6 @@ const Proofreader = loadToolClass('proofreader');
 const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 
-// , description: ``
 const TOOL_DEFS = [
   { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `Counts the approximate tokens and words in text files. Helps estimate Claude API usage and context window requirements for your writing.`, Class: TokensWordsCounter, options: [
     {
@@ -1267,7 +1266,7 @@ const TOOL_DEFS = [
       "name": "manuscript_file",
       "label": "Manuscript File",
       "type": "file",
-      "description": "Fiction manuscript file to proofread",
+      "description": "Fiction manuscript file to proofread. \nNote: the manuscript must have numbered chapters like: 'Chapter: 1 This is chapter one'.",
       "required": true,
       "default": "manuscript.txt",
       "filters": [
@@ -1286,6 +1285,15 @@ const TOOL_DEFS = [
       "required": false,
       "default": "English",
       "group": "Settings"
+    },
+    {
+      "name": "chapter_number",
+      "label": "Chapter Number",
+      "type": "text",
+      "description": "The chapter number to analyze (e.g. '1', '5', '20')",
+      "required": true,
+      "default": "1",
+      "group": "Analysis Options"
     }
   ]},
   { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
@@ -1320,7 +1328,6 @@ const TOOL_DEFS = [
         ]
       }
   ]}
-
 ];
 
 module.exports = TOOL_DEFS;

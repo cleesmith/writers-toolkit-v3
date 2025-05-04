@@ -36,6 +36,7 @@ class Proofreader extends BaseTool {
     // Extract options
     let manuscriptFile = options.manuscript_file;
     const language = options.language || 'English';
+    const chapterNumber = options.chapter_number;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -55,8 +56,8 @@ class Proofreader extends BaseTool {
       this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
       
-      // Create prompt using the template with language substitution
-      const prompt = this.createPrompt(manuscriptContent, language);
+      // Create prompt using the template with language substitution and chapter number
+      const prompt = this.createPrompt(manuscriptContent, language, chapterNumber);
 
       // Count tokens in the prompt
       this.emitOutput(`Counting tokens in prompt...\n`);
@@ -69,7 +70,7 @@ class Proofreader extends BaseTool {
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
       this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-      this.emitOutput(`                     = manuscript.txt\n`);
+      this.emitOutput(`                     = manuscript.txt (chapter ${chapterNumber})\n`);
       this.emitOutput(`                       + prompt instructions\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
@@ -93,7 +94,7 @@ class Proofreader extends BaseTool {
       
       // Add a message about waiting
       this.emitOutput(`****************************************************************************\n`);
-      this.emitOutput(`*  Proofreading manuscript for ${language} creative fiction...              \n`);
+      this.emitOutput(`*  Proofreading Chapter ${chapterNumber} for ${language} creative fiction...              \n`);
       this.emitOutput(`*  This process typically takes several minutes.                           \n`);
       this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  The proofreader will check for:                                        \n`);
@@ -162,7 +163,8 @@ class Proofreader extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        language
+        language,
+        chapterNumber
       );
       
       // Add the output files to the result
@@ -185,7 +187,101 @@ class Proofreader extends BaseTool {
     }
   }
   
-  /**
+  // /**
+  //  * Create prompt
+  //  * @param {string} manuscriptContent - Manuscript content
+  //  * @param {string} language - Language for proofreading (default: English)
+  //  * @param {string} chapterNumber - The chapter number to proofread
+  //  * @returns {string} - Prompt for Claude API
+  //  */
+  //   createPrompt(manuscriptContent, language = 'English', chapterNumber) {
+  //     // Read the prompt template from the file and replace placeholders
+  //     const template = `You are a professional proofreader specializing in ${language} creative fiction. You must carefully and systematically proofread Chapter ${chapterNumber} of this manuscript, and some proofreading issues will involve also reading all of the other chapters in the manuscript.
+
+  // CRITICAL INSTRUCTIONS:
+  // 1. FIRST CHECK if Chapter ${chapterNumber} exists in the manuscript
+  // 2. If Chapter ${chapterNumber} is NOT found, respond ONLY with:
+  //    "ERROR: Chapter ${chapterNumber} not found in manuscript."
+  // 3. If Chapter ${chapterNumber} IS found, proceed with proofreading
+  // 4. Process ONLY Chapter ${chapterNumber} - do not look at other chapters
+  // 5. ONLY report actual errors found in Chapter ${chapterNumber} - DO NOT make up or hallucinate issues
+  // 6. Check each error against the actual text before reporting it
+
+  // MANUSCRIPT TYPE: ${language} Creative Fiction
+  // CHAPTER TO PROOFREAD: Chapter ${chapterNumber}
+
+  // PROOFREADING PROCESS:
+
+  // Step 1: Verify Chapter ${chapterNumber} Exists
+  // - Scan the manuscript to find Chapter ${chapterNumber}
+  // - Look for variations like "Chapter ${chapterNumber}", "CHAPTER ${chapterNumber}", etc.
+  // - If NOT found, immediately respond with the error message above
+
+  // Step 2: If Chapter Found, Proofread Chapter ${chapterNumber}
+  // - Focus ONLY on Chapter ${chapterNumber}'s content
+  // - Look for actual errors in the text
+  // - Double-check each error exists in the manuscript
+  // - Report using the exact format below
+
+  // PROOFREADING GUIDELINES FOR FICTION:
+
+  // 1. Focus Areas:
+  //    - Catching typos and spelling errors (using standard ${language} conventions)
+  //    - Identifying formatting inconsistencies in dialogue, internal thoughts, and narrative
+  //    - Fixing punctuation errors, especially in dialogue tags and quotations
+  //    - Catching missing words or duplicated words
+  //    - Ensuring consistent use of quotation marks per ${language} conventions
+  //    - Checking spacing issues around punctuation marks
+  //    - Identifying inconsistencies in character names or place names; this must be done by comparing with all of the other chapters in the entire manuscript
+
+  // 2. Fiction-Specific Checks:
+  //    - Dialogue punctuation (proper formatting for the ${language})
+  //    - Consistent formatting of thoughts (italics vs. quotes)
+  //    - Paragraph breaks in dialogue
+  //    - Scene break formatting consistency; this must be done by comparing with all of the other chapters in the entire manuscript
+  //    - Consistent use of formal/informal speech patterns; this must be done by comparing with all of the other chapters in the entire manuscript
+
+  // 3. What NOT to do:
+  //    - Do not add double quotes around the original text from the manuscript; use the text as it is
+  //    - Do not rewrite for style, pacing, or dramatic effect
+  //    - Do not suggest plot or character changes
+  //    - Do not alter the author's voice or narrative style
+  //    - Do not change creative spelling in dialogue meant to show accent/dialect
+  //    - Do not standardize intentional fragments or stylistic choices
+  //    - Do not correct "errors" that might be intentional character voice
+  //    - DO NOT make up errors that don't exist in the text
+
+  // 4. Output Format:
+  //    For each issue found, provide:
+  //    1. Number each issue as they occur: 1. 2. 3. and so on
+  //    2. The original text (exactly as it appears - verbatim)
+  //    3. ISSUE:
+  //    The description of what's wrong with this text
+  //    4. Two newlines for separation
+
+  //    Example format:
+  //    #. "Hello." She said quietly.
+  //    ISSUE:
+  //    Incorrect dialogue punctuation. Should be "Hello," with comma instead of period before dialogue tag.
+
+  //    Number each issue group above, and repeat this format for every issue found.
+
+  // 5. Final Report:
+  //    After processing Chapter ${chapterNumber}, provide:
+  //    - A brief summary of error patterns
+  //    - Note any recurring issues that might need a global fix
+
+  // IMPORTANT: Process ONLY Chapter ${chapterNumber}. Ensure all reported errors actually exist in the manuscript text.
+
+  // === MANUSCRIPT ===
+  // ${manuscriptContent}
+  // === END MANUSCRIPT ===
+
+  // Please proofread Chapter ${chapterNumber} of the creative fiction manuscript above following these guidelines. Present your findings in a clear, organized manner. Remember to respect the author's creative choices and only report genuine errors.`;
+
+  //     return template;
+  //   }
+ /**
    * Create prompt
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language for proofreading (default: English)
@@ -193,11 +289,11 @@ class Proofreader extends BaseTool {
    */
   createPrompt(manuscriptContent, language = 'English') {
     // Read the prompt template from the file and replace placeholders
-    const template = `You are a professional proofreader specializing in ${language} creative fiction. You must carefully and systematically proofread this manuscript chapter by chapter to avoid errors and hallucinations.
+    const template = `You are a professional proofreader specializing in ${language} creative fiction. You must carefully and systematically proofread this manuscript chapter by chapter to avoid errors and hallucinations, and some proofreading issues will involve comparing and reading all of the other chapters in the manuscript.
 
 CRITICAL INSTRUCTIONS:
 1. First, identify ALL chapters in the manuscript (look for "Chapter" markers)
-2. Process each chapter INDIVIDUALLY and IN ORDER
+2. Process each chapter INDIVIDUALLY and IN ORDER, after thoroughly reading the manuscript as some proofreading issues span multiple chapters to be noticed
 3. ONLY report actual errors found in the text - DO NOT make up or hallucinate issues
 4. Check each error against the actual manuscript text before reporting it
 
@@ -207,17 +303,20 @@ PROOFREADING PROCESS:
 
 Step 1: Chapter Identification
 - Scan the manuscript to identify all chapters
-- Make a mental list of chapters in order
+- Make a mental list of chapters in order, for later output
 
 Step 2: Chapter-by-Chapter Processing
 For each chapter:
-- Focus ONLY on that chapter's content
 - Look for actual errors in the text
 - Double-check each error exists in the manuscript
 - Report using the exact format below
 - Complete the chapter before moving to the next
+- Look for inconsistencies with previous chapters
 
 PROOFREADING GUIDELINES FOR FICTION:
+
+IMPORTANT:
+Take your time and "think hard" as you thoroughly read and re-read the manuscript text, see: === MANUSCRIPT ===
 
 1. Focus Areas:
    - Catching typos and spelling errors (using standard ${language} conventions)
@@ -232,11 +331,11 @@ PROOFREADING GUIDELINES FOR FICTION:
    - Dialogue punctuation (proper formatting for the ${language})
    - Consistent formatting of thoughts (italics vs. quotes)
    - Paragraph breaks in dialogue
-   - Chapter heading consistency
    - Scene break formatting consistency
    - Consistent use of formal/informal speech patterns
 
 3. What NOT to do:
+   - Do not add double quotes around the original text from the manuscript; use the text as it is
    - Do not rewrite for style, pacing, or dramatic effect
    - Do not suggest plot or character changes
    - Do not alter the author's voice or narrative style
@@ -246,12 +345,14 @@ PROOFREADING GUIDELINES FOR FICTION:
    - DO NOT make up errors that don't exist in the text
 
 4. Output Format:
-   For each issue found, provide:
-   1. Chapter number and caption/title
-   2. The original text (exactly as it appears - verbatim)
-   3. ISSUE:
-   The description of what's wrong with this text
-   4. Two newlines for separation
+   1. List all chapters found, each on a separate line, like: Chapter 1: the first one ... in order to verify you are seeing the chapters correctly
+   2. Then for each issue found, provide:
+       1. Chapter number and caption/title
+       2. The original text (exactly as it appears - verbatim)
+       3. One newline
+       3. ISSUE:
+       The description of what's wrong with this text
+       4. Two newlines for separation
 
    Example format:
    Chapter 3: The Beginning
@@ -259,14 +360,12 @@ PROOFREADING GUIDELINES FOR FICTION:
    ISSUE:
    Incorrect dialogue punctuation. Should be "Hello," with comma instead of period before dialogue tag.
 
-
    Repeat this format for every issue found.
 
 5. Final Report:
    After processing all chapters, provide:
-   - A brief summary of error patterns
+   - A summary of error patterns
    - Note any recurring issues that might need a global fix
-   - List chapters processed to confirm full coverage
 
 IMPORTANT: Process chapters in numerical order, focus on one chapter at a time, and ensure all reported errors actually exist in the manuscript text. Do not skip ahead or mix chapters.
 
@@ -314,6 +413,7 @@ Please proofread the creative fiction manuscript above following these guideline
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @param {string} language - Language used for proofreading
+   * @param {string} chapterNumber - Chapter number that was proofread
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -322,7 +422,8 @@ Please proofread the creative fiction manuscript above following these guideline
     promptTokens,
     responseTokens,
     saveDir,
-    language = 'English'
+    language = 'English',
+    chapterNumber
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -339,8 +440,8 @@ Please proofread the creative fiction manuscript above following these guideline
       // Create timestamp for filename
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
-      // Create descriptive filename
-      const baseFilename = `proofreading_${language.toLowerCase()}_${timestamp}`;
+      // Create descriptive filename with chapter number
+      const baseFilename = `proofreading_${language.toLowerCase()}_chapter_${chapterNumber}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];
@@ -349,6 +450,7 @@ Please proofread the creative fiction manuscript above following these guideline
       const stats = `
 Details:  ${dateTimeStr}
 Language: ${language}
+Chapter: ${chapterNumber}
 Max request timeout: ${this.config.request_timeout} seconds
 Max AI model context window: ${this.config.context_window} tokens
 AI model thinking budget: ${this.config.thinking_budget_tokens} tokens
