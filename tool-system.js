@@ -140,7 +140,7 @@ const TOOL_DEFS = [
       ]
     }
   ]},
-  { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, description: `Works in reverse to create: outline, characters, and world files given a manuscript. Maybe useful for pantsters, and old manuscript files.`, Class: ManuscriptToOutlineCharactersWorld, options: [
+  { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, description: `Works in reverse to create: outline, characters, and world files given a manuscript. May be useful for pantsers, and old manuscript files.`, Class: ManuscriptToOutlineCharactersWorld, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
