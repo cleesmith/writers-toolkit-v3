@@ -1285,15 +1285,6 @@ const TOOL_DEFS = [
       "required": false,
       "default": "English",
       "group": "Settings"
-    },
-    {
-      "name": "chapter_number",
-      "label": "Chapter Number",
-      "type": "text",
-      "description": "The chapter number to analyze (e.g. '1', '5', '20')",
-      "required": true,
-      "default": "1",
-      "group": "Analysis Options"
     }
   ]},
   { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
