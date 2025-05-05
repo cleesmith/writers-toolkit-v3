@@ -37,7 +37,6 @@ class PlotThreadTracker extends BaseTool {
     const threadFocus = options.thread_focus;
     const useAsciiArt = options.ascii_art;
     const skipThinking = options.skip_thinking;
-    const analysisDescription = options.analysis_description;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -196,8 +195,7 @@ class PlotThreadTracker extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result

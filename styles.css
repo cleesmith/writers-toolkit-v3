@@ -379,11 +379,37 @@ label {
   align-items: center;
 }
 
-/* Make import button purple to distinguish it */
+#select-project-btn {
+  background-color: firebrick;
+}
+#select-project-btn:hover {
+  background-color: indianred;
+}
+
 #import-docx-btn {
   background-color: #7e57c2;
 }
-
 #import-docx-btn:hover {
   background-color: #6a43b5;
+}
+
+#export-txt-btn {
+  background-color: #7e57c2;
+}
+#export-txt-btn:hover {
+  background-color: #6a43b5;
+}
+
+#ai-setup-run-btn {
+  background-color: goldenrod;
+}
+#ai-setup-run-btn:hover {
+  background-color: darkgoldenrod;
+}
+
+#non-ai-setup-run-btn {
+  background-color: forestgreen;
+}
+#non-ai-setup-run-btn:hover {
+  background-color: green;
 }

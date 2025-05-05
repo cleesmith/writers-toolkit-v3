@@ -1,7 +1,6 @@
 // adjective-adverb-optimizer.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -21,8 +20,6 @@ class AdjectiveAdverbOptimizer extends BaseTool {
   constructor(claudeService, config = {}) {
     super('adjective_adverb_optimizer', config);
     this.claudeService = claudeService;
-    // console.log('AdjectiveAdverbOptimizer initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
   
   /**
@@ -38,7 +35,6 @@ class AdjectiveAdverbOptimizer extends BaseTool {
     const analysisLevel = options.analysis_level || 'standard';
     const focusAreas = options.focus_areas || ['qualifiers', 'adverbs', 'adjectives', 'imagery'];
     const skipThinking = options.skip_thinking || false;
-    const analysisDescription = options.analysis_description || '';
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -173,8 +169,7 @@ class AdjectiveAdverbOptimizer extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result
@@ -345,7 +340,6 @@ Be specific in your examples and suggestions, showing how prose can be strengthe
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @param {boolean} skipThinking - Whether to skip saving thinking
-   * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -356,8 +350,7 @@ Be specific in your examples and suggestions, showing how prose can be strengthe
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
-    description
+    skipThinking
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -375,9 +368,8 @@ Be specific in your examples and suggestions, showing how prose can be strengthe
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
       const level = analysisLevel !== 'standard' ? `_${analysisLevel}` : '';
-      const baseFilename = `adjective_adverb_optimizer${desc}${level}_${timestamp}`;
+      const baseFilename = `adjective_adverb_optimizer${level}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

@@ -1,7 +1,6 @@
 // crowding-leaping-evaluator.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -21,8 +20,6 @@ class CrowdingLeapingEvaluator extends BaseTool {
   constructor(claudeService, config = {}) {
     super('crowding_leaping_evaluator', config);
     this.claudeService = claudeService;
-    // console.log('CrowdingLeapingEvaluator initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
 
   /**
@@ -40,7 +37,6 @@ class CrowdingLeapingEvaluator extends BaseTool {
     const sensitivity = options.sensitivity;
     const includeVisualization = options.include_visualization;
     const skipThinking = options.skip_thinking;
-    const analysisDescription = options.analysis_description;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -181,8 +177,7 @@ class CrowdingLeapingEvaluator extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result
@@ -412,7 +407,6 @@ Be specific in your examples and suggestions, showing how crowding and leaping c
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @param {boolean} skipThinking - Whether to skip saving thinking
-   * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -425,8 +419,7 @@ Be specific in your examples and suggestions, showing how crowding and leaping c
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
-    description
+    skipThinking
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -444,10 +437,9 @@ Be specific in your examples and suggestions, showing how crowding and leaping c
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
       const level = analysisLevel !== 'standard' ? `_${analysisLevel}` : '';
       const viz = includeVisualization ? '_with_viz' : '';
-      const baseFilename = `crowding_leaping_analysis${desc}${level}${viz}_${timestamp}`;
+      const baseFilename = `crowding_leaping_analysis${level}${viz}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

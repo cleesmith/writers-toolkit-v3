@@ -36,7 +36,6 @@ class PunctuationAuditor extends BaseTool {
     const elements = options.elements;
     const strictness = options.strictness;
     const skipThinking = options.skip_thinking;
-    const analysisDescription = options.analysis_description;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -169,8 +168,7 @@ class PunctuationAuditor extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result
@@ -363,7 +361,6 @@ Be specific in your examples and suggestions, showing how punctuation can be imp
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @param {boolean} skipThinking - Whether to skip saving thinking
-   * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -375,8 +372,7 @@ Be specific in your examples and suggestions, showing how punctuation can be imp
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
-    description
+    skipThinking
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -394,9 +390,8 @@ Be specific in your examples and suggestions, showing how punctuation can be imp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
       const level = analysisLevel !== 'standard' ? `_${analysisLevel}` : '';
-      const baseFilename = `punctuation_audit${desc}${level}_${timestamp}`;
+      const baseFilename = `punctuation_audit${level}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

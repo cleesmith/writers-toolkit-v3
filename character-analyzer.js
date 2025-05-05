@@ -1,7 +1,6 @@
 // character-analyzer.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -20,8 +19,6 @@ class CharacterAnalyzer extends BaseTool {
   constructor(claudeService, config = {}) {
     super('character_analyzer', config);
     this.claudeService = claudeService;
-    // console.log('CharacterAnalyzer initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
   
   /**
@@ -46,7 +43,6 @@ class CharacterAnalyzer extends BaseTool {
     let outlineFile = options.outline_file;
     let worldFile = options.world_file;
     const skipThinking = options.skip_thinking || false;
-    const analysisDescription = options.analysis_description || '';
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -111,8 +107,6 @@ class CharacterAnalyzer extends BaseTool {
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
       this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-      this.emitOutput(`                     = manuscript + outline + world\n`);
-      this.emitOutput(`                       + prompt instructions\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -204,8 +198,7 @@ class CharacterAnalyzer extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result
@@ -340,8 +333,7 @@ Be comprehensive in your character identification, capturing not just main chara
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
-      const baseFilename = `character_analysis${desc}_${timestamp}`;
+      const baseFilename = `character_analysis_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

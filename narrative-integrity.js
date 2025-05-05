@@ -69,7 +69,6 @@ class NarrativeIntegrity extends BaseTool {
     let outlineFile = options.outline_file;
     const checkType = options.check_type;
     const skipThinking = options.skip_thinking;
-    const checkDescription = options.check_description;
     let saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     // Check if we have a valid save directory
@@ -226,8 +225,7 @@ class NarrativeIntegrity extends BaseTool {
           promptTokens,
           responseTokens,
           saveDir,
-          skipThinking,
-          checkDescription
+          skipThinking
         );
         
         // Use spread operator to push all elements individually

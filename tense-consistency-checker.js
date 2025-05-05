@@ -1,7 +1,6 @@
 // tense-consistency-checker.js
 const BaseTool = require('./base-tool');
 const path = require('path');
-const util = require('util');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
@@ -21,8 +20,6 @@ class TenseConsistencyChecker extends BaseTool {
   constructor(claudeService, config = {}) {
     super('tense_consistency_checker', config);
     this.claudeService = claudeService;
-    // console.log('TenseConsistencyChecker initialized with config:', 
-    //   util.inspect(config, { depth: 1, colors: true }));
   }
   
   /**
@@ -38,7 +35,6 @@ class TenseConsistencyChecker extends BaseTool {
     const analysisLevel = options.analysis_level || 'standard';
     const chapterMarkers = options.chapter_markers || 'Chapter';
     const skipThinking = options.skip_thinking || false;
-    const analysisDescription = options.analysis_description || '';
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -79,7 +75,6 @@ class TenseConsistencyChecker extends BaseTool {
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
       this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
-      this.emitOutput(`                     = manuscript + prompt instructions\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -172,8 +167,7 @@ class TenseConsistencyChecker extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
-        analysisDescription
+        skipThinking
       );
       
       // Add all output files to the result
@@ -326,7 +320,7 @@ Be specific in your examples, quoting brief passages that demonstrate tense issu
    * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
-  async saveReport(analysisLevel, content, thinking, promptTokens, responseTokens, saveDir, skipThinking, description) {
+  async saveReport(analysisLevel, content, thinking, promptTokens, responseTokens, saveDir, skipThinking) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -343,9 +337,8 @@ Be specific in your examples, quoting brief passages that demonstrate tense issu
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
       const level = analysisLevel !== 'standard' ? `_${analysisLevel}` : '';
-      const baseFilename = `tense_analysis${desc}${level}_${timestamp}`;
+      const baseFilename = `tense_analysis${level}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

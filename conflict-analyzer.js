@@ -36,7 +36,6 @@ class ConflictAnalyzer extends BaseTool {
     let outlineFile = options.outline_file;
     const conflictTypes = options.conflict_types;
     const skipThinking = options.skip_thinking;
-    const analysisDescription = options.analysis_description;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -192,8 +191,7 @@ class ConflictAnalyzer extends BaseTool {
           promptTokens,
           responseTokens,
           saveDir,
-          skipThinking,
-          analysisDescription
+          skipThinking
         );
         
         // Add the output files to the result
@@ -408,7 +406,6 @@ Use specific text examples from the manuscript to support your analysis.
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @param {boolean} skipThinking - Whether to skip saving thinking
-   * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -418,8 +415,7 @@ Use specific text examples from the manuscript to support your analysis.
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
-    description
+    skipThinking
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -437,8 +433,7 @@ Use specific text examples from the manuscript to support your analysis.
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const desc = description ? `_${description}` : '';
-      const baseFilename = `conflict_analysis_${analysisLevel}${desc}_${timestamp}`;
+      const baseFilename = `conflict_analysis_${analysisLevel}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];

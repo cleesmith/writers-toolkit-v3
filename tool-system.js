@@ -124,7 +124,7 @@ const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 
 const TOOL_DEFS = [
-  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This is a free call to test your API key is working properly! Also, use it to count the approximate tokens and words in text files (mostly manuscript.txt). Helps estimate Claude API usage and context window requirements for your writing. A sanity check that may help with API Settings.`, Class: TokensWordsCounter, options: [
+  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This is a free call to test that your ANTHROPIC_API_KEY is working properly!  Also, use it to count the approximate tokens and words in text files (mostly for manuscript.txt).  This helps to estimate Claude API usage and context window requirements for your writing, and may help with API Settings for larger manuscripts.`, Class: TokensWordsCounter, options: [
     {
       "name": "input_file",
       "label": "Input File",
@@ -153,7 +153,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'narrative_integrity', title: `Narrative Integrity`, description: `Manuscript consistency checker utility that compares a manuscript against a world document (and optionally an outline).\nIt supports various consistency checks: world, internal, development, and unresolved.\nConfigurable options enable targeted analysis of character, setting, timeline, and thematic consistency, producing detailed reports with examples and recommendations for resolving discrepancies.`, Class: NarrativeIntegrity, options: [
+  { id: 'narrative_integrity', title: `Narrative Integrity`, description: `Focused on consistency issues within the entire manuscript, or consistency between the manuscript and the world document and/or the outline.\nThis tool supports various consistency checks: world, internal, development, and unresolved.\nConfigurable options enable targeted analysis of character, setting, timeline, and thematic consistency, producing detailed reports with examples and recommendations for resolving discrepancies.`, Class: NarrativeIntegrity, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -168,8 +168,8 @@ const TOOL_DEFS = [
       "label": "world_file",
       "type": "file",
       "description": "File containing the world details (required)",
-      "required": true,
-      "default": "world.txt",
+      "required": false,
+      "default": "",
       "group": "Input Files"
     },
     {
@@ -185,7 +185,7 @@ const TOOL_DEFS = [
       "name": "skip_thinking",
       "label": "skip_thinking",
       "type": "boolean",
-      "description": "Skip saving the AI thinking process",
+      "description": "Skip saving the AI thinking process, but often the thinking output can be very useful.",
       "required": false,
       "default": false,
       "group": "Output Configuration"
@@ -196,7 +196,7 @@ const TOOL_DEFS = [
       "type": "select",
       "description": "Select type of integrity check to perform",
       "required": false,
-      "default": "all",
+      "default": "internal",
       "group": "Analysis Options",
       "choices": [
         { "value": "world", "label": "World Integrity" },
@@ -205,18 +205,9 @@ const TOOL_DEFS = [
         { "value": "unresolved", "label": "Unresolved Elements" },
         { "value": "all", "label": "All Checks" }
       ]
-    },
-    {
-      "name": "check_description",
-      "label": "check_description",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
     }
   ]},
-  { id: 'developmental_editing', title: `Developmental Editing`, description: `Performs developmental editing for your manuscript.`, Class: DevelopmentalEditing, options: [
+  { id: 'developmental_editing', title: `Developmental Editing`, description: `Performs developmental editing for your manuscript, with all chapter numbers/headers removed.`, Class: DevelopmentalEditing, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -244,7 +235,7 @@ const TOOL_DEFS = [
       "group": "Settings"
     }
   ]},
-  { id: 'line_editing', title: `Line Editing`, description: `Performs line editing for chapters in your manuscript.`, Class: LineEditing, options: [
+  { id: 'line_editing', title: `Line Editing`, description: `Performs line editing for a specified chapter in your manuscript, as this can be an intensive task.`, Class: LineEditing, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -272,7 +263,7 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     }
   ]},
-  { id: 'copy_editing', title: `Copy Editing`, description: `Performs copy editing for chapters in your manuscript.`, Class: CopyEditing, options: [
+  { id: 'copy_editing', title: `Copy Editing`, description: `Performs copy editing for an entire manuscript, with all chapter numbers/headers removed.`, Class: CopyEditing, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -300,7 +291,7 @@ const TOOL_DEFS = [
       "group": "Settings"
     }
   ]},
-  { id: 'proofreader', title: `Proofreader`, description: `Performs professional proofreading on manuscripts for creative fiction. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
+  { id: 'proofreader', title: `Proofreader`, description: `Performs proofreading for an entire manuscript, with all chapter numbers/headers removed. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -373,15 +364,6 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     },
     {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
-    },
-    {
       "name": "thread_focus",
       "label": "thread_focus",
       "type": "text",
@@ -423,18 +405,9 @@ const TOOL_DEFS = [
       "name": "skip_thinking",
       "label": "skip_thinking",
       "type": "boolean",
-      "description": "Skip saving the AI thinking process (smaller output files)",
+      "description": "Skip saving the AI thinking process",
       "required": false,
       "default": false,
-      "group": "Output Configuration"
-    },
-    {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
       "group": "Output Configuration"
     }
   ]},
@@ -470,18 +443,9 @@ const TOOL_DEFS = [
       "name": "skip_thinking",
       "label": "skip_thinking",
       "type": "boolean",
-      "description": "Skip saving the AI thinking process (smaller output files)",
+      "description": "Skip saving the AI thinking process",
       "required": false,
       "default": false,
-      "group": "Output Configuration"
-    },
-    {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
       "group": "Output Configuration"
     }
   ]},
@@ -502,15 +466,6 @@ const TOOL_DEFS = [
       "description": "Skip saving the AI thinking process",
       "required": false,
       "default": false,
-      "group": "Output Configuration"
-    },
-    {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
       "group": "Output Configuration"
     },
     {
@@ -653,15 +608,6 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     },
     {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
-    },
-    {
       "name": "analysis_level",
       "label": "analysis_level",
       "type": "text",
@@ -718,15 +664,6 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     },
     {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
-    },
-    {
       "name": "analysis_level",
       "label": "analysis_level",
       "type": "text",
@@ -771,15 +708,6 @@ const TOOL_DEFS = [
       "description": "Skip saving the AI thinking process",
       "required": false,
       "default": false,
-      "group": "Output Configuration"
-    },
-    {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
       "group": "Output Configuration"
     },
     {
@@ -848,15 +776,6 @@ const TOOL_DEFS = [
       "group": "Analysis Options"
     },
     {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
-    },
-    {
       "name": "conflict_types",
       "label": "conflict_types",
       "type": "text",
@@ -911,18 +830,9 @@ const TOOL_DEFS = [
       "required": false,
       "default": "all",
       "group": "Analysis Options"
-    },
-    {
-      "name": "analysis_description",
-      "label": "ANALYSIS_DESCRIPTION",
-      "type": "text",
-      "description": "Optional description to include in output filenames",
-      "required": false,
-      "default": "",
-      "group": "Output Configuration"
     }
   ]},
-  { id: 'kdp_publishing_prep', title: `KDP Publishing Prep - Generate Amazon KDP Elements`, description: `Analyzes manuscript in preparation for KDP publishing.`, Class: KdpPublishingPrep, options: [
+  { id: 'kdp_publishing_prep', title: `KDP Publishing Preparation`, description: `Analyzes manuscript in preparation for KDP publishing.`, Class: KdpPublishingPrep, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -984,7 +894,7 @@ const TOOL_DEFS = [
       "group": "Output Options"
     }
   ]},
-  { id: 'drunk_claude', title: `Drunk Claude`, description: `Claude pretends to be drunk while critiquing your manuscript. Sometimes insightful, sometimes just drunk.`, Class: DrunkClaude, options: [
+  { id: 'drunk_claude', title: `Drunk Claude`, description: `Claude pretends to be drunk while critiquing your manuscript. Sometimes insightful, other times just an annoying drunk.`, Class: DrunkClaude, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
