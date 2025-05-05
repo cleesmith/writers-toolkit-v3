@@ -98,6 +98,7 @@ function loadToolClass(toolName) {
 const TokensWordsCounter = loadToolClass('tokens-words-counter');
 const ManuscriptToOutlineCharactersWorld = loadToolClass('manuscript-to-outline-characters-world');
 const NarrativeIntegrity = loadToolClass('narrative-integrity');
+const DevelopmentalEditing = loadToolClass('developmental-editing');
 const LineEditing = loadToolClass('line-editing');
 const CopyEditing = loadToolClass('copy_editing');
 const Proofreader = loadToolClass('proofreader');
@@ -123,7 +124,7 @@ const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 
 const TOOL_DEFS = [
-  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `Counts the approximate tokens and words in text files. Helps estimate Claude API usage and context window requirements for your writing.`, Class: TokensWordsCounter, options: [
+  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This is a free call to test your API key is working properly! Also, use it to count the approximate tokens and words in text files (mostly manuscript.txt). Helps estimate Claude API usage and context window requirements for your writing. A sanity check that may help with API Settings.`, Class: TokensWordsCounter, options: [
     {
       "name": "input_file",
       "label": "Input File",
@@ -213,6 +214,34 @@ const TOOL_DEFS = [
       "required": false,
       "default": "",
       "group": "Output Configuration"
+    }
+  ]},
+  { id: 'developmental_editing', title: `Developmental Editing`, description: `Performs developmental editing for your manuscript.`, Class: DevelopmentalEditing, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Fiction manuscript file to analyze",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": [
+            "txt"
+          ]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "language",
+      "label": "Language",
+      "type": "text",
+      "description": "Language for proofreading (e.g., English, Spanish, French)",
+      "required": false,
+      "default": "English",
+      "group": "Settings"
     }
   ]},
   { id: 'line_editing', title: `Line Editing`, description: `Performs line editing for chapters in your manuscript.`, Class: LineEditing, options: [
