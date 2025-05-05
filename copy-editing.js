@@ -1,4 +1,4 @@
-// proofreader.js
+// copy-editing.js
 const BaseTool = require('./base-tool');
 const path = require('path');
 const fileCache = require('./file-cache');
@@ -7,18 +7,34 @@ const fs = require('fs/promises');
 const textProcessor = require('./textProcessor');
 
 /**
- * Proofreader Tool
- * Analyzes a manuscript for surface-level corrections without altering the author's creative choices.
- * Focuses on typos, formatting inconsistencies, and punctuation errors.
+ * CopyEditing Tool
+  * COPYEDITING: TECHNICAL CORRECTNESS
+  * What actually happens:
+  * - Correct grammar, syntax, and punctuation errors
+  * - Ensure consistent spelling of unique names and terms
+  * - Verify proper formatting of thoughts, dialogue, text messages
+  * - Create and maintain a style sheet documenting decisions
+  * - Fix inconsistent verb tenses or problematic tense shifts
+  * - Correct misused words (affect/effect, lay/lie, etc.)
+  * - Standardize formatting (em dashes, ellipses, quotation marks)
+  * - Check for consistent handling of numbers (spelled out vs. numerals)
+  * - Track characters' physical attributes for consistency
+  * - Note timeline inconsistencies (seasons, ages, time lapses)
+  * - Flag factual errors in real-world references
+  * Specific examples:
+  * "Character's eye color changes from blue (ch. 3) to brown (ch. 7)."
+  * "Timeline error: protagonist mentions being 29, but earlier stated her 30th birthday was last month."
+  * "Inconsistent spelling: 'magic-user' (hyphenated) on p.45 but 'magic user' (two words) elsewhere."
+  * "Dialogue formatting inconsistent: single quotes in chapter 2, double quotes elsewhere." 
  */
-class Proofreader extends BaseTool {
+class CopyEditing extends BaseTool {
   /**
    * Constructor
    * @param {Object} claudeService - Claude API service
    * @param {Object} config - Tool configuration
    */
   constructor(claudeService, config = {}) {
-    super('proofreader', config);
+    super('copy_editing', config);
     this.claudeService = claudeService;
   }
 
@@ -28,10 +44,10 @@ class Proofreader extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing Proofreader with options:', options);
+    console.log('Executing CopyEditing with options:', options);
     
     // Clear the cache for this tool
-    const toolName = 'proofreader';
+    const toolName = 'copy_editing';
     fileCache.clear(toolName);
     
     // Extract options
@@ -96,14 +112,8 @@ class Proofreader extends BaseTool {
       
       // Add a message about waiting
       this.emitOutput(`****************************************************************************\n`);
-      this.emitOutput(`*  Proofreading manuscript for ${language} creative fiction...              \n`);
+      this.emitOutput(`*  Copy Editing manuscript for ${language} creative fiction...              \n`);
       this.emitOutput(`*  This process typically takes several minutes.                           \n`);
-      this.emitOutput(`*                                                                          \n`);
-      this.emitOutput(`*  The proofreader will check for:                                        \n`);
-      this.emitOutput(`*  - Typos and spelling errors                                            \n`);
-      this.emitOutput(`*  - Formatting inconsistencies                                           \n`);
-      this.emitOutput(`*  - Punctuation errors                                                   \n`);
-      this.emitOutput(`*  - Dialogue formatting issues                                           \n`);
       this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  Your creative choices and writing style will be preserved.             \n`);
       this.emitOutput(`****************************************************************************\n\n`);
@@ -113,7 +123,7 @@ class Proofreader extends BaseTool {
       let thinkingContent = "";
       
       // Create system prompt - more explicit guidance
-      const systemPrompt = "You are a meticulous proofreader. Be thorough and careful. DO NOT use any Markdown formatting - no headers, bullets, numbering, asterisks, hyphens, or any formatting symbols. Plain text only. You must find and report ALL errors, even small ones.";
+      const systemPrompt = "You are a meticulous copy editor. Be thorough and careful. DO NOT use any Markdown formatting - no headers, bullets, numbering, asterisks, hyphens, or any formatting symbols. Plain text only. You must find and report ALL errors and issues, even small ones.";
 
       // Use the calculated values in the API call
       try {
@@ -182,7 +192,7 @@ class Proofreader extends BaseTool {
         outputFiles
       };
     } catch (error) {
-      console.error('Error in Proofreader:', error);
+      console.error('Error in CopyEditing:', error);
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
@@ -191,57 +201,68 @@ class Proofreader extends BaseTool {
   /**
    * Create prompt
    * @param {string} manuscriptContent - Manuscript content
-   * @param {string} language - Language for proofreading (default: English)
+   * @param {string} language - Language for copy editing (default: English)
    * @returns {string} - Prompt for Claude API
    */
   createPrompt(manuscriptContent, language = 'English') {
     // Simplified and focused prompt template
-    const template = `You are acting as a professional ${language} proofreader performing a final review of a manuscript that has already been copy edited. The manuscript is provided as plain text in its entirety, without chapter divisions, numbers, or titles - presented as one continuous document and story. 
+    const template = `You are acting as a professional ${language} copy editor reviewing a complete manuscript provided as plain text in its entirety, without chapter divisions, numbers, or titles. The manuscript is presented as one continuous document.
 
 === MANUSCRIPT ===
 ${manuscriptContent}
 === END MANUSCRIPT ===
 
-Begin by reviewing any existing style sheet from copy editing. Then work through the manuscript in sequential passes:
-
-Pass 1 - Mechanical Accuracy:
-- Spelling errors and typos
-- Punctuation consistency
+First, read through the entire manuscript once to understand the overall style, voice, and content. As you read, create a comprehensive style sheet that documents:
+- Spelling preferences
+- Hyphenation choices
 - Capitalization rules
-- Number formatting
-- Proper noun consistency
+- Character names and descriptions
+- Timeline details
+- Dialogue formatting conventions
+- Recurring terminology and phrases
+- Ensure consistent spelling of unique names and terms
+- Verify proper formatting of thoughts, dialogue, text messages
+- Create and maintain a style sheet documenting decisions
+- Note inconsistent verb tenses or problematic tense shifts
+- Note misused words (affect/effect, lay/lie, etc.)
+- Standardize formatting (em dashes, ellipses, quotation marks)
+- Check for consistent handling of numbers (spelled out vs. numerals)
+- Track and note characters' physical attributes for consistency
+- Note timeline inconsistencies (seasons, ages, time lapses)
+- Flag factual errors in real-world references
 
-Pass 2 - Formatting Consistency:
-- Paragraph spacing is a single blank line
-- Dialogue formatting
-- Special characters (quotes, dashes, ellipses)
-- White space patterns
+Second, perform a detailed edit pass addressing:
+- Grammar, punctuation, and spelling errors
+- Sentence structure and flow improvements
+- Word choice refinement and redundancy elimination
+- Voice and tense consistency
+- Paragraph transitions
+- Dialogue tags and punctuation
+- Scene transitions and narrative flow points
 
-Pass 3 - Content Verification:
-- Character name consistency
-- Timeline accuracy
-- Repeated words or phrases
-- Missing or duplicated text
-- Narrative continuity across scenes
+Third, compile a query list for the author regarding:
+- Unclear passages needing clarification
+- Potential factual errors
+- VERY IMPORTANT: Plot, character, timeline, or object inconsistencies
 
-Pass 4 - Final Sweep:
-- Any remaining inconsistencies
-- Cross-reference with style sheet
+Guidelines:
+- Preserve the author's voice while noting improvements for clarity
+- Note patterns of issues for author awareness
+
+Deliverables:
 
 For each error and/or issue found:
-- Show the text verbatim
+- Show the text verbatim without extra quotes
 - Specify the error and/or issue type
 - Provide a possible correction
 
-Remember: Only flag actual errors. Make no content suggestions or style changes. Focus exclusively on mechanical accuracy and consistency with established style choices.
-
-Complete each pass thoroughly before moving to the next. Maintain focus on catching errors that escaped copy editing.
+Work methodically through the manuscript, considering each change's impact on the whole.
 
 VERY IMPORTANT:
 - Do NOT hurry to finish!
 - Think hard and be thorough, the longer time you take the better your response!
 - Always re-read the entire manuscript (see: === MANUSCRIPT === above) many times, which will help you to not miss any issues.
-- The proofreading of author's writing (manuscript) is very important to you, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
+- The copy editing of an author's writing (manuscript) is very important to you, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
     `;
 
     return template;
@@ -281,7 +302,7 @@ VERY IMPORTANT:
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {string} language - Language used for proofreading
+   * @param {string} language - Language used for copy editing
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -308,7 +329,7 @@ VERY IMPORTANT:
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const baseFilename = `proofreading_${language.toLowerCase()}_${timestamp}`;
+      const baseFilename = `copy_editing_${language.toLowerCase()}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];
@@ -336,11 +357,11 @@ Output tokens: ${responseTokens}
       // Save thinking content if available
       if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
-        const thinkingContent = `=== PROOFREADER THINKING ===
+        const thinkingContent = `=== COPYEDITING THINKING ===
 
 ${thinking}
 
-=== END PROOFREADER THINKING ===
+=== END COPYEDITING THINKING ===
 ${stats}`;
         
         const thinkingReportPath = path.join(saveDir, thinkingFilename);
@@ -358,4 +379,4 @@ ${stats}`;
   }
 }
 
-module.exports = Proofreader;
+module.exports = CopyEditing;

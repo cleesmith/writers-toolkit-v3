@@ -628,8 +628,8 @@ function setupToolHandlers() {
       };
     });
     
-    console.log(`Returning ${tools.length} tools to renderer`);
-    console.log('Tool details being returned:', tools);
+    // console.log(`Returning ${tools.length} tools to renderer`);
+    // console.log('Tool details being returned:', tools);
     return tools;
   });
 

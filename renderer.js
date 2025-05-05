@@ -171,7 +171,7 @@ async function loadAiTools() {
   }
   
   // Define tool categories
-  const topTools = ["tokens_words_counter", "narrative_integrity", "line_editing", "proofreader", "manuscript_to_outline_characters_world"];
+  const topTools = ["tokens_words_counter", "narrative_integrity", "line_editing", "copy_editing", "proofreader", "manuscript_to_outline_characters_world"];
   const roughDraftTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
   
   // Track which tools have been added to avoid duplicates
@@ -179,7 +179,7 @@ async function loadAiTools() {
   
   // Add the top tools to select
   aiTools.forEach(tool => {
-    if (topTools.includes(tool.name) && tool.name !== "brainstorm") {
+    if (topTools.includes(tool.name)) {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
@@ -193,7 +193,7 @@ async function loadAiTools() {
   const editorHeader = document.createElement('option');
   editorHeader.disabled = true;
   editorHeader.value = '';
-  editorHeader.textContent = '- Editor Tools:';
+  editorHeader.textContent = '- Other Editing Tools:';
   editorHeader.style.color = '#999';
   editorHeader.style.fontWeight = 'bold';
   editorHeader.style.backgroundColor = '#252525';
