@@ -171,48 +171,21 @@ async function loadAiTools() {
   }
   
   // Define tool categories
-  const topTools = ["tokens_words_counter", "narrative_integrity", "manuscript_to_outline_characters_world", "brainstorm"];
+  const topTools = ["tokens_words_counter", "narrative_integrity", "line_editing", "proofreader", "manuscript_to_outline_characters_world"];
   const roughDraftTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
   
   // Track which tools have been added to avoid duplicates
   const addedTools = new Set();
   
-  // First add the top tools (first 2 only - brainstorm will go in rough draft section)
+  // Add the top tools to select
   aiTools.forEach(tool => {
     if (topTools.includes(tool.name) && tool.name !== "brainstorm") {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
-      console.log(`*** tool.description=`, tool.description);
       aiToolSelect.appendChild(option);
       addedTools.add(tool.name);
-      console.log(`Added top tool: ${tool.name}`);
-    }
-  });
-  
-  // Add the "Rough Draft Writing Tools" header
-  const roughDraftHeader = document.createElement('option');
-  roughDraftHeader.disabled = true;
-  roughDraftHeader.value = '';
-  roughDraftHeader.textContent = '- Rough Draft Writing Tools:';
-  roughDraftHeader.style.color = '#999';
-  roughDraftHeader.style.fontWeight = 'bold';
-  roughDraftHeader.style.backgroundColor = '#252525';
-  roughDraftHeader.style.padding = '2px';
-  aiToolSelect.appendChild(roughDraftHeader);
-  
-  // Add the rough draft tools
-  aiTools.forEach(tool => {
-    if (roughDraftTools.includes(tool.name)) {
-      const option = document.createElement('option');
-      option.value = tool.name;
-      option.textContent = tool.title;
-      option.dataset.description = tool.description;
-      console.log(`*** tool.description=`, tool.description);
-      aiToolSelect.appendChild(option);
-      addedTools.add(tool.name);
-      console.log(`Added rough draft tool: ${tool.name}`);
     }
   });
   
@@ -227,22 +200,52 @@ async function loadAiTools() {
   editorHeader.style.padding = '2px';
   aiToolSelect.appendChild(editorHeader);
   
-  // Add all remaining AI tools that haven't been added yet
-  aiTools.forEach(tool => {
+  // Filter out the rough draft tools
+  const relevantTools = aiTools.filter(tool => 
+    !roughDraftTools.includes(tool.name) && !addedTools.has(tool.name)
+  );
+
+  // Then process only the tools we care about
+  relevantTools.forEach(tool => {
+  // aiTools.forEach(tool => {
+    if (roughDraftTools.includes(tool.name)) {
+      return; // skip rough-draft tools
+    }
+
     if (!addedTools.has(tool.name)) {
       const option = document.createElement('option');
       option.value = tool.name;
       option.textContent = tool.title;
       option.dataset.description = tool.description;
-      console.log(`*** tool.description=`, tool.description);
       aiToolSelect.appendChild(option);
-      console.log(`Added other AI tool: ${tool.name}`);
+    }
+  });
+  
+  // Now, append to the end the "Rough Draft Writing Tools" header
+  const roughDraftHeader = document.createElement('option');
+  roughDraftHeader.disabled = true;
+  roughDraftHeader.value = '';
+  roughDraftHeader.textContent = '- AI Rough Draft Writing Tools:';
+  roughDraftHeader.style.color = '#999';
+  roughDraftHeader.style.fontWeight = 'bold';
+  roughDraftHeader.style.backgroundColor = '#252525';
+  roughDraftHeader.style.padding = '2px';
+  aiToolSelect.appendChild(roughDraftHeader);
+  
+  // Then add the rough draft tools
+  aiTools.forEach(tool => {
+    if (roughDraftTools.includes(tool.name)) {
+      const option = document.createElement('option');
+      option.value = tool.name;
+      option.textContent = tool.title;
+      option.dataset.description = tool.description;
+      aiToolSelect.appendChild(option);
+      addedTools.add(tool.name);
     }
   });
   
   // Count the actual options (excluding headers)
   const actualOptions = Array.from(aiToolSelect.options).filter(opt => !opt.disabled).length;
-  console.log(`Added ${actualOptions} selectable AI tool options to dropdown`);
   
   // Select the first tool by default
   if (actualOptions > 0) {
@@ -251,8 +254,6 @@ async function loadAiTools() {
     if (firstOption) {
       aiToolSelect.value = firstOption.value;
       aiToolDescription.textContent = firstOption.dataset.description;
-      console.log(`*** tool.description=`, tool.description);
-      console.log(`Selected default AI tool: ${firstOption.value}`);
     }
   }
 }

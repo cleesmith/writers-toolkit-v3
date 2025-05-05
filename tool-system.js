@@ -140,7 +140,7 @@ const TOOL_DEFS = [
       ]
     }
   ]},
-  { id: 'manuscript_to_outline_characters_world', title: `Use manuscript.txt  to create: outline, characters, and world files`, description: `Works in reverse to create: outline, characters, and world files given a manuscript. May be useful for pantsers, and old manuscript files.`, Class: ManuscriptToOutlineCharactersWorld, options: [
+  { id: 'manuscript_to_outline_characters_world', title: `Manuscript.txt to create: outline, characters, and world files`, description: `Works in reverse to create: outline, characters, and world files given a manuscript. May be useful for pantsers, and old manuscript files.`, Class: ManuscriptToOutlineCharactersWorld, options: [
     {
       "name": "manuscript_file",
       "label": "MANUSCRIPT_FILE",
@@ -149,34 +149,6 @@ const TOOL_DEFS = [
       "required": true,
       "default": "manuscript.txt",
       "group": "Input Files"
-    }
-  ]},
-  { id: 'line_editing', title: `Line Editing`, description: `Performs lightweight line editing for chapters in your manuscript.`, Class: LineEditing, options: [
-    {
-      "name": "manuscript_file",
-      "label": "Manuscript File",
-      "type": "file",
-      "description": "Fiction manuscript file to analyze",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": [
-            "txt"
-          ]
-        }
-      ],
-      "group": "Input Files"
-    },
-    {
-      "name": "chapter_number",
-      "label": "Chapter Number",
-      "type": "text",
-      "description": "The chapter number to analyze (e.g. '1', '5', '20')",
-      "required": true,
-      "default": "1",
-      "group": "Analysis Options"
     }
   ]},
   { id: 'narrative_integrity', title: `Narrative Integrity`, description: `Manuscript consistency checker utility that compares a manuscript against a world document (and optionally an outline).\nIt supports various consistency checks: world, internal, development, and unresolved.\nConfigurable options enable targeted analysis of character, setting, timeline, and thematic consistency, producing detailed reports with examples and recommendations for resolving discrepancies.`, Class: NarrativeIntegrity, options: [
@@ -240,6 +212,60 @@ const TOOL_DEFS = [
       "required": false,
       "default": "",
       "group": "Output Configuration"
+    }
+  ]},
+  { id: 'line_editing', title: `Line Editing`, description: `Performs lightweight line editing for chapters in your manuscript.`, Class: LineEditing, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Fiction manuscript file to analyze",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": [
+            "txt"
+          ]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "chapter_number",
+      "label": "Chapter Number",
+      "type": "text",
+      "description": "The chapter number to analyze (e.g. '1', '5', '20')",
+      "required": true,
+      "default": "1",
+      "group": "Analysis Options"
+    }
+  ]},
+  { id: 'proofreader', title: `Proofreader`, description: `Performs professional proofreading on manuscripts for creative fiction. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Fiction manuscript file to proofread. \nNote: the manuscript must have numbered chapters like: 'Chapter: 1 This is chapter one'.",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": ["txt"]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "language",
+      "label": "Language",
+      "type": "text",
+      "description": "Language for proofreading (e.g., English, Spanish, French)",
+      "required": false,
+      "default": "English",
+      "group": "Settings"
     }
   ]},
   { id: 'drunk_claude', title: `Drunk Claude`, description: `Claude pretends to be drunk while critiquing your manuscript. Sometimes insightful, sometimes just drunk.`, Class: DrunkClaude, options: [
@@ -1259,32 +1285,6 @@ const TOOL_DEFS = [
       "description": "Generate an HTML-formatted description for KDP",
       "default": true,
       "group": "Output Options"
-    }
-  ]},
-  { id: 'proofreader', title: `Proofreader`, description: `Performs professional proofreading on manuscripts for creative fiction. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
-    {
-      "name": "manuscript_file",
-      "label": "Manuscript File",
-      "type": "file",
-      "description": "Fiction manuscript file to proofread. \nNote: the manuscript must have numbered chapters like: 'Chapter: 1 This is chapter one'.",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": ["txt"]
-        }
-      ],
-      "group": "Input Files"
-    },
-    {
-      "name": "language",
-      "label": "Language",
-      "type": "text",
-      "description": "Language for proofreading (e.g., English, Spanish, French)",
-      "required": false,
-      "default": "English",
-      "group": "Settings"
     }
   ]},
   { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [

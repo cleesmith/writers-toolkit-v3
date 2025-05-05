@@ -4,6 +4,7 @@ const path = require('path');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
+const textProcessor = require('./textProcessor');
 
 /**
  * Proofreader Tool
@@ -54,9 +55,13 @@ class Proofreader extends BaseTool {
       // Read the input files
       this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
+      // console.log(">>> Original manuscript lines:", manuscriptContent.split('\n').length);
+
+      const manuscriptWithoutChapterHeaders = textProcessor.processText(manuscriptContent)
+      // console.log(">>> Processed manuscript lines:", manuscriptWithoutChapterHeaders.split('\n').length);
       
       // Create prompt using the template with language substitution
-      const prompt = this.createPrompt(manuscriptContent, language);
+      const prompt = this.createPrompt(manuscriptWithoutChapterHeaders, language);
 
       // Count tokens in the prompt
       this.emitOutput(`Counting tokens in prompt...\n`);
@@ -191,36 +196,58 @@ class Proofreader extends BaseTool {
    */
   createPrompt(manuscriptContent, language = 'English') {
     // Simplified and focused prompt template
-    const template = `You are a professional proofreader for ${language} creative fiction. Find and report ALL surface-level errors in the manuscript below.
+    const template = `
 
-CRITICAL RULES:
-1. Completely ignore chapter numbers and chapter titles
-2. Focus ONLY on the actual text errors
-3. When reporting errors, copy the problematic text EXACTLY as it appears
-4. Do NOT add quotation marks when showing the problematic text
-5. Check the ENTIRE manuscript thoroughly
-
-Look specifically for these errors:
-- Missing closing quotation marks
-- Typos and misspellings (like "diabotical" instead of "diabolical") 
-- Character name inconsistencies (like Mrs. Flynn vs. Mrs. Elwood)
-- POV shifts (like "we" in third-person narration)
-- Word errors (like "asses" instead of "assets")
-- Missing or extra words
-- Punctuation errors
-
-FORMAT FOR EACH ERROR:
-Copy the exact problematic text here
-
-ISSUE: Describe what's wrong with it
-
-[leave two blank lines between errors]
+You are acting as a professional proofreader performing a final review
+of a manuscript that has already been copy edited. The manuscript is
+provided as plain text in its entirety, without chapter divisions,
+numbers, or titles - presented as one continuous document and story. 
 
 === MANUSCRIPT ===
 ${manuscriptContent}
 === END MANUSCRIPT ===
 
-Find ALL errors. Missing errors is unacceptable. Report them in the format above.`;
+Begin by reviewing any existing style sheet from copy editing. Then work through the manuscript in sequential passes:
+
+Pass 1 - Mechanical Accuracy:
+- Spelling errors and typos
+- Punctuation consistency
+- Capitalization rules
+- Number formatting
+- Proper noun consistency
+
+Pass 2 - Formatting Consistency:
+- Paragraph spacing is a single blank line
+- Dialogue formatting
+- Special characters (quotes, dashes, ellipses)
+- White space patterns
+
+Pass 3 - Content Verification:
+- Character name consistency
+- Timeline accuracy
+- Repeated words or phrases
+- Missing or duplicated text
+- Narrative continuity across scenes
+
+Pass 4 - Final Sweep:
+- Any remaining inconsistencies
+- Cross-reference with style sheet
+
+For each error found:
+- Show the text verbatim
+- Specify the error type
+- Provide a possible correction
+
+Remember: Only flag actual errors. Make no content suggestions or style changes. Focus exclusively on mechanical accuracy and consistency with established style choices.
+
+Complete each pass thoroughly before moving to the next. Maintain focus on catching errors that escaped copy editing.
+
+VERY IMPORTANT:
+- Do NOT hurry to finish!
+- Think hard and be thorough, the longer you take the better!
+- Always re-read the entire manuscript (see: === MANUSCRIPT === above) many times, which will help you to not miss any issues.
+- The proofreading of author's writing (manuscript) is very important to you, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
+    `;
 
     return template;
   }
@@ -310,7 +337,7 @@ Output tokens: ${responseTokens}
       await this.writeOutputFile(content, saveDir, reportFilename);
       savedFilePaths.push(reportPath);
       this.emitOutput(`Report saved to: ${reportPath}\n`);
-      
+
       // Save thinking content if available
       if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
@@ -321,7 +348,9 @@ ${thinking}
 === END PROOFREADER THINKING ===
 ${stats}`;
         
+        const thinkingReportPath = path.join(saveDir, thinkingFilename);
         await this.writeOutputFile(thinkingContent, saveDir, thinkingFilename);
+        savedFilePaths.push(thinkingReportPath);
         this.emitOutput(`AI thinking saved to: ${path.join(saveDir, thinkingFilename)}\n`);
       }
       

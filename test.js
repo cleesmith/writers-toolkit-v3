@@ -1,74 +1,63 @@
-const { exec } = require('child_process');
-const os = require('os');
+// Import the text processor module
+const textProcessor = require('./textProcessor');
+const fs = require('fs');
 
-function openExternalApp(appName, filePath = null) {
-  const platform = os.platform();
-  let command;
-  
-  if (platform === 'darwin') {  // macOS
-    command = filePath 
-      ? `open -a "${appName}" "${filePath}"`
-      : `open -a "${appName}"`;
-  } 
-  else if (platform === 'win32') {  // Windows
-    command = filePath 
-      ? `start "" "${appName}" "${filePath}"`
-      : `start "" "${appName}"`;
-  }
-  else {  // Linux and others
-    command = filePath 
-      ? `xdg-open "${filePath}"`
-      : null;
-  }
-  
-  if (command) {
-    return new Promise((resolve, reject) => {
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error launching application: ${error.message}`);
-          reject(error);
-          return;
-        }
-        console.log('Command executed successfully:', command);
-        resolve(true);
-      });
-    });
-  } else {
-    return Promise.reject(new Error(`Unsupported platform: ${platform}`));
-  }
-}
+// Example text to process - matches the terminal output example
+const sampleText = `
+Chapter 1: the one
 
-// Test the function by launching a simple app
-async function runTest() {
+This is the first paragraph of chapter one.
+
+This is the second paragraph.
+
+
+This is after two blank lines.
+
+
+
+This is after three blank lines.
+
+
+Chapter 2. the deuce
+
+This is the first paragraph of chapter two.
+
+This is the second paragraph.
+
+CHAPTER 3: another title
+
+This shows case-insensitive matching.
+`;
+
+// console.log("Original Text:");
+// console.log("=============");
+// console.log(sampleText);
+
+// console.log("\nProcessed Text:");
+// console.log("==============");
+// console.log(textProcessor.processText(sampleText));
+
+// Function to process a real manuscript file
+function processFile(inputPath, outputPath) {
   try {
-    // Determine which app to test based on platform
-    const platform = os.platform();
-    let testApp;
+    // Read the input file
+    const text = fs.readFileSync(inputPath, 'utf8');
     
-    if (platform === 'darwin') { // macOS
-      // testApp = "TextEdit";
-      testApp = "Sublime Text";
-    } else if (platform === 'win32') { // Windows
-      testApp = "notepad";
-    } else {
-      // For Linux, we can just try to open a file
-      console.log("On Linux, testing with file opening only");
-    }
+    // Process the text
+    const processed = textProcessor.processText(text);
     
-    console.log(`Testing app launch on ${platform} with app: ${testApp}`);
+    // Write the processed text to the output file
+    fs.writeFileSync(outputPath, processed);
     
-    // Launch without a file
-    await openExternalApp(testApp);
-    console.log("App launched successfully without file");
-    
-    // Optional: Uncomment to test with a file
-    // const testFilePath = "/path/to/your/test.txt"; // Change this to a real file path
-    // await openExternalApp(testApp, testFilePath);
-    // console.log("App launched successfully with file");
-    
+    console.log(`\nSuccessfully processed file from ${inputPath} to ${outputPath}`);
   } catch (error) {
-    console.error("Test failed:", error);
+    console.error('Error processing file:', error);
   }
 }
 
-runTest();
+// Uncomment the following line to process an actual manuscript file
+processFile('manuscript_hattie.txt', 'manuscript-raw.txt');
+console.log("\nProcessed Text:");
+console.log("==============");
+console.log(textProcessor.processText(sampleText));
+
