@@ -34,7 +34,6 @@ class ForeshadowingTracker extends BaseTool {
     let outlineFile = options.outline_file;
     const foreshadowingType = options.foreshadowing_type;
     const chronological = options.chronological;
-    const skipThinking = options.skip_thinking;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -83,7 +82,6 @@ class ForeshadowingTracker extends BaseTool {
             outlineContent,
             manuscriptContent,
             chronological,
-            skipThinking,
             saveDir
           );
           outputFiles.push(...result.outputFiles);
@@ -95,7 +93,6 @@ class ForeshadowingTracker extends BaseTool {
           outlineContent,
           manuscriptContent,
           chronological,
-          skipThinking,
           saveDir
         );
         outputFiles.push(...result.outputFiles);
@@ -125,7 +122,6 @@ class ForeshadowingTracker extends BaseTool {
    * @param {string} outlineContent - Outline content
    * @param {string} manuscriptContent - Manuscript content
    * @param {boolean} chronological - Whether to organize chronologically
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {string} saveDir - Directory to save to
    * @returns {Promise<Object>} - Analysis result
    */
@@ -134,7 +130,6 @@ class ForeshadowingTracker extends BaseTool {
     outlineContent,
     manuscriptContent,
     chronological,
-    skipThinking,
     saveDir
   ) {
     this.emitOutput(`\n=== Running ${foreshadowingType.toUpperCase()} Foreshadowing Analysis ===\n`);
@@ -249,7 +244,6 @@ class ForeshadowingTracker extends BaseTool {
       promptTokens,
       responseTokens,
       saveDir,
-      skipThinking,
       chronological
     );
     
@@ -446,7 +440,6 @@ Use the extensive thinking space to thoroughly catalog all introduced significan
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {boolean} chronological - Whether organized chronologically
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
@@ -457,7 +450,6 @@ Use the extensive thinking space to thoroughly catalog all introduced significan
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
     chronological
   ) {
     try {
@@ -502,7 +494,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== FORESHADOWING ANALYSIS TYPE ===

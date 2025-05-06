@@ -36,7 +36,6 @@ class BrainstormTool extends BaseTool {
     const outputFiles = [];
     const conceptOnly = options.concept_only || false;
     const charactersOnly = options.characters_only || false;
-    const skipThinking = options.skip_thinking || false;
     let saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     // Validate save directory
@@ -228,8 +227,7 @@ class BrainstormTool extends BaseTool {
     fileCache.addFile('brainstorm', backupPath);
     
     // Save thinking content if not skipped
-    const skipThinking = options.skip_thinking || false;
-    if (thinkingContent && !skipThinking) {
+    if (thinkingContent) {
       const thinkingFilename = `${promptType}_thinking_${timestamp}.txt`;
       const thinkingPath = path.join(saveDir, thinkingFilename);
       

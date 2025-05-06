@@ -36,7 +36,6 @@ class RhythmAnalyzer extends BaseTool {
     const analysisLevel = options.analysis_level;
     const sceneTypes = options.scene_types;
     const rhythmSensitivity = options.rhythm_sensitivity;
-    const skipThinking = options.skip_thinking;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -169,8 +168,7 @@ class RhythmAnalyzer extends BaseTool {
         thinkingContent,
         promptTokens,
         responseTokens,
-        saveDir,
-        skipThinking
+        saveDir
       );
       
       // Add all output files to the result
@@ -357,7 +355,6 @@ Be specific in your examples and suggestions, showing how prose rhythm can be im
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -368,8 +365,7 @@ Be specific in your examples and suggestions, showing how prose rhythm can be im
     thinking,
     promptTokens,
     responseTokens,
-    saveDir,
-    skipThinking
+    saveDir
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -419,7 +415,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== PROSE RHYTHM ANALYSIS ===

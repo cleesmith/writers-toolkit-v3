@@ -42,7 +42,6 @@ class ManuscriptExtractor extends BaseTool {
     const outlineLevel = options.outline_level || 'standard';
     const worldLevel = options.world_level || 'standard';
     const characterLevel = options.character_level || 'standard';
-    const skipThinking = options.skip_thinking || false;
     const includeTimelineFile = options.include_timeline || false;
     
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
@@ -78,7 +77,6 @@ class ManuscriptExtractor extends BaseTool {
         manuscriptContent, 
         language, 
         outlineLevel, 
-        skipThinking, 
         saveDir
       );
       outputFiles.push(...outlineFile);
@@ -89,7 +87,6 @@ class ManuscriptExtractor extends BaseTool {
         manuscriptContent, 
         language, 
         characterLevel, 
-        skipThinking, 
         saveDir
       );
       outputFiles.push(...characterFile);
@@ -101,7 +98,6 @@ class ManuscriptExtractor extends BaseTool {
         manuscriptContent, 
         language, 
         worldLevel, 
-        skipThinking, 
         saveDir
       );
       outputFiles.push(...worldFile);
@@ -113,7 +109,6 @@ class ManuscriptExtractor extends BaseTool {
           genre, 
           manuscriptContent, 
           language, 
-          skipThinking, 
           saveDir
         );
         outputFiles.push(...timelineFile);
@@ -171,7 +166,6 @@ class ManuscriptExtractor extends BaseTool {
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language
    * @param {string} outlineLevel - Detail level (basic, standard, detailed)
-   * @param {boolean} skipThinking - Whether to skip saving thinking content
    * @param {string} saveDir - Directory to save output
    * @returns {Promise<string[]>} - Paths to saved files
    */
@@ -181,7 +175,6 @@ class ManuscriptExtractor extends BaseTool {
     manuscriptContent,
     language,
     outlineLevel,
-    skipThinking,
     saveDir
   ) {
     this.emitOutput(`\n=== Generating outline.txt ===\n`);
@@ -280,7 +273,7 @@ class ManuscriptExtractor extends BaseTool {
     // Save thinking content if available and not skipped
     const outputFiles = [outlinePath];
     
-    if (thinkingContent && !skipThinking) {
+    if (thinkingContent) {
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const thinkingFilename = `outline_thinking_${timestamp}.txt`;
       
@@ -319,7 +312,6 @@ ${stats}`;
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language
    * @param {string} characterLevel - Detail level (basic, standard, detailed)
-   * @param {boolean} skipThinking - Whether to skip saving thinking content
    * @param {string} saveDir - Directory to save output
    * @returns {Promise<string[]>} - Paths to saved files
    */
@@ -329,7 +321,6 @@ ${stats}`;
     manuscriptContent,
     language,
     characterLevel,
-    skipThinking,
     saveDir
   ) {
     this.emitOutput(`\n=== Generating characters.txt ===\n`);
@@ -428,7 +419,7 @@ ${stats}`;
     // Save thinking content if available and not skipped
     const outputFiles = [charactersPath];
     
-    if (thinkingContent && !skipThinking) {
+    if (thinkingContent) {
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const thinkingFilename = `characters_thinking_${timestamp}.txt`;
       
@@ -468,7 +459,6 @@ ${stats}`;
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language
    * @param {string} worldLevel - Detail level (basic, standard, detailed)
-   * @param {boolean} skipThinking - Whether to skip saving thinking content
    * @param {string} saveDir - Directory to save output
    * @returns {Promise<string[]>} - Paths to saved files
    */
@@ -479,7 +469,6 @@ ${stats}`;
     manuscriptContent,
     language,
     worldLevel,
-    skipThinking,
     saveDir
   ) {
     this.emitOutput(`\n=== Generating world.txt ===\n`);
@@ -579,7 +568,7 @@ ${stats}`;
     // Save thinking content if available and not skipped
     const outputFiles = [worldPath];
     
-    if (thinkingContent && !skipThinking) {
+    if (thinkingContent) {
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const thinkingFilename = `world_thinking_${timestamp}.txt`;
       
@@ -617,7 +606,6 @@ ${stats}`;
    * @param {string} genre - Genre
    * @param {string} manuscriptContent - Manuscript content
    * @param {string} language - Language
-   * @param {boolean} skipThinking - Whether to skip saving thinking content
    * @param {string} saveDir - Directory to save output
    * @returns {Promise<string[]>} - Paths to saved files
    */
@@ -626,7 +614,6 @@ ${stats}`;
     genre,
     manuscriptContent,
     language,
-    skipThinking,
     saveDir
   ) {
     this.emitOutput(`\n=== Generating timeline.txt ===\n`);
@@ -724,7 +711,7 @@ ${stats}`;
     // Save thinking content if available and not skipped
     const outputFiles = [timelinePath];
     
-    if (thinkingContent && !skipThinking) {
+    if (thinkingContent) {
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const thinkingFilename = `timeline_thinking_${timestamp}.txt`;
       

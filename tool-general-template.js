@@ -151,7 +151,6 @@ class GenericTool extends BaseTool {
       this.emitOutput(`Response token count: ${responseTokens}\n`);
       
       // Save the response to a file
-      const skipThinking = options.skip_thinking || false;
       const customDescription = options.custom_description || '';
       
       const outputFile = await this.saveReport(
@@ -160,7 +159,6 @@ class GenericTool extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
         customDescription
       );
       
@@ -244,11 +242,10 @@ NO Markdown formatting!
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {string} description - Optional description
    * @returns {Promise<string>} - Path to saved report
    */
-  async saveReport(content, thinking, promptTokens, responseTokens, saveDir, skipThinking, description) {
+  async saveReport(content, thinking, promptTokens, responseTokens, saveDir, description) {
     try {
       // TODO: Change 'output' to something more descriptive for your tool
       const toolType = 'output';
@@ -278,7 +275,7 @@ Output tokens: ${responseTokens}
       await this.writeOutputFile(content, saveDir, reportFilename);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingContent = `=== TOOL OUTPUT ===
 

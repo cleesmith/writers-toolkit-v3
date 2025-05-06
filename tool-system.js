@@ -182,15 +182,6 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
     {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process, but often the thinking output can be very useful.",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
-    },
-    {
       "name": "check_type",
       "label": "Check Type",
       "type": "select",
@@ -337,15 +328,6 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
     {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
-    },
-    {
       "name": "ascii_art",
       "label": "ascii_art",
       "type": "boolean",
@@ -400,15 +382,6 @@ const TOOL_DEFS = [
       "required": false,
       "default": "Chapter",
       "group": "Analysis Options"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     }
   ]},
   { id: 'character_analyzer', title: `Character Analyzer`, description: `Analyzes manuscript, outline, and world files to identify and compare character appearances. It extracts a master character list that details which files each character appears in, examines consistency across documents, and highlights discrepancies in names, roles, or relationships. The analysis produces a detailed report with sections and recommendations to improve character coherence. This is needed because AI rough draft writing has a tendency to add new characters! AI just loves new characters, especially those that whisper and hear echoes.`, Class: CharacterAnalyzer, options: [
@@ -438,15 +411,6 @@ const TOOL_DEFS = [
       "required": false,
       "default": "",
       "group": "Input Files"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     }
   ]},
   { id: 'adjective_adverb_optimizer', title: `Adjective Adverb Optimizer`, description: `Analyzes manuscript adjective and adverb usage to pinpoint unnecessary modifiers and overused qualifiers, offering specific suggestions for replacing weak descriptive patterns with stronger verbs and nouns, in line with Ursula K. Le Guin's guidance.`, Class: AdjectiveAdverbOptimizer, options: [
@@ -458,15 +422,6 @@ const TOOL_DEFS = [
       "required": true,
       "default": "manuscript.txt",
       "group": "Input Files"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     },
     {
       "name": "analysis_level",
@@ -577,15 +532,6 @@ const TOOL_DEFS = [
           "label": "high"
         }
       ]
-    },
-    {
-      "name": "skip_thinking",
-      "label": "Don't save a thinking file",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     }
   ]},
   { id: 'rhythm_analyzer', title: `Rhythm Analyzer`, description: `Manuscript analysis utility for evaluating the rhythm and flow of prose.\nIt measures sentence length variations, detects monotonous patterns, and highlights sections where the writing\u2019s rhythm doesn\u2019t match the intended mood.\n Configurable analysis levels, selectable scene types, and adjustable sensitivity settings allow it to generate a detailed report with examples, explanations, and suggestions for enhancing overall narrative rhythm.`, Class: RhythmAnalyzer, options: [
@@ -597,15 +543,6 @@ const TOOL_DEFS = [
       "required": true,
       "default": "manuscript.txt",
       "group": "Input Files"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     },
     {
       "name": "analysis_level",
@@ -655,15 +592,6 @@ const TOOL_DEFS = [
       "group": "Output Configuration"
     },
     {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
-    },
-    {
       "name": "analysis_level",
       "label": "analysis_level",
       "type": "text",
@@ -700,15 +628,6 @@ const TOOL_DEFS = [
       "required": true,
       "default": "manuscript.txt",
       "group": "Input Files"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     },
     {
       "name": "analysis_level",
@@ -758,15 +677,6 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
     {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
-    },
-    {
       "name": "analysis_level",
       "label": "analysis_level",
       "type": "text",
@@ -803,15 +713,6 @@ const TOOL_DEFS = [
       "required": false,
       "default": "",
       "group": "Input Files"
-    },
-    {
-      "name": "skip_thinking",
-      "label": "skip_thinking",
-      "type": "boolean",
-      "description": "Skip saving the AI thinking process",
-      "required": false,
-      "default": false,
-      "group": "Output Configuration"
     },
     {
       "name": "chronological",

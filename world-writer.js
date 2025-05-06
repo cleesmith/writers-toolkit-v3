@@ -41,7 +41,6 @@ class WorldWriter extends BaseTool {
     const outlineFile = options.outline_file;
     const language = options.lang || 'English';
     const detailed = options.detailed || false;
-    const skipThinking = options.skip_thinking || false;
     
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     const outputFiles = [];
@@ -206,7 +205,7 @@ class WorldWriter extends BaseTool {
       fileCache.addFile(toolName, worldPath);
       
       // Save thinking content if available and not skipped
-      if (thinkingContent && !skipThinking) {
+      if (thinkingContent) {
         const thinkingFilename = `world_thinking_${timestamp}.txt`;
         
         // Create stats for thinking file

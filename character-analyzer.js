@@ -42,7 +42,6 @@ class CharacterAnalyzer extends BaseTool {
     let manuscriptFile = options.manuscript_file;
     let outlineFile = options.outline_file;
     let worldFile = options.world_file;
-    const skipThinking = options.skip_thinking || false;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -197,8 +196,7 @@ class CharacterAnalyzer extends BaseTool {
         thinkingContent,
         promptTokens,
         responseTokens,
-        saveDir,
-        skipThinking
+        saveDir
       );
       
       // Add all output files to the result
@@ -312,11 +310,10 @@ Be comprehensive in your character identification, capturing not just main chara
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
-  async saveReport(content, thinking, promptTokens, responseTokens, saveDir, skipThinking, description) {
+  async saveReport(content, thinking, promptTokens, responseTokens, saveDir, description) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -358,7 +355,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== CHARACTER ANALYSIS ===

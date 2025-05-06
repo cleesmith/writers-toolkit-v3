@@ -68,7 +68,6 @@ class NarrativeIntegrity extends BaseTool {
     let worldFile = options.world_file;
     let outlineFile = options.outline_file;
     const checkType = options.check_type;
-    const skipThinking = options.skip_thinking;
     let saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     // Check if we have a valid save directory
@@ -224,8 +223,7 @@ class NarrativeIntegrity extends BaseTool {
           thinkingContent,
           promptTokens,
           responseTokens,
-          saveDir,
-          skipThinking
+          saveDir
         );
         
         // Use spread operator to push all elements individually
@@ -489,11 +487,10 @@ For each unresolved element, provide:
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
-  async saveReport(checkType, content, thinking, promptTokens, responseTokens, saveDir, skipThinking, description) {
+  async saveReport(checkType, content, thinking, promptTokens, responseTokens, saveDir, description) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -536,7 +533,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== NARRATIVE INTEGRITY CHECK TYPE ===

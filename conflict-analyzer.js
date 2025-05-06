@@ -35,7 +35,6 @@ class ConflictAnalyzer extends BaseTool {
     const analysisLevel = options.analysis_level;
     let outlineFile = options.outline_file;
     const conflictTypes = options.conflict_types;
-    const skipThinking = options.skip_thinking;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
@@ -190,8 +189,7 @@ class ConflictAnalyzer extends BaseTool {
           thinkingContent,
           promptTokens,
           responseTokens,
-          saveDir,
-          skipThinking
+          saveDir
         );
         
         // Add the output files to the result
@@ -405,7 +403,6 @@ Use specific text examples from the manuscript to support your analysis.
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
@@ -414,8 +411,7 @@ Use specific text examples from the manuscript to support your analysis.
     thinking,
     promptTokens,
     responseTokens,
-    saveDir,
-    skipThinking
+    saveDir
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -458,7 +454,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== CONFLICT ANALYSIS LEVEL ===

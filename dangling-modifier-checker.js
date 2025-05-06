@@ -39,7 +39,6 @@ class DanglingModifierChecker extends BaseTool {
     const analysisLevel = options.analysis_level;
     const modifierTypes = options.modifier_types;
     const sensitivity = options.sensitivity;
-    const skipThinking = options.skip_thinking;
     const analysisDescription = options.analysis_description;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
@@ -174,7 +173,6 @@ class DanglingModifierChecker extends BaseTool {
         promptTokens,
         responseTokens,
         saveDir,
-        skipThinking,
         analysisDescription
       );
       
@@ -382,7 +380,6 @@ Be specific in your examples and suggestions, showing how modifier placement can
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {boolean} skipThinking - Whether to skip saving thinking
    * @param {string} description - Optional description
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
@@ -395,7 +392,6 @@ Be specific in your examples and suggestions, showing how modifier placement can
     promptTokens,
     responseTokens,
     saveDir,
-    skipThinking,
     description
   ) {
     try {
@@ -447,7 +443,7 @@ Output tokens: ${responseTokens}
       savedFilePaths.push(reportPath);
       
       // Save thinking content if available and not skipped
-      if (thinking && !skipThinking) {
+      if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
         const thinkingPath = path.join(saveDir, thinkingFilename);
         const thinkingContent = `=== DANGLING MODIFIER ANALYSIS ===

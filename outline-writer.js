@@ -45,7 +45,6 @@ class OutlineWriter extends BaseTool {
     const title = options.title || null;
     const genre = options.genre || null;
     const detailed = options.detailed || false;
-    const skipThinking = options.skip_thinking || false;
     
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     const outputFiles = [];
@@ -234,7 +233,7 @@ class OutlineWriter extends BaseTool {
       fileCache.addFile(toolName, outlinePath);
       
       // Save thinking content if available and not skipped
-      if (thinkingContent && !skipThinking) {
+      if (thinkingContent) {
         const thinkingFilename = `outline_thinking_${timestamp}.txt`;
         
         // Create stats for thinking file
