@@ -205,20 +205,66 @@ class ClaudeAPIService {
         .stream(modelOptions)
         .withResponse();
 
-      // // Display all headers from the raw response
+      // display all headers from the raw response
       onResponseHeaders(`\n=== CURRENT RATE LIMITS ===`);
-      // Headers is a Map-like object, get all entries and sort them
+      // headers is a Map-like object, get all entries
       const headerEntries = Array.from(rawResponse.headers.entries());
-      // Print each header and its value
       for (const [name, value] of headerEntries) {
-        // console.log(`${name}: ${value}`);
         onResponseHeaders(`${name}: ${value}`);
       }
-      
+
+      // event: message_start
+      // data: {"type": "message_start", "message": {"id": "msg_01...", "type": "message", "role": "assistant", "content": [], "model": "claude-3-7-sonnet-20250219", "stop_reason": null, "stop_sequence": null}}
+      // ⬇️
+      // ⬇️
+      //        ******************* = THINKING
+      // event: content_block_start
+      // data: {"type": "content_block_start", "index": 0, "content_block": {"type": "thinking", "thinking": ""}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "Let me solve this step by step:\n\n1. First break down 27 * 453"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "\n2. 453 = 400 + 50 + 3"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "\n3. 27 * 400 = 10,800"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "\n4. 27 * 50 = 1,350"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "\n5. 27 * 3 = 81"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "thinking_delta", "thinking": "\n6. 10,800 + 1,350 + 81 = 12,231"}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 0, "delta": {"type": "signature_delta", "signature": "EqQBCgIYAhIM1gbcDa9GJwZA2b3hGgxBdjrkzLoky3dl1pkiMOYds..."}}
+      // ⬇️
+      // event: content_block_stop
+      // data: {"type": "content_block_stop", "index": 0}
+      // ⬇️
+      // ⬇️
+      //        ******************* = TEXT
+      // event: content_block_start
+      // data: {"type": "content_block_start", "index": 1, "content_block": {"type": "text", "text": ""}}
+      // ⬇️
+      // event: content_block_delta
+      // data: {"type": "content_block_delta", "index": 1, "delta": {"type": "text_delta", "text": "27 * 453 = 12,231"}}
+      // ⬇️
+      // event: content_block_stop
+      // data: {"type": "content_block_stop", "index": 1}
+      // ⬇️
+      // ⬇️
+      // event: message_delta
+      // data: {"type": "message_delta", "delta": {"stop_reason": "end_turn", "stop_sequence": null}}
+      // ⬇️
+      // event: message_stop
+      // data: {"type": "message_stop"}
+
       for await (const event of stream) {
         if (event.type === "message_start") {
-          // onMessageStart(`event.message.usage.input_tokens=${event.message.usage.input_tokens}`);
-          // onMessageStart(`event.message.usage.output_tokens=${event.message.usage.output_tokens}`);
           onMessageStart(`\n=== MESSAGE START ===`);
           onMessageStart(`${JSON.stringify(event.message)}`);
         }
