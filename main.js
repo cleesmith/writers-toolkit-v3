@@ -593,12 +593,12 @@ ipcMain.handle('save-file', async (event, data) => {
 // Setup handlers for tool operations
 function setupToolHandlers() {
   ipcMain.handle('get-tools', () => {
-    console.log('get-tools handler called');
+    // console.log('get-tools handler called');
     
     // Get all tool IDs
     const allToolIds = toolSystem.toolRegistry.getAllToolIds();
-    console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
-    console.log('Raw tool IDs from registry:', allToolIds);
+    // console.log(`Found ${allToolIds.length} tools in registry:`, allToolIds);
+    // console.log('Raw tool IDs from registry:', allToolIds);
     
     // Map IDs to tool objects with required properties
     const tools = allToolIds.map(id => {

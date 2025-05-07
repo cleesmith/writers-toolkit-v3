@@ -161,6 +161,7 @@ class CharacterAnalyzer extends BaseTool {
           },
           // Callback for thinking content
           (thinkingDelta) => {
+            // this.emitOutput(`.`);
             thinkingContent += thinkingDelta;
           },
           // Callback for response text
@@ -169,12 +170,10 @@ class CharacterAnalyzer extends BaseTool {
           },
           // Callback for message start with stats
           (messageStart) => {
-            // console.log(`\nmessageStart:\n${messageStart}\n`);
-            this.emitOutput(`\nmessage_start:\n${messageStart}\n`);
+            this.emitOutput(`${messageStart}\n`);
           },
           // Callback for response headers
           (responseHeaders) => {
-            // console.log(`\nresponseHeaders:\n${responseHeaders}\n`);
             this.emitOutput(`${responseHeaders}\n`);
           }
         );

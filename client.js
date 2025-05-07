@@ -205,13 +205,13 @@ class ClaudeAPIService {
         .stream(modelOptions)
         .withResponse();
 
-      // Display all headers from the raw response
-      console.log('\n=== CURRENT RATE LIMITS ===');
+      // // Display all headers from the raw response
+      onResponseHeaders(`\n=== CURRENT RATE LIMITS ===`);
       // Headers is a Map-like object, get all entries and sort them
       const headerEntries = Array.from(rawResponse.headers.entries());
       // Print each header and its value
       for (const [name, value] of headerEntries) {
-        console.log(`${name}: ${value}`);
+        // console.log(`${name}: ${value}`);
         onResponseHeaders(`${name}: ${value}`);
       }
       
@@ -219,7 +219,8 @@ class ClaudeAPIService {
         if (event.type === "message_start") {
           // onMessageStart(`event.message.usage.input_tokens=${event.message.usage.input_tokens}`);
           // onMessageStart(`event.message.usage.output_tokens=${event.message.usage.output_tokens}`);
-          onMessageStart(`event.message=${JSON.stringify(event.message)}`);
+          onMessageStart(`\n=== MESSAGE START ===`);
+          onMessageStart(`${JSON.stringify(event.message)}`);
         }
         if (event.type === "content_block_delta") {
           if (event.delta.type === "thinking_delta") {

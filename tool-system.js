@@ -1319,7 +1319,7 @@ async function initializeToolSystem(settings) {
     
     // Log registration summary
     const allTools = toolRegistry.getAllToolIds();
-    console.log(`Registered ${allTools.length} built-in tools:`, allTools);
+    // console.log(`Registered ${allTools.length} built-in tools:`, allTools);
     
     return { claudeService, toolRegistry };
   } catch (error) {
