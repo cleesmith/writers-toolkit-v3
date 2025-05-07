@@ -38,7 +38,7 @@ class ToolRegistry {
    */
   getAllToolIds() {
     const ids = Array.from(this.tools.keys());
-    console.log('All registered tool IDs:', ids);
+    // console.log('All registered tool IDs:', ids);
     return ids;
   }
 }

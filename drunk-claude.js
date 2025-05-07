@@ -107,7 +107,7 @@ class DrunkClaude extends BaseTool {
       const systemPrompt = "CRITICAL INSTRUCTION: NO Markdown formatting of ANY kind. Never use headers, bullets, or any formatting symbols. Plain text only with standard punctuation.";
 
       // Use the calculated values in the API call
-      console.log(`prompt:\n`, prompt);
+      // console.log(`prompt:\n`, prompt);
       try {
         await this.claudeService.streamWithThinking(
           prompt,

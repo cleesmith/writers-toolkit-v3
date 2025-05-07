@@ -147,7 +147,7 @@ class CharacterAnalyzer extends BaseTool {
 
       // Use the calculated values in the API call
       try {
-        await this.claudeService.streamWithThinking(
+        await this.claudeService.streamWithThinkingAndMessageStart(
           prompt,
           {
             model: "claude-3-7-sonnet-20250219",
@@ -166,6 +166,16 @@ class CharacterAnalyzer extends BaseTool {
           // Callback for response text
           (textDelta) => {
             fullResponse += textDelta;
+          },
+          // Callback for message start with stats
+          (messageStart) => {
+            // console.log(`\nmessageStart:\n${messageStart}\n`);
+            this.emitOutput(`\nmessage_start:\n${messageStart}\n`);
+          },
+          // Callback for response headers
+          (responseHeaders) => {
+            // console.log(`\nresponseHeaders:\n${responseHeaders}\n`);
+            this.emitOutput(`${responseHeaders}\n`);
           }
         );
       } catch (error) {

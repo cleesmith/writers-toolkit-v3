@@ -164,6 +164,82 @@ class ClaudeAPIService {
       throw error;
     }
   }
+  
+  /**
+   * Stream a response with thinking and message start stats using callbacks
+   * @param {string} prompt - Prompt to complete
+   * @param {Object} options - API options (only system is allowed to be overridden)
+   * @param {Function} onThinking - Callback for thinking content
+   * @param {Function} onText - Callback for response text
+   * @returns {Promise<void>}
+   */
+  async streamWithThinkingAndMessageStart(prompt, options = {}, onThinking, onText, onMessageStart, onResponseHeaders) {
+    const modelOptions = {
+      model: this.config.model_name,
+      max_tokens: options.max_tokens,
+      messages: [{ role: "user", content: prompt }],
+      thinking: {
+        type: "enabled",
+        budget_tokens: options.thinking.budget_tokens
+      },
+      betas: this._getBetasArray()
+    };
+
+    // Only allow system prompt to be overridden
+    if (options.system) {
+      modelOptions.system = options.system;
+    }
+    
+    try {
+      // const { data: response, response: rawResponse } = await client.beta.messages.create({
+      //   model: 'claude-3-7-sonnet-20250219',
+      //   max_tokens: 50000,  // greater than thinking.budget_tokens (32000)
+      //   system: systemMessages,
+      //   messages: [{ role: 'user', content: largeInput }],
+      //   thinking: { type: 'enabled', budget_tokens: 32000 },
+      //   betas: ['output-128k-2025-02-19']
+      // }).withResponse();
+
+      // const stream = await this.client.beta.messages.stream(modelOptions);
+      const { data: stream, response: rawResponse } = await this.client.beta.messages
+        .stream(modelOptions)
+        .withResponse();
+
+      // Display all headers from the raw response
+      console.log('\n=== CURRENT RATE LIMITS ===');
+      // Headers is a Map-like object, get all entries and sort them
+      const headerEntries = Array.from(rawResponse.headers.entries());
+      // Print each header and its value
+      for (const [name, value] of headerEntries) {
+        console.log(`${name}: ${value}`);
+        onResponseHeaders(`${name}: ${value}`);
+      }
+      
+      for await (const event of stream) {
+        if (event.type === "message_start") {
+          // onMessageStart(`event.message.usage.input_tokens=${event.message.usage.input_tokens}`);
+          // onMessageStart(`event.message.usage.output_tokens=${event.message.usage.output_tokens}`);
+          onMessageStart(`event.message=${JSON.stringify(event.message)}`);
+        }
+        if (event.type === "content_block_delta") {
+          if (event.delta.type === "thinking_delta") {
+            // Call thinking callback with delta
+            if (onThinking && typeof onThinking === 'function') {
+              onThinking(event.delta.thinking);
+            }
+          } else if (event.delta.type === "text_delta") {
+            // Call text callback with delta
+            if (onText && typeof onText === 'function') {
+              onText(event.delta.text);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('API streaming error:', error);
+      throw error;
+    }
+  }
 
   /**
    * Calculate token budgets and validate prompt size
