@@ -204,64 +204,83 @@ class ProofreaderMechanical extends BaseTool {
    * @param {string} language - Language for proofreading (default: English)
    * @returns {string} - Prompt for Claude API
    */
-  createPrompt(manuscriptContent, language = 'English') {
-    // Prompt focused ONLY on mechanical errors, explicitly excluding consistency checks
-    const template = `You are a professional ${language} proofreader reviewing this manuscript:
+//   createPrompt(manuscriptContent, language = 'English') {
+//     // Prompt focused ONLY on mechanical errors, explicitly excluding consistency checks
+//     const template = `You are a professional ${language} proofreader reviewing this manuscript:
+
+// === MANUSCRIPT ===
+// ${manuscriptContent}
+// === END MANUSCRIPT ===
+
+// CORE INSTRUCTION: Conduct a strictly mechanical proofreading of this manuscript. Focus EXCLUSIVELY on spelling, grammar, punctuation, and formatting errors. Do NOT check for consistency issues related to plot, characters, timeline, or story elements.
+
+// WHAT TO CHECK (ONLY):
+// - Spelling errors and typos
+// - Grammar issues (subject-verb agreement, verb tense, etc.)
+// - Punctuation errors (commas, periods, quotation marks, etc.)
+// - Basic formatting errors (paragraph breaks, dialogue formatting)
+
+// WHAT TO EXPLICITLY IGNORE:
+// - Character name consistency across the manuscript
+// - Timeline or chronology consistency
+// - Setting or location consistency
+// - Plot elements or story consistency
+// - Repeated phrases or words across different sections
+// - Any content-related issues
+
+// APPROACH:
+// Divide manuscript mentally into thirds. 
+// Focus ONLY on mechanical errors. 
+// Maintain consistent scrutiny throughout.
+
+// IN A SINGLE PASS OF THE MANUSCRIPT BE LIMITED TO MECHANICAL ISSUES ONLY:
+// 1. Spelling: Check for misspelled words and typos only
+// 2. Grammar: Check for grammatical errors only
+// 3. Punctuation: Check for punctuation errors only
+// 4. Format: Check paragraph and dialogue formatting only
+
+// ERROR REPORTING:
+// For each error:
+// - Number sequentially (e.g., "Spelling Error #1")
+// - Show original text VERBATIM WITHOUT QUOTES
+// - Specify exact mechanical error only
+// - Provide correction
+
+// EXAMPLE:
+// Spelling Error #1:
+// Original text: When John entered the room, he saw three seperate books on the table.
+// Issue: The word "seperate" is misspelled
+// Correction: When John entered the room, he saw three separate books on the table.
+
+// CRITICAL REQUIREMENTS:
+// - Flag ONLY mechanical errors (spelling, grammar, punctuation, formatting)
+// - NEVER flag consistency issues across the manuscript
+// - NEVER add quotation marks to original text
+// - If you find no mechanical errors or very few, that's fine - do not stretch to find issues
+
+// VERIFICATION:
+// At the end, confirm you checked ONLY for mechanical errors and ignored all consistency issues as instructed.`;
+//     return template;
+//   }
+createPrompt(manuscriptContent, language = 'English') {
+  const template = `Review this manuscript for mechanical errors ONLY. Ignore all other types of issues.
 
 === MANUSCRIPT ===
 ${manuscriptContent}
 === END MANUSCRIPT ===
 
-CORE INSTRUCTION: Conduct a strictly mechanical proofreading of this manuscript. Focus EXCLUSIVELY on spelling, grammar, punctuation, and formatting errors. Do NOT check for consistency issues related to plot, characters, timeline, or story elements.
+Focus exclusively on identifying spelling errors, grammar problems, punctuation mistakes, and basic formatting issues. Do not concern yourself with any aspects of consistency across the manuscript. This means you should not track or check character details, timeline elements, setting descriptions, or plot logic. Your task is simply to identify technical writing errors at the sentence level.
 
-WHAT TO CHECK (ONLY):
-- Spelling errors and typos
-- Grammar issues (subject-verb agreement, verb tense, etc.)
-- Punctuation errors (commas, periods, quotation marks, etc.)
-- Basic formatting errors (paragraph breaks, dialogue formatting)
+For each error you find:
+1. Show the sentence containing the error verbatim WITHOUT adding quotation marks
+2. Identify the specific error
+3. Provide a correction
 
-WHAT TO EXPLICITLY IGNORE:
-- Character name consistency across the manuscript
-- Timeline or chronology consistency
-- Setting or location consistency
-- Plot elements or story consistency
-- Repeated phrases or words across different sections
-- Any content-related issues
+Read through the manuscript naturally without creating any tracking systems. Simply note errors as you encounter them. Give equal attention to the entire manuscript from beginning to end.
 
-APPROACH:
-Divide manuscript mentally into thirds. 
-Focus ONLY on mechanical errors. 
-Maintain consistent scrutiny throughout.
-
-IN A SINGLE PASS OF THE MANUSCRIPT BE LIMITED TO MECHANICAL ISSUES ONLY:
-1. Spelling: Check for misspelled words and typos only
-2. Grammar: Check for grammatical errors only
-3. Punctuation: Check for punctuation errors only
-4. Format: Check paragraph and dialogue formatting only
-
-ERROR REPORTING:
-For each error:
-- Number sequentially (e.g., "Spelling Error #1")
-- Show original text VERBATIM WITHOUT QUOTES
-- Specify exact mechanical error only
-- Provide correction
-
-EXAMPLE:
-Spelling Error #1:
-Original text: When John entered the room, he saw three seperate books on the table.
-Issue: The word "seperate" is misspelled
-Correction: When John entered the room, he saw three separate books on the table.
-
-CRITICAL REQUIREMENTS:
-- Flag ONLY mechanical errors (spelling, grammar, punctuation, formatting)
-- NEVER flag consistency issues across the manuscript
-- NEVER add quotation marks to original text
-- If you find no mechanical errors or very few, that's fine - do not stretch to find issues
-
-VERIFICATION:
-At the end, confirm you checked ONLY for mechanical errors and ignored all consistency issues as instructed.`;
-    return template;
-  }
+At the end, briefly confirm that you focused only on mechanical errors.`;
+  return template;
+}
 
   /**
    * Count words in text
