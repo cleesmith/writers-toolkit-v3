@@ -1,4 +1,4 @@
-// proofreader.js
+// proofreader-mechanical.js
 const BaseTool = require('./base-tool');
 const path = require('path');
 const fileCache = require('./file-cache');
@@ -7,18 +7,17 @@ const fs = require('fs/promises');
 const textProcessor = require('./textProcessor');
 
 /**
- * Proofreader Tool
- * Analyzes a manuscript for surface-level corrections without altering the author's creative choices.
- * Focuses on typos, formatting inconsistencies, and punctuation errors.
+ * Proofreader Mechanical Tool
+ * Analyzes a manuscript for spelling, grammar, typos.
  */
-class Proofreader extends BaseTool {
+class ProofreaderMechanical extends BaseTool {
   /**
    * Constructor
    * @param {Object} claudeService - Claude API service
    * @param {Object} config - Tool configuration
    */
   constructor(claudeService, config = {}) {
-    super('proofreader', config);
+    super('proofreader_mechanical', config);
     this.claudeService = claudeService;
   }
 
@@ -28,10 +27,10 @@ class Proofreader extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing Proofreader with options:', options);
+    console.log('Executing Proofreader Mechanical with options:', options);
     
     // Clear the cache for this tool
-    const toolName = 'proofreader';
+    const toolName = 'proofreader_mechanical';
     fileCache.clear(toolName);
     
     // Extract options
@@ -52,19 +51,14 @@ class Proofreader extends BaseTool {
     const outputFiles = [];
     
     try {
-      // Read the input files
       this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
-      // console.log(">>> Original manuscript lines:", manuscriptContent.split('\n').length);
-
+      const manuscriptWordCount = this.countWords(manuscriptContent);
+      const manuscriptTokens = await this.claudeService.countTokens(manuscriptContent);
       const manuscriptWithoutChapterHeaders = textProcessor.processText(manuscriptContent)
-      // console.log(">>> Processed manuscript lines:", manuscriptWithoutChapterHeaders.split('\n').length);
       
-      // Create prompt using the template with language substitution
+      // Create prompt using the template with language
       const prompt = this.createPrompt(manuscriptWithoutChapterHeaders, language);
-
-      // Count tokens in the prompt
-      this.emitOutput(`Counting tokens in prompt...\n`);
       const promptTokens = await this.claudeService.countTokens(prompt);
 
       // Call the shared token budget calculator
@@ -72,8 +66,10 @@ class Proofreader extends BaseTool {
 
       // Handle logging based on the returned values
       this.emitOutput(`\nToken stats:\n`);
+      this.emitOutput(`Manuscript is ${manuscriptWordCount} words and ${manuscriptTokens} tokens.\n`);
+      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}]\n`);
+      this.emitOutput(`\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -96,7 +92,7 @@ class Proofreader extends BaseTool {
       
       // Add a message about waiting
       this.emitOutput(`\n****************************************************************************\n`);
-      this.emitOutput(`*  Proofreading manuscript for ${language} creative fiction...\n`);
+      this.emitOutput(`*  Proofreading manuscript for ${language} ...\n`);
       this.emitOutput(`*  \n`);
       this.emitOutput(`*  This process typically takes several minutes.\n`);
       this.emitOutput(`*                                                                          \n`);
@@ -196,7 +192,7 @@ class Proofreader extends BaseTool {
         outputFiles
       };
     } catch (error) {
-      console.error('Error in Proofreader:', error);
+      console.error('Error in Proofreader Mechanical:', error);
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
@@ -328,7 +324,7 @@ At the end, confirm you checked ONLY for mechanical errors and ignored all consi
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const baseFilename = `proofreading_${language.toLowerCase()}_${timestamp}`;
+      const baseFilename = `proofreader_mechanical_${language.toLowerCase()}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];
@@ -356,11 +352,11 @@ Output tokens: ${responseTokens}
       // Save thinking content if available
       if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
-        const thinkingContent = `=== PROOFREADER THINKING ===
+        const thinkingContent = `=== PROOFREADERMECHANICAL THINKING ===
 
 ${thinking}
 
-=== END PROOFREADER THINKING ===
+=== END PROOFREADERMECHANICAL THINKING ===
 ${stats}`;
         
         const thinkingReportPath = path.join(saveDir, thinkingFilename);
@@ -378,4 +374,4 @@ ${stats}`;
   }
 }
 
-module.exports = Proofreader;
+module.exports = ProofreaderMechanical;

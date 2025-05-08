@@ -101,7 +101,7 @@ const NarrativeIntegrity = loadToolClass('narrative-integrity');
 const DevelopmentalEditing = loadToolClass('developmental-editing');
 const LineEditing = loadToolClass('line-editing');
 const CopyEditing = loadToolClass('copy_editing');
-const Proofreader = loadToolClass('proofreader');
+const ProofreaderMechanical = loadToolClass('proofreader-mechanical');
 const CharacterAnalyzer = loadToolClass('character-analyzer');
 const TenseConsistencyChecker = loadToolClass('tense-consistency-checker');
 const AdjectiveAdverbOptimizer = loadToolClass('adjective-adverb-optimizer');
@@ -282,12 +282,38 @@ const TOOL_DEFS = [
       "group": "Settings"
     }
   ]},
-  { id: 'proofreader', title: `Proofreader`, description: `Performs proofreading for an entire manuscript, with all chapter numbers/headers removed. Checks for typos, formatting inconsistencies, punctuation errors, and dialogue formatting issues while preserving the author's creative choices and writing style.`, Class: Proofreader, options: [
+  { id: 'proofreader_mechanical', title: `Proofreader Mechanical`, description: `Performs proofreading for an entire manuscript. Mechanical checks for spelling, typos, punctuation, and grammar.`, Class: ProofreaderMechanical, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
       "type": "file",
-      "description": "Fiction manuscript file to proofread. \nNote: the manuscript must have numbered chapters like: 'Chapter: 1 This is chapter one'.",
+      "description": "Manuscript file to proofread.",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": ["txt"]
+        }
+      ],
+      "group": "Input Files"
+    },
+    {
+      "name": "language",
+      "label": "Language",
+      "type": "text",
+      "description": "Language for proofreading (e.g., English, Spanish, French)",
+      "required": false,
+      "default": "English",
+      "group": "Settings"
+    }
+  ]},
+  { id: 'proofreader_plot_consistency', title: `Proofreader Plot Consistency`, description: `Focused solely on plot inconsistencies.`, Class: ProofreaderMechanical, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Manuscript file to proofread.",
       "required": true,
       "default": "manuscript.txt",
       "filters": [

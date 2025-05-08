@@ -276,7 +276,7 @@ class ClaudeAPIService {
             }
           } else if (event.content_block.type == "text") {
             if (onStatus && typeof onStatus === 'function') {
-              onStatus(`\n🗣️ here comes the 🤖 response...`);
+              onStatus(`\n🗣️ now 🤖 responding...`);
             }
           }
         }
