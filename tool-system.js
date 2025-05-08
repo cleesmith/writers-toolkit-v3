@@ -47,11 +47,11 @@ function loadToolClass(toolName) {
   
   // Get the directory where tool-system.js is located
   const baseDir = __dirname;
-  console.log(`Base directory for tool loading: ${baseDir}`);
+  // console.log(`Base directory for tool loading: ${baseDir}`);
   
   // Safe logging that works in any context
   function log(message) {
-    console.log(message);
+    // console.log(message);
     if (typeof global.logToFile === 'function') {
       global.logToFile(`[tool-system] ${message}`);
     }
@@ -67,9 +67,9 @@ function loadToolClass(toolName) {
     
     // Check if file exists
     if (fs.existsSync(modulePath)) {
-      log(`File exists at: ${modulePath}`);
+      // log(`File exists at: ${modulePath}`);
       const module = require(modulePath);
-      log(`Successfully loaded module: ${hyphenatedName}.js`);
+      // log(`Successfully loaded module: ${hyphenatedName}.js`);
       return module;
     } else {
       log(`ERROR: Tool file not found at: ${modulePath}`);

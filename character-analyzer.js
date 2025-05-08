@@ -162,7 +162,6 @@ class CharacterAnalyzer extends BaseTool {
           },
           // callback for thinking content
           (thinkingDelta) => {
-            // this.emitOutput(`.`);
             thinkingContent += thinkingDelta;
           },
           // callback for response text
