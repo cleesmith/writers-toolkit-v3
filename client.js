@@ -272,11 +272,11 @@ class ClaudeAPIService {
         if (event.type === "content_block_start") {
           if (event.content_block.type == "thinking") {
             if (onStatus && typeof onStatus === 'function') {
-              onStatus(`\n🧍🏽stand by 🤓 thinking...`);
+              onStatus(`\n🧍🏽stand by 🤓 thinking...\n\n`);
             }
           } else if (event.content_block.type == "text") {
             if (onStatus && typeof onStatus === 'function') {
-              onStatus(`\n🗣️ now 🤖 responding...`);
+              onStatus(`\n🗣️ now 🤖 responding...\n\n`);
             }
           }
         }

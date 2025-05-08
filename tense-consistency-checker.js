@@ -28,7 +28,7 @@ class TenseConsistencyChecker extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing TenseConsistencyChecker with options:', options);
+    console.log('Executing Tense Consistency Checker with options:', options);
     
     // Extract options
     let manuscriptFile = options.manuscript_file;
@@ -59,12 +59,11 @@ class TenseConsistencyChecker extends BaseTool {
       // Read the manuscript file
       this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
+      const manuscriptWordCount = this.countWords(manuscriptContent);
+      const manuscriptTokens = await this.claudeService.countTokens(manuscriptContent);
       
-      // Create the prompt
       const prompt = this.createTenseAnalysisPrompt(manuscriptContent, analysisLevel, chapterMarkers);
 
-      // Count tokens in the prompt
-      this.emitOutput(`Counting tokens in prompt...\n`);
       const promptTokens = await this.claudeService.countTokens(prompt);
 
       // Call the shared token budget calculator
@@ -72,8 +71,10 @@ class TenseConsistencyChecker extends BaseTool {
 
       // Handle logging based on the returned values
       this.emitOutput(`\nToken stats:\n`);
+      this.emitOutput(`Manuscript is ${manuscriptWordCount} words and ${manuscriptTokens} tokens.\n`);
+      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}]\n`);
+      this.emitOutput(`\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -97,6 +98,7 @@ class TenseConsistencyChecker extends BaseTool {
       // Add a message about waiting
       this.emitOutput(`****************************************************************************\n`);
       this.emitOutput(`*  Analyzing tense consistency in your manuscript...                        \n`);
+      this.emitOutput(`*  \n`);
       this.emitOutput(`*  This process typically takes several minutes.                           \n`);
       this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  It's recommended to keep this window the sole 'focus'                   \n`);
@@ -104,6 +106,7 @@ class TenseConsistencyChecker extends BaseTool {
       this.emitOutput(`*  network connections are often flakey, like delicate echoes of whispers. \n`);
       this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  So breathe, remove eye glasses, stretch, relax, and be like water 🥋 🧘🏽‍♀️\n`);
+      this.emitOutput(`*  \n`);
       this.emitOutput(`****************************************************************************\n\n`);
       
       const startTime = Date.now();
@@ -115,7 +118,28 @@ class TenseConsistencyChecker extends BaseTool {
 
       // Use the calculated values in the API call
       try {
-        await this.claudeService.streamWithThinking(
+        // await this.claudeService.streamWithThinking(
+        //   prompt,
+        //   {
+        //     model: "claude-3-7-sonnet-20250219",
+        //     system: systemPrompt,
+        //     max_tokens: tokenBudgets.maxTokens,
+        //     thinking: {
+        //       type: "enabled",
+        //       budget_tokens: tokenBudgets.thinkingBudget
+        //     },
+        //     betas: ["output-128k-2025-02-19"]
+        //   },
+        //   // Callback for thinking content
+        //   (thinkingDelta) => {
+        //     thinkingContent += thinkingDelta;
+        //   },
+        //   // Callback for response text
+        //   (textDelta) => {
+        //     fullResponse += textDelta;
+        //   }
+        // );
+        await this.claudeService.streamWithThinkingAndMessageStart(
           prompt,
           {
             model: "claude-3-7-sonnet-20250219",
@@ -127,14 +151,26 @@ class TenseConsistencyChecker extends BaseTool {
             },
             betas: ["output-128k-2025-02-19"]
           },
-          // Callback for thinking content
+          // callback for thinking content
           (thinkingDelta) => {
             thinkingContent += thinkingDelta;
           },
-          // Callback for response text
+          // callback for response text
           (textDelta) => {
             fullResponse += textDelta;
-          }
+          },
+          // callback for message start with stats
+          (messageStart) => {
+            this.emitOutput(`${messageStart}\n`);
+          },
+          // callback for response headers
+          (responseHeaders) => {
+            this.emitOutput(`${responseHeaders}\n`);
+          },
+          // callback for status
+          (callStatus) => {
+            this.emitOutput(`${callStatus}\n`);
+          },
         );
       } catch (error) {
         this.emitOutput(`\nAPI Error: ${error.message}\n`);
@@ -145,7 +181,7 @@ class TenseConsistencyChecker extends BaseTool {
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
       
-      this.emitOutput(`\nCompleted in ${minutes}m ${seconds.toFixed(2)}s.\n`);
+      this.emitOutput(`\nCompleted in: ⏰ ${minutes}m ${seconds.toFixed(2)}s.\n`);
       
       // Count words in response
       const wordCount = this.countWords(fullResponse);
@@ -189,7 +225,7 @@ class TenseConsistencyChecker extends BaseTool {
         }
       };
     } catch (error) {
-      console.error('Error in TenseConsistencyChecker:', error);
+      console.error('Error in Tense Consistency Checker:', error);
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }

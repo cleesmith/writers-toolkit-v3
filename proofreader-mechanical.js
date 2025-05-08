@@ -4,11 +4,11 @@ const path = require('path');
 const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
-const textProcessor = require('./textProcessor');
 
 /**
- * Proofreader Mechanical Tool
- * Analyzes a manuscript for spelling, grammar, typos.
+ * ProofreaderMechanical Tool
+ * Analyzes manuscript specifically for mechanical errors (spelling, grammar, punctuation, formatting)
+ * without checking for any consistency issues. Designed to work efficiently with large manuscripts.
  */
 class ProofreaderMechanical extends BaseTool {
   /**
@@ -27,11 +27,7 @@ class ProofreaderMechanical extends BaseTool {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing Proofreader Mechanical with options:', options);
-    
-    // Clear the cache for this tool
-    const toolName = 'proofreader_mechanical';
-    fileCache.clear(toolName);
+    console.log('Executing Proofreader (Mechanical) with options:', options);
     
     // Extract options
     let manuscriptFile = options.manuscript_file;
@@ -51,26 +47,24 @@ class ProofreaderMechanical extends BaseTool {
     const outputFiles = [];
     
     try {
-      this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
       const manuscriptWordCount = this.countWords(manuscriptContent);
       const manuscriptTokens = await this.claudeService.countTokens(manuscriptContent);
-      const manuscriptWithoutChapterHeaders = textProcessor.processText(manuscriptContent)
       
-      // Create prompt using the template with language
-      const prompt = this.createPrompt(manuscriptWithoutChapterHeaders, language);
+      const prompt = this.createMechanicalProofreadingPrompt(manuscriptContent, language);
+
       const promptTokens = await this.claudeService.countTokens(prompt);
 
       // Call the shared token budget calculator
       const tokenBudgets = this.claudeService.calculateTokenBudgets(promptTokens);
 
-      // Handle logging based on the returned values
+      this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Manuscript is ${manuscriptWordCount} words and ${manuscriptTokens} tokens.\n`);
       this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}]\n`);
       this.emitOutput(`\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-      this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
+      this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}] = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
       this.emitOutput(`Max output tokens: [${tokenBudgets.maxTokens}] tokens\n`);
@@ -88,19 +82,13 @@ class ProofreaderMechanical extends BaseTool {
       }
       
       // Call Claude API with streaming
-      this.emitOutput(`\nSending request to Claude API . . .\n`);
-      
+      this.emitOutput(`Sending request to Claude API . . .\n`);
+
       // Add a message about waiting
-      this.emitOutput(`\n****************************************************************************\n`);
-      this.emitOutput(`*  Proofreading manuscript for ${language} ...\n`);
+      this.emitOutput(`****************************************************************************\n`);
+      this.emitOutput(`*  Proofreading manuscript for ${language} mechanical errors...\n`);
       this.emitOutput(`*  \n`);
-      this.emitOutput(`*  This process typically takes several minutes.\n`);
-      this.emitOutput(`*                                                                          \n`);
-      this.emitOutput(`*  It's recommended to keep this window the sole 'focus'                   \n`);
-      this.emitOutput(`*  and to avoid browsing online or running other apps, as these API        \n`);
-      this.emitOutput(`*  network connections are often flakey, like delicate echoes of whispers. \n`);
-      this.emitOutput(`*                                                                          \n`);
-      this.emitOutput(`*  So breathe, remove eye glasses, stretch, relax, and be like water 🥋 🧘🏽‍♀️\n`);
+      this.emitOutput(`*  This process typically takes several minutes.                           \n`);
       this.emitOutput(`*  \n`);
       this.emitOutput(`****************************************************************************\n\n`);
       
@@ -108,10 +96,9 @@ class ProofreaderMechanical extends BaseTool {
       let fullResponse = "";
       let thinkingContent = "";
       
-      // Create system prompt - more explicit guidance
-      const systemPrompt = "You are a meticulous proofreader. Be thorough and careful. DO NOT use any Markdown formatting - no headers, bullets, numbering, asterisks, hyphens, or any formatting symbols. Plain text only. You must find and report ALL errors, even small ones.";
+      // Create system prompt to avoid markdown and enforce plain text
+      const systemPrompt = "CRITICAL INSTRUCTION: NO Markdown formatting of ANY kind. Never use headers, bullets, or any formatting symbols. Plain text only with standard punctuation.";
 
-      // Use the calculated values in the API call
       try {
         await this.claudeService.streamWithThinkingAndMessageStart(
           prompt,
@@ -170,18 +157,19 @@ class ProofreaderMechanical extends BaseTool {
 
       // Save the report
       const outputFile = await this.saveReport(
+        language,
         fullResponse,
         thinkingContent,
         promptTokens,
         responseTokens,
-        saveDir,
-        language
+        saveDir
       );
       
-      // Add the output files to the result
+      // Add all output files to the result
       outputFiles.push(...outputFile);
       
       // Add files to the cache
+      const toolName = 'proofreader_mechanical';
       outputFiles.forEach(file => {
         fileCache.addFile(toolName, file);
       });
@@ -189,98 +177,45 @@ class ProofreaderMechanical extends BaseTool {
       // Return the result
       return {
         success: true,
-        outputFiles
+        outputFiles,
+        stats: {
+          wordCount,
+          tokenCount: responseTokens,
+          elapsedTime: `${minutes}m ${seconds.toFixed(2)}s`,
+          language
+        }
       };
     } catch (error) {
-      console.error('Error in Proofreader Mechanical:', error);
+      console.error('Error in ProofreaderMechanical:', error);
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
   }
   
   /**
-   * Create prompt
+   * Create mechanical proofreading prompt
    * @param {string} manuscriptContent - Manuscript content
-   * @param {string} language - Language for proofreading (default: English)
+   * @param {string} language - Language of the manuscript
    * @returns {string} - Prompt for Claude API
    */
-//   createPrompt(manuscriptContent, language = 'English') {
-//     // Prompt focused ONLY on mechanical errors, explicitly excluding consistency checks
-//     const template = `You are a professional ${language} proofreader reviewing this manuscript:
-
-// === MANUSCRIPT ===
-// ${manuscriptContent}
-// === END MANUSCRIPT ===
-
-// CORE INSTRUCTION: Conduct a strictly mechanical proofreading of this manuscript. Focus EXCLUSIVELY on spelling, grammar, punctuation, and formatting errors. Do NOT check for consistency issues related to plot, characters, timeline, or story elements.
-
-// WHAT TO CHECK (ONLY):
-// - Spelling errors and typos
-// - Grammar issues (subject-verb agreement, verb tense, etc.)
-// - Punctuation errors (commas, periods, quotation marks, etc.)
-// - Basic formatting errors (paragraph breaks, dialogue formatting)
-
-// WHAT TO EXPLICITLY IGNORE:
-// - Character name consistency across the manuscript
-// - Timeline or chronology consistency
-// - Setting or location consistency
-// - Plot elements or story consistency
-// - Repeated phrases or words across different sections
-// - Any content-related issues
-
-// APPROACH:
-// Divide manuscript mentally into thirds. 
-// Focus ONLY on mechanical errors. 
-// Maintain consistent scrutiny throughout.
-
-// IN A SINGLE PASS OF THE MANUSCRIPT BE LIMITED TO MECHANICAL ISSUES ONLY:
-// 1. Spelling: Check for misspelled words and typos only
-// 2. Grammar: Check for grammatical errors only
-// 3. Punctuation: Check for punctuation errors only
-// 4. Format: Check paragraph and dialogue formatting only
-
-// ERROR REPORTING:
-// For each error:
-// - Number sequentially (e.g., "Spelling Error #1")
-// - Show original text VERBATIM WITHOUT QUOTES
-// - Specify exact mechanical error only
-// - Provide correction
-
-// EXAMPLE:
-// Spelling Error #1:
-// Original text: When John entered the room, he saw three seperate books on the table.
-// Issue: The word "seperate" is misspelled
-// Correction: When John entered the room, he saw three separate books on the table.
-
-// CRITICAL REQUIREMENTS:
-// - Flag ONLY mechanical errors (spelling, grammar, punctuation, formatting)
-// - NEVER flag consistency issues across the manuscript
-// - NEVER add quotation marks to original text
-// - If you find no mechanical errors or very few, that's fine - do not stretch to find issues
-
-// VERIFICATION:
-// At the end, confirm you checked ONLY for mechanical errors and ignored all consistency issues as instructed.`;
-//     return template;
-//   }
-createPrompt(manuscriptContent, language = 'English') {
-  const template = `Review this manuscript for mechanical errors ONLY. Ignore all other types of issues.
-
-=== MANUSCRIPT ===
-${manuscriptContent}
-=== END MANUSCRIPT ===
+  createMechanicalProofreadingPrompt(manuscriptContent, language = 'English') {
+    // Create a focused, plain language prompt that avoids complexity
+    const instructions = `Review this manuscript for mechanical errors ONLY. Ignore all other types of issues.
 
 Focus exclusively on identifying spelling errors, grammar problems, punctuation mistakes, and basic formatting issues. Do not concern yourself with any aspects of consistency across the manuscript. This means you should not track or check character details, timeline elements, setting descriptions, or plot logic. Your task is simply to identify technical writing errors at the sentence level.
 
 For each error you find:
-1. Show the sentence containing the error verbatim WITHOUT adding quotation marks
+1. Show the verbatim sentence containing the error WITHOUT adding quotation marks
 2. Identify the specific error
 3. Provide a correction
 
 Read through the manuscript naturally without creating any tracking systems. Simply note errors as you encounter them. Give equal attention to the entire manuscript from beginning to end.
 
 At the end, briefly confirm that you focused only on mechanical errors.`;
-  return template;
-}
+
+    // Combine manuscript and instructions
+    return `=== MANUSCRIPT ===\n${manuscriptContent}\n=== END MANUSCRIPT ===\n\n${instructions}`;
+  }
 
   /**
    * Count words in text
@@ -308,24 +243,53 @@ At the end, briefly confirm that you focused only on mechanical errors.`;
     // Make the path absolute by joining with the base path
     return path.join(basePath, filePath);
   }
+
+  /**
+   * Remove any markdown formatting from the text
+   * @param {string} text - Text that might contain markdown
+   * @returns {string} - Text with markdown formatting removed
+   */
+  removeMarkdown(text) {
+    // Remove header formatting
+    text = text.replace(/^#+\s+/gm, '');
+    
+    // Remove bullet points
+    text = text.replace(/^[*-]\s+/gm, '');
+    
+    // Remove numbered lists (convert "1. " to just "1. ")
+    text = text.replace(/^\d+\.\s+/gm, match => match);
+    
+    // Remove bold/italic formatting
+    text = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
+    text = text.replace(/(\*|_)(.*?)\1/g, '$2');
+    
+    // Remove code blocks and inline code
+    text = text.replace(/```[\s\S]*?```/g, match => {
+      // Preserve the content inside code blocks
+      return match.replace(/```\w*\n|```$/g, '');
+    });
+    text = text.replace(/`([^`]+)`/g, '$1');
+    
+    return text;
+  }
   
   /**
    * Save report and thinking content to files
+   * @param {string} language - Language of the manuscript
    * @param {string} content - Response content
    * @param {string} thinking - Thinking content
    * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
-   * @param {string} language - Language used for proofreading
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
   async saveReport(
+    language,
     content,
     thinking,
     promptTokens,
     responseTokens,
-    saveDir,
-    language = 'English'
+    saveDir
   ) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
@@ -343,7 +307,7 @@ At the end, briefly confirm that you focused only on mechanical errors.`;
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       
       // Create descriptive filename
-      const baseFilename = `proofreader_mechanical_${language.toLowerCase()}_${timestamp}`;
+      const baseFilename = `proofreading_${language.toLowerCase()}_${timestamp}`;
       
       // Array to collect all saved file paths
       const savedFilePaths = [];
@@ -366,24 +330,24 @@ Output tokens: ${responseTokens}
       const reportPath = path.join(saveDir, reportFilename);
       await this.writeOutputFile(content, saveDir, reportFilename);
       savedFilePaths.push(reportPath);
-      this.emitOutput(`Report saved to: ${reportPath}\n`);
-
-      // Save thinking content if available
+      
+      // Save thinking content if available and not skipped
       if (thinking) {
         const thinkingFilename = `${baseFilename}_thinking.txt`;
-        const thinkingContent = `=== PROOFREADERMECHANICAL THINKING ===
+        const thinkingPath = path.join(saveDir, thinkingFilename);
+        const thinkingContent = `=== PROOFREADER THINKING ===
 
 ${thinking}
 
-=== END PROOFREADERMECHANICAL THINKING ===
+=== END PROOFREADER THINKING ===
 ${stats}`;
         
-        const thinkingReportPath = path.join(saveDir, thinkingFilename);
         await this.writeOutputFile(thinkingContent, saveDir, thinkingFilename);
-        savedFilePaths.push(thinkingReportPath);
-        this.emitOutput(`AI thinking saved to: ${path.join(saveDir, thinkingFilename)}\n`);
+        this.emitOutput(`AI thinking saved to: ${thinkingPath}\n`);
+        savedFilePaths.push(thinkingPath);
       }
-      
+
+      this.emitOutput(`Report saved to: ${reportPath}\n`);
       return savedFilePaths;
     } catch (error) {
       console.error(`Error saving report:`, error);

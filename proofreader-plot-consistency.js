@@ -51,7 +51,6 @@ class ProofreaderPlotConsistency extends BaseTool {
     const outputFiles = [];
     
     try {
-      this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       const manuscriptContent = await this.readInputFile(manuscriptFile);
       const manuscriptWordCount = this.countWords(manuscriptContent);
       const manuscriptTokens = await this.claudeService.countTokens(manuscriptContent);
@@ -64,7 +63,7 @@ class ProofreaderPlotConsistency extends BaseTool {
       // Call the shared token budget calculator
       const tokenBudgets = this.claudeService.calculateTokenBudgets(promptTokens);
 
-      // Handle logging based on the returned values
+      this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Manuscript is ${manuscriptWordCount} words and ${manuscriptTokens} tokens.\n`);
       this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}]\n`);
