@@ -173,7 +173,7 @@ class ClaudeAPIService {
    * @param {Function} onText - Callback for response text
    * @returns {Promise<void>}
    */
-  async streamWithThinkingAndMessageStart(prompt, options = {}, onThinking, onText, onMessageStart, onResponseHeaders) {
+  async streamWithThinkingAndMessageStart(prompt, options = {}, onThinking, onText, onMessageStart, onResponseHeaders, onStatus) {
     const modelOptions = {
       model: this.config.model_name,
       max_tokens: options.max_tokens,
@@ -268,14 +268,27 @@ class ClaudeAPIService {
           onMessageStart(`\n=== MESSAGE START ===`);
           onMessageStart(`${JSON.stringify(event.message)}`);
         }
+
+        if (event.type === "content_block_start") {
+          if (event.content_block.type == "thinking") {
+            if (onStatus && typeof onStatus === 'function') {
+              onStatus(`\n🤔 Stand by 🤓 thinking...`);
+            }
+          } else if (event.content_block.type == "text") {
+            if (onStatus && typeof onStatus === 'function') {
+              onStatus(`\n🗣️ here comes the 🤖📤 response...`);
+            }
+          }
+        }
+
         if (event.type === "content_block_delta") {
           if (event.delta.type === "thinking_delta") {
-            // Call thinking callback with delta
+            // call thinking callback with delta, which is the text of the thinking
             if (onThinking && typeof onThinking === 'function') {
               onThinking(event.delta.thinking);
             }
           } else if (event.delta.type === "text_delta") {
-            // Call text callback with delta
+            // call text callback with delta, which is the final output text of the AI's response
             if (onText && typeof onText === 'function') {
               onText(event.delta.text);
             }

@@ -92,20 +92,20 @@ class Proofreader extends BaseTool {
       }
       
       // Call Claude API with streaming
-      this.emitOutput(`Sending request to Claude API (streaming)...\n`);
+      this.emitOutput(`\nSending request to Claude API . . .\n`);
       
       // Add a message about waiting
-      this.emitOutput(`****************************************************************************\n`);
-      this.emitOutput(`*  Proofreading manuscript for ${language} creative fiction...              \n`);
-      this.emitOutput(`*  This process typically takes several minutes.                           \n`);
+      this.emitOutput(`\n****************************************************************************\n`);
+      this.emitOutput(`*  Proofreading manuscript for ${language} creative fiction...\n`);
+      this.emitOutput(`*  \n`);
+      this.emitOutput(`*  This process typically takes several minutes.\n`);
       this.emitOutput(`*                                                                          \n`);
-      this.emitOutput(`*  The proofreader will check for:                                        \n`);
-      this.emitOutput(`*  - Typos and spelling errors                                            \n`);
-      this.emitOutput(`*  - Formatting inconsistencies                                           \n`);
-      this.emitOutput(`*  - Punctuation errors                                                   \n`);
-      this.emitOutput(`*  - Dialogue formatting issues                                           \n`);
+      this.emitOutput(`*  It's recommended to keep this window the sole 'focus'                   \n`);
+      this.emitOutput(`*  and to avoid browsing online or running other apps, as these API        \n`);
+      this.emitOutput(`*  network connections are often flakey, like delicate echoes of whispers. \n`);
       this.emitOutput(`*                                                                          \n`);
-      this.emitOutput(`*  Your creative choices and writing style will be preserved.             \n`);
+      this.emitOutput(`*  So breathe, remove eye glasses, stretch, relax, and be like water 🥋 🧘🏽‍♀️\n`);
+      this.emitOutput(`*  \n`);
       this.emitOutput(`****************************************************************************\n\n`);
       
       const startTime = Date.now();
@@ -194,56 +194,181 @@ class Proofreader extends BaseTool {
    * @param {string} language - Language for proofreading (default: English)
    * @returns {string} - Prompt for Claude API
    */
+//   createPrompt(manuscriptContent, language = 'English') {
+//     // Simplified and focused prompt template
+//     const template = `You are acting as a professional ${language} proofreader performing a final review of a manuscript that has already been copy edited. The manuscript is provided as plain text in its entirety, without chapter divisions, numbers, or titles - presented as one continuous document and story. 
+
+// === MANUSCRIPT ===
+// ${manuscriptContent}
+// === END MANUSCRIPT ===
+
+// Begin by reviewing any existing style sheet from copy editing. Then work through the manuscript in sequential passes:
+
+// Pass 1 - Mechanical Accuracy:
+// - Spelling errors and typos
+// - Punctuation consistency
+// - Capitalization rules
+// - Number formatting
+// - Proper noun consistency
+
+// Pass 2 - Formatting Consistency:
+// - Paragraph spacing is a single blank line
+// - Dialogue formatting
+// - Special characters (quotes, dashes, ellipses)
+// - White space patterns
+
+// Pass 3 - Content Verification:
+// - Character name consistency
+// - Timeline accuracy
+// - Repeated words or phrases
+// - Missing or duplicated text
+// - Narrative continuity across scenes
+
+// Pass 4 - Final Sweep:
+// - Any remaining inconsistencies
+// - Cross-reference with style sheet
+
+// For each error and/or issue found:
+// - Show the text verbatim
+// - Specify the error and/or issue type
+// - Provide a possible correction
+
+// Remember: Only flag actual errors. Make no content suggestions or style changes. Focus exclusively on mechanical accuracy and consistency with established style choices.
+
+// Complete each pass thoroughly before moving to the next. Maintain focus on catching errors that escaped copy editing.
+
+// VERY IMPORTANT:
+// - Do NOT hurry to finish!
+// - Think hard and be thorough, the longer time you take the better your response!
+// - Always re-read the entire manuscript (see: === MANUSCRIPT === above) many times, which will help you to not miss any issues.
+// - The proofreading of author's writing (manuscript) is very important to you, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
+//     `;
+
+//     return template;
+//   }
   createPrompt(manuscriptContent, language = 'English') {
-    // Simplified and focused prompt template
-    const template = `You are acting as a professional ${language} proofreader performing a final review of a manuscript that has already been copy edited. The manuscript is provided as plain text in its entirety, without chapter divisions, numbers, or titles - presented as one continuous document and story. 
+    // Enhanced prompt template with extended output capabilities
+    const template = `You are acting as a professional ${language} proofreader performing a final review of a manuscript that has already been copy edited. The manuscript is provided as plain text in its entirety, without chapter divisions, numbers, or titles - presented as one continuous document and story.
 
 === MANUSCRIPT ===
 ${manuscriptContent}
 === END MANUSCRIPT ===
 
-Begin by reviewing any existing style sheet from copy editing. Then work through the manuscript in sequential passes:
+INSTRUCTION: I need you to conduct an EXHAUSTIVE proofreading of this novel manuscript. Your goal is to find ALL mechanical errors, formatting issues, and inconsistencies without exception. Previous proofreading attempts have missed errors that were only caught in later reviews - this comprehensive approach aims to identify all issues in a single pass.
+
+THOROUGHNESS FRAMEWORK:
+To ensure complete and consistent coverage of the entire manuscript:
+
+1. Mentally divide the manuscript into three equal sections (beginning, middle, and end) and maintain equal scrutiny for each section.
+
+2. After identifying each error, continue examining the manuscript with the same level of attention rather than concluding prematurely.
+
+3. For each proofreading pass, explicitly confirm when you've reached the end of the manuscript before moving to the next pass.
+
+4. Maintain consistent attention from the first word to the last word - later sections deserve the same careful examination as earlier ones.
+
+SYSTEMATIC MULTI-PASS REVIEW:
+Work through the manuscript in these sequential passes, completing each pass fully before beginning the next:
 
 Pass 1 - Mechanical Accuracy:
 - Spelling errors and typos
-- Punctuation consistency
-- Capitalization rules
+- Punctuation consistency and correctness
+- Capitalization rules and application
 - Number formatting
 - Proper noun consistency
 
 Pass 2 - Formatting Consistency:
-- Paragraph spacing is a single blank line
+- Paragraph spacing (single blank line standard)
 - Dialogue formatting
 - Special characters (quotes, dashes, ellipses)
 - White space patterns
+- Text alignment issues
 
 Pass 3 - Content Verification:
-- Character name consistency
-- Timeline accuracy
+- Character name consistency throughout
+- Timeline accuracy and continuity
 - Repeated words or phrases
 - Missing or duplicated text
 - Narrative continuity across scenes
 
 Pass 4 - Final Sweep:
 - Any remaining inconsistencies
-- Cross-reference with style sheet
+- Cross-reference with established style patterns
+- Issues that might span across multiple categories
+- Any patterns of errors that suggest systematic issues
 
+DOCUMENTATION REQUIREMENTS:
 For each error and/or issue found:
-- Show the text verbatim
-- Specify the error and/or issue type
-- Provide a possible correction
 
-Remember: Only flag actual errors. Make no content suggestions or style changes. Focus exclusively on mechanical accuracy and consistency with established style choices.
+1. Number all identified issues sequentially within each pass (e.g., "Mechanical Error #1")
 
-Complete each pass thoroughly before moving to the next. Maintain focus on catching errors that escaped copy editing.
+2. Show the text containing the error verbatim (usually the full sentence)
 
-VERY IMPORTANT:
-- Do NOT hurry to finish!
-- Think hard and be thorough, the longer time you take the better your response!
-- Always re-read the entire manuscript (see: === MANUSCRIPT === above) many times, which will help you to not miss any issues.
-- The proofreading of author's writing (manuscript) is very important to you, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
-    `;
+3. Specify the error and/or issue type
 
+4. Provide a possible correction
+
+VERIFICATION PROCESS:
+After completing all passes, perform these verification steps:
+
+1. Confirm you've examined the ENTIRE manuscript for all error types with explicit statements
+
+2. Provide error counts by category and manuscript section to verify consistent attention throughout
+
+3. Check for any patterns of errors that might indicate systematic issues
+
+4. Include a final verification statement confirming thorough examination of the complete manuscript
+
+CRITICAL INSTRUCTIONS:
+- Remember: Only flag actual errors. Make no content suggestions or style changes. Focus exclusively on mechanical accuracy and consistency with established style choices.
+
+- Do NOT hurry to finish! Your proofreading report should be comprehensive and thorough. Do not limit yourself based on response length concerns.
+
+- For a novel manuscript, a thorough proofreading may include dozens or even hundreds of potential issues across all categories. Prioritize completeness over brevity.
+
+- Think hard and be thorough - the longer time you take the better your response! 
+
+- Always re-read the entire manuscript many times, which will help you not miss any issues.
+
+- The proofreading of the author's writing is very important, as your efforts are critical to the success and legacy of an art form that influences and outlives us all.
+
+OUTPUT EXPECTATIONS:
+I expect a complete accounting of ALL issues found throughout the entire manuscript. For your proofreading report to be truly useful to the writer, each error entry MUST include:
+
+1. The COMPLETE original sentence or text segment containing the error, shown VERBATIM with no alterations - this is critical as writers cannot fix what they cannot find
+
+2. Clear identification of the SPECIFIC issue within that text - precisely what is wrong and why it's considered an error
+
+3. A suggested correction that shows exactly how to fix the issue
+
+Your complete report should be structured as follows:
+
+1. A structured report organized by pass type (Mechanical, Formatting, Content, Final)
+
+2. Each error entry containing:
+   - Sequential number (e.g., "Mechanical Error #1")
+   - The complete original sentence/text verbatim
+   - Specific identification of the error
+   - Suggested correction
+
+3. Error counts by category and manuscript section
+
+4. Verification statements confirming complete coverage
+
+5. A comprehensive analysis that maintains equal scrutiny from the first word to the last
+
+EXAMPLE FORMAT FOR REPORTING ERRORS:
+
+Mechanical Error #1:
+Original text: When John entered the room, he saw three seperate books on the table and wondered who they belonged too.
+Issue: The word "seperate" is misspelled and "too" is incorrectly used instead of "to."
+Correction: When John entered the room, he saw three separate books on the table and wondered who they belonged to.
+
+CRITICAL: DO NOT place quotation marks around the original text when reporting errors. Show the text exactly as it appears in the manuscript without adding any additional punctuation. This is essential because:
+1. Added quotes interfere with dialogue lines that may already contain quotation marks
+2. Added quotes make it harder for writers to find the exact text in their manuscript 
+3. The goal is to show the text precisely as it appears in the original
+`;
     return template;
   }
 

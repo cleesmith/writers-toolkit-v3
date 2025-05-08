@@ -105,7 +105,7 @@ class CharacterAnalyzer extends BaseTool {
       // Handle logging based on the returned values
       this.emitOutput(`\nToken stats:\n`);
       this.emitOutput(`Max AI model context window: [${tokenBudgets.contextWindow}] tokens\n`);
-      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] ...\n`);
+      this.emitOutput(`Input prompt tokens: [${tokenBudgets.promptTokens}] sent to Claude\n`);
       this.emitOutput(`Available tokens: [${tokenBudgets.availableTokens}]  = ${tokenBudgets.contextWindow} - ${tokenBudgets.promptTokens} = context_window - prompt\n`);
       this.emitOutput(`Desired output tokens: [${tokenBudgets.desiredOutputTokens}]\n`);
       this.emitOutput(`AI model thinking budget: [${tokenBudgets.thinkingBudget}] tokens\n`);
@@ -124,11 +124,12 @@ class CharacterAnalyzer extends BaseTool {
       }
       
       // Call Claude API with streaming
-      this.emitOutput(`Sending request to Claude API (streaming)...\n`);
+      this.emitOutput(`\nSending request to Claude API . . .\n`);
       
       // Add a message about waiting
-      this.emitOutput(`****************************************************************************\n`);
-      this.emitOutput(`*  Analyzing characters across your manuscript and reference documents...  \n`);
+      this.emitOutput(`\n****************************************************************************\n`);
+      this.emitOutput(`*  Analyzing characters in manuscript.  \n`);
+      this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  This process typically takes several minutes.                           \n`);
       this.emitOutput(`*                                                                          \n`);
       this.emitOutput(`*  It's recommended to keep this window the sole 'focus'                   \n`);
@@ -159,23 +160,27 @@ class CharacterAnalyzer extends BaseTool {
             },
             betas: ["output-128k-2025-02-19"]
           },
-          // Callback for thinking content
+          // callback for thinking content
           (thinkingDelta) => {
             // this.emitOutput(`.`);
             thinkingContent += thinkingDelta;
           },
-          // Callback for response text
+          // callback for response text
           (textDelta) => {
             fullResponse += textDelta;
           },
-          // Callback for message start with stats
+          // callback for message start with stats
           (messageStart) => {
             this.emitOutput(`${messageStart}\n`);
           },
-          // Callback for response headers
+          // callback for response headers
           (responseHeaders) => {
             this.emitOutput(`${responseHeaders}\n`);
-          }
+          },
+          // callback for status
+          (callStatus) => {
+            this.emitOutput(`${callStatus}\n`);
+          },
         );
       } catch (error) {
         this.emitOutput(`\nAPI Error: ${error.message}\n`);
