@@ -13,6 +13,7 @@ require('dotenv').config({ path: require('os').homedir() + '/.env' });
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
+const fileCache = require('./file-cache');
 
 let editorDialogWindow = null;
 
@@ -703,12 +704,13 @@ function setupToolHandlers() {
           
           // Add output function to the tool
           tool.emitOutput = sendOutput;
-          
+
+          fileCache.clear(toolName);
+
           // Execute the tool
           const result = await toolSystem.executeToolById(toolName, optionValues, runId);
           
           // Get files from cache
-          const fileCache = require('./file-cache');
           const cachedFiles = fileCache.getFiles(toolName);
           
           // Combine cached files with any files returned by the tool
