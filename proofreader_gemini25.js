@@ -18,7 +18,7 @@ async function main() {
     }
   });
 
-  const manuscriptFilePath = 'cls_manuscript.txt';
+  const manuscriptFilePath = '/Users/chrissmith/writing/HattieGetsAGun/manuscript.txt';
   let manuscriptContent = ''; // For size log
 
   try {
@@ -338,6 +338,7 @@ Now, please provide the analysis for the manuscript above using this exact forma
     }
     console.log(`--- End of File Listing ---`);
   }
+  process.exit(0);
 }
 
 main().catch(error => {
